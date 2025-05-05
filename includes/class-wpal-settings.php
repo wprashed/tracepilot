@@ -1,8 +1,5 @@
 <?php
 class WPAL_Settings {
-    public static function init()  type="code"
-<?php
-class WPAL_Settings {
     public static function init() {
         // Register settings
         register_setting('wpal_settings', 'wpal_retention_days', ['type' => 'integer', 'default' => 30]);
