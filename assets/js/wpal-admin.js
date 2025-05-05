@@ -478,3 +478,235 @@
     }
     
 })(jQuery);
+
+// Add the following code to handle dashboard widgets
+jQuery(document).ready(function($) {
+    // Dashboard widgets
+    function loadDashboardWidgets() {
+        if ($('#wpal-recent-logs-widget').length) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'wpal_get_recent_logs',
+                    nonce: wpal_admin_vars.nonce
+                },
+                success: function(response) {
+                    $('#wpal-recent-logs-widget').html(response);
+                },
+                error: function() {
+                    $('#wpal-recent-logs-widget').html('<div class="alert alert-danger">Error loading recent logs.</div>');
+                }
+            });
+        }
+        
+        if ($('#wpal-activity-chart-widget').length) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'wpal_get_activity_chart',
+                    nonce: wpal_admin_vars.nonce
+                },
+                success: function(response) {
+                    $('#wpal-activity-chart-widget').html(response);
+                },
+                error: function() {
+                    $('#wpal-activity-chart-widget').html('<div class="alert alert-danger">Error loading activity chart.</div>');
+                }
+            });
+        }
+        
+        if ($('#wpal-top-users-widget').length) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'wpal_get_top_users',
+                    nonce: wpal_admin_vars.nonce
+                },
+                success: function(response) {
+                    $('#wpal-top-users-widget').html(response);
+                },
+                error: function() {
+                    $('#wpal-top-users-widget').html('<div class="alert alert-danger">Error loading top users.</div>');
+                }
+            });
+        }
+        
+        if ($('#wpal-severity-breakdown-widget').length) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'wpal_get_severity_breakdown',
+                    nonce: wpal_admin_vars.nonce
+                },
+                success: function(response) {
+                    $('#wpal-severity-breakdown-widget').html(response);
+                },
+                error: function() {
+                    $('#wpal-severity-breakdown-widget').html('<div class="alert alert-danger">Error loading severity breakdown.</div>');
+                }
+            });
+        }
+    }
+    
+    // Load dashboard widgets on page load
+    loadDashboardWidgets();
+    
+    // Refresh dashboard widgets
+    $('.wpal-refresh-widget').on('click', function() {
+        var widget = $(this).data('widget');
+        var widgetContainer = $('#wpal-' + widget + '-widget');
+        
+        widgetContainer.html('<div class="wpal-loading"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'wpal_get_' + widget.replace('-', '_'),
+                nonce: wpal_admin_vars.nonce
+            },
+            success: function(response) {
+                widgetContainer.html(response);
+            },
+            error: function() {
+                widgetContainer.html('<div class="alert alert-danger">Error refreshing widget.</div>');
+            }
+        });
+    });
+    
+    // Diagnostic tools
+    $('#wpal-run-diagnostics').on('click', function() {
+        var resultsContainer = $('#wpal-diagnostics-results');
+        
+        resultsContainer.html('<div class="wpal-loading"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'wpal_run_diagnostics',
+                nonce: wpal_admin_vars.nonce
+            },
+            success: function(response) {
+                var html = '<div class="alert alert-' + (response.status === 'success' ? 'success' : 'danger') + '">' + response.message + '</div>';
+                
+                if (response.details && response.details.length) {
+                    html += '<table class="table table-sm">';
+                    html += '<thead><tr><th>Test</th><th>Status</th><th>Message</th></tr></thead>';
+                    html += '<tbody>';
+                    
+                    $.each(response.details, function(i, detail) {
+                        var statusClass = '';
+                        
+                        if (detail.status === 'pass') {
+                            statusClass = 'success';
+                        } else if (detail.status === 'fail') {
+                            statusClass = 'danger';
+                        } else if (detail.status === 'warning') {
+                            statusClass = 'warning';
+                        } else {
+                            statusClass = 'info';
+                        }
+                        
+                        html += '<tr>';
+                        html += '<td>' + detail.test + '</td>';
+                        html += '<td><span class="badge bg-' + statusClass + '">' + detail.status.toUpperCase() + '</span></td>';
+                        html += '<td>' + detail.message + '</td>';
+                        html += '</tr>';
+                    });
+                    
+                    html += '</tbody></table>';
+                }
+                
+                resultsContainer.html(html);
+            },
+            error: function() {
+                resultsContainer.html('<div class="alert alert-danger">Error running diagnostics.</div>');
+            }
+        });
+    });
+    
+    $('#wpal-repair-database').on('click', function() {
+        if (!confirm('Are you sure you want to repair the database table? This will recreate the table if it doesn\'t exist.')) {
+            return;
+        }
+        
+        var resultsContainer = $('#wpal-diagnostics-results');
+        
+        resultsContainer.html('<div class="wpal-loading"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'wpal_repair_database',
+                nonce: wpal_admin_vars.nonce
+            },
+            success: function(response) {
+                resultsContainer.html('<div class="alert alert-' + (response.status === 'success' ? 'success' : 'danger') + '">' + response.message + '</div>');
+            },
+            error: function() {
+                resultsContainer.html('<div class="alert alert-danger">Error repairing database.</div>');
+            }
+        });
+    });
+    
+    $('#wpal-test-rest-api').on('click', function() {
+        var resultsContainer = $('#wpal-diagnostics-results');
+        
+        resultsContainer.html('<div class="wpal-loading"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'wpal_test_rest_api',
+                nonce: wpal_admin_vars.nonce
+            },
+            success: function(response) {
+                var html = '<div class="alert alert-' + (response.status === 'success' ? 'success' : 'danger') + '">' + response.message + '</div>';
+                
+                if (response.details) {
+                    html += '<pre>' + JSON.stringify(response.details, null, 2) + '</pre>';
+                }
+                
+                resultsContainer.html(html);
+            },
+            error: function() {
+                resultsContainer.html('<div class="alert alert-danger">Error testing REST API.</div>');
+            }
+        });
+    });
+    
+    $('#wpal-clear-logs').on('click', function() {
+        if (!confirm('Are you sure you want to clear all logs? This action cannot be undone.')) {
+            return;
+        }
+        
+        var resultsContainer = $('#wpal-diagnostics-results');
+        
+        resultsContainer.html('<div class="wpal-loading"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'wpal_clear_logs',
+                nonce: wpal_admin_vars.nonce
+            },
+            success: function(response) {
+                resultsContainer.html('<div class="alert alert-' + (response.status === 'success' ? 'success' : 'danger') + '">' + response.message + '</div>');
+                
+                // Refresh widgets after clearing logs
+                loadDashboardWidgets();
+            },
+            error: function() {
+                resultsContainer.html('<div class="alert alert-danger">Error clearing logs.</div>');
+            }
+        });
+    });
+});
