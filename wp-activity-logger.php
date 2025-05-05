@@ -431,3 +431,66 @@ function wpal_plugin_meta_links($links, $file) {
     return $links;
 }
 add_filter('plugin_row_meta', 'wpal_plugin_meta_links', 10, 2);
+
+// Find the register_admin_menu method and update it to ensure the dashboard page is properly registered
+public function register_admin_menu() {
+    add_menu_page(
+        'Activity Logs',
+        'Activity Logs',
+        'manage_options',
+        'wp-activity-logger-pro',
+        [$this, 'render_logs_page'],
+        'dashicons-chart-line',
+        30
+    );
+    
+    add_submenu_page(
+        'wp-activity-logger-pro',
+        'View Logs',
+        'View Logs',
+        'manage_options',
+        'wp-activity-logger-pro',
+        [$this, 'render_logs_page']
+    );
+    
+    add_submenu_page(
+        'wp-activity-logger-pro',
+        'Dashboard',
+        'Dashboard',
+        'manage_options',
+        'wp-activity-logger-pro-dashboard',
+        [$this, 'render_dashboard_page']
+    );
+    
+    add_submenu_page(
+        'wp-activity-logger-pro',
+        'Export',
+        'Export',
+        'manage_options',
+        'wp-activity-logger-pro-export',
+        [$this, 'render_export_page']
+    );
+    
+    add_submenu_page(
+        'wp-activity-logger-pro',
+        'Settings',
+        'Settings',
+        'manage_options',
+        'wp-activity-logger-pro-settings',
+        [$this, 'render_settings_page']
+    );
+    
+    add_submenu_page(
+        'wp-activity-logger-pro',
+        'Diagnostics',
+        'Diagnostics',
+        'manage_options',
+        'wp-activity-logger-pro-diagnostics',
+        [$this, 'render_diagnostics_page']
+    );
+}
+
+// Add the render_dashboard_page method if it doesn't exist
+public function render_dashboard_page() {
+    WPAL_Dashboard::render_dashboard_page();
+}
