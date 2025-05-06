@@ -20,376 +20,458 @@ class WPAL_Helpers {
     }
     
     /**
-     * Create the database table
+     * Format datetime
+     *
+     * @param string $datetime
+     * @return string
      */
-    public static function create_db_table() {
-        global $wpdb;
-        
-        $charset_collate = $wpdb->get_charset_collate();
-        
-        $sql = "CREATE TABLE " . self::$db_table . " (
-            id bigint(20) NOT NULL AUTO_INCREMENT,
-            time datetime NOT NULL,
-            user_id bigint(20) NOT NULL,
-            username varchar(60) NOT NULL,
-            user_role varchar(255) NOT NULL,
-            action text NOT NULL,
-            ip varchar(45) NOT NULL,
-            browser varchar(255) NOT NULL,
-            severity varchar(20) NOT NULL DEFAULT 'info',
-            context text,
-            PRIMARY KEY  (id),
-            KEY time (time),
-            KEY user_id (user_id),
-            KEY severity (severity)
-        ) $charset_collate;";
-        
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
+    public static function format_datetime($datetime) {
+        $timestamp = strtotime($datetime);
+        return date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp);
     }
     
     /**
-     * Check and fix database if needed
+     * Get client IP address
+     *
+     * @return string
      */
-    public static function check_and_fix_database() {
-        self::init();
-        
-        global $wpdb;
-        $table_name = self::$db_table;
-        
-        // Check if table exists
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name;
-        
-        if (!$table_exists) {
-            // Table doesn't exist, create it
-            self::create_db_table();
-            
-            // Add some initial data so dashboard doesn't show empty
-            $current_user = wp_get_current_user();
-            $entry = [
-                'time' => current_time('mysql'),
-                'user_id' => $current_user->ID,
-                'username' => $current_user->user_login,
-                'user_role' => implode(', ', $current_user->roles),
-                'action' => 'Database table created',
-                'ip' => $_SERVER['REMOTE_ADDR'] ?? 'Unknown',
-                'browser' => self::get_browser_name(),
-                'severity' => 'info',
-                'context' => json_encode(['automatic' => true]),
-            ];
-            
-            $wpdb->insert(
-                self::$db_table,
-                $entry,
-                [
-                    'time' => '%s',
-                    'user_id' => '%d',
-                    'username' => '%s',
-                    'user_role' => '%s',
-                    'action' => '%s',
-                    'ip' => '%s',
-                    'browser' => '%s',
-                    'severity' => '%s',
-                    'context' => '%s',
-                ]
-            );
+    public static function get_client_ip() {
+        // Check for shared internet/ISP IP
+        if (!empty($_SERVER['HTTP_CLIENT_IP']) && self::validate_ip($_SERVER['HTTP_CLIENT_IP'])) {
+            return $_SERVER['HTTP_CLIENT_IP'];
         }
         
-        return $table_exists;
-    }
-    
-    /**
-     * Clean up old logs
-     */
-    public static function cleanup_old_logs($days = 30) {
-        global $wpdb;
-        
-        // Delete from database
-        $date = date('Y-m-d H:i:s', strtotime("-$days days"));
-        $wpdb->query($wpdb->prepare("DELETE FROM " . self::$db_table . " WHERE time < %s", $date));
-        
-        // Delete from CSV file
-        $csv_file = WPAL_PATH . 'logs/activity.csv';
-        if (file_exists($csv_file)) {
-            // Read the CSV file
-            $lines = file($csv_file);
-            
-            if ($lines) {
-                // Keep the header
-                $header = $lines[0];
-                $new_lines = [$header];
-                
-                // Filter out old entries
-                $cutoff_timestamp = strtotime("-$days days");
-                
-                for ($i = 1; $i < count($lines); $i++) {
-                    $line = $lines[$i];
-                    $fields = str_getcsv($line);
-                    
-                    if (count($fields) > 0) {
-                        $time = strtotime($fields[0]);
-                        
-                        if ($time > $cutoff_timestamp) {
-                            $new_lines[] = $line;
-                        }
-                    }
+        // Check for IPs passing through proxies
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            // Check if multiple IPs exist in HTTP_X_FORWARDED_FOR
+            $iplist = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            foreach ($iplist as $ip) {
+                if (self::validate_ip(trim($ip))) {
+                    return trim($ip);
                 }
-                
-                // Write the filtered lines back to the file
-                file_put_contents($csv_file, implode('', $new_lines));
             }
         }
-    }
-    
-    /**
-     * Get browser name from user agent
-     */
-    public static function get_browser_name() {
-        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Unknown';
         
-        if (strpos($user_agent, 'Opera') || strpos($user_agent, 'OPR/')) {
-            return 'Opera';
-        } elseif (strpos($user_agent, 'Edge')) {
-            return 'Edge';
-        } elseif (strpos($user_agent, 'Chrome')) {
-            return 'Chrome';
-        } elseif (strpos($user_agent, 'Safari')) {
-            return 'Safari';
-        } elseif (strpos($user_agent, 'Firefox')) {
-            return 'Firefox';
-        } elseif (strpos($user_agent, 'MSIE') || strpos($user_agent, 'Trident/7')) {
-            return 'Internet Explorer';
+        // Check for the remote address
+        if (!empty($_SERVER['REMOTE_ADDR']) && self::validate_ip($_SERVER['REMOTE_ADDR'])) {
+            return $_SERVER['REMOTE_ADDR'];
         }
         
-        return 'Unknown';
+        // Fallback to a default IP if none found
+        return '127.0.0.1';
     }
     
     /**
-     * Get user's IP address
+     * Validate IP address
+     *
+     * @param string $ip
+     * @return bool
      */
-    public static function get_ip_address() {
-        $ip_keys = [
-            'HTTP_CLIENT_IP',
-            'HTTP_X_FORWARDED_FOR',
-            'HTTP_X_FORWARDED',
-            'HTTP_X_CLUSTER_CLIENT_IP',
-            'HTTP_FORWARDED_FOR',
-            'HTTP_FORWARDED',
-            'REMOTE_ADDR',
+    public static function validate_ip($ip) {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * Get user browser
+     *
+     * @return string
+     */
+    public static function get_browser() {
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        
+        if (empty($user_agent)) {
+            return 'Unknown';
+        }
+        
+        $browser = 'Unknown';
+        
+        if (preg_match('/MSIE/i', $user_agent) && !preg_match('/Opera/i', $user_agent)) {
+            $browser = 'Internet Explorer';
+        } elseif (preg_match('/Trident/i', $user_agent)) {
+            $browser = 'Internet Explorer';
+        } elseif (preg_match('/Edge/i', $user_agent)) {
+            $browser = 'Microsoft Edge';
+        } elseif (preg_match('/Firefox/i', $user_agent)) {
+            $browser = 'Mozilla Firefox';
+        } elseif (preg_match('/Chrome/i', $user_agent) && !preg_match('/Edge/i', $user_agent)) {
+            $browser = 'Google Chrome';
+        } elseif (preg_match('/Safari/i', $user_agent) && !preg_match('/Chrome/i', $user_agent)) {
+            $browser = 'Apple Safari';
+        } elseif (preg_match('/Opera/i', $user_agent)) {
+            $browser = 'Opera';
+        } elseif (preg_match('/Netscape/i', $user_agent)) {
+            $browser = 'Netscape';
+        }
+        
+        return $browser;
+    }
+    
+    /**
+     * Get user OS
+     *
+     * @return string
+     */
+    public static function get_os() {
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        
+        if (empty($user_agent)) {
+            return 'Unknown';
+        }
+        
+        $os_platform = 'Unknown';
+        
+        $os_array = [
+            '/windows nt 10/i'      => 'Windows 10',
+            '/windows nt 6.3/i'     => 'Windows 8.1',
+            '/windows nt 6.2/i'     => 'Windows 8',
+            '/windows nt 6.1/i'     => 'Windows 7',
+            '/windows nt 6.0/i'     => 'Windows Vista',
+            '/windows nt 5.2/i'     => 'Windows Server 2003/XP x64',
+            '/windows nt 5.1/i'     => 'Windows XP',
+            '/windows xp/i'         => 'Windows XP',
+            '/windows nt 5.0/i'     => 'Windows 2000',
+            '/windows me/i'         => 'Windows ME',
+            '/win98/i'              => 'Windows 98',
+            '/win95/i'              => 'Windows 95',
+            '/win16/i'              => 'Windows 3.11',
+            '/macintosh|mac os x/i' => 'Mac OS X',
+            '/mac_powerpc/i'        => 'Mac OS 9',
+            '/linux/i'              => 'Linux',
+            '/ubuntu/i'             => 'Ubuntu',
+            '/iphone/i'             => 'iPhone',
+            '/ipod/i'               => 'iPod',
+            '/ipad/i'               => 'iPad',
+            '/android/i'            => 'Android',
+            '/blackberry/i'         => 'BlackBerry',
+            '/webos/i'              => 'Mobile'
         ];
         
-        foreach ($ip_keys as $key) {
-            if (isset($_SERVER[$key]) && filter_var($_SERVER[$key], FILTER_VALIDATE_IP)) {
-                return $_SERVER[$key];
+        foreach ($os_array as $regex => $value) {
+            if (preg_match($regex, $user_agent)) {
+                $os_platform = $value;
+                break;
             }
         }
         
-        return 'Unknown';
+        return $os_platform;
     }
     
     /**
-     * Get user role(s)
+     * Get current user info
+     *
+     * @return array
      */
-    public static function get_user_role($user_id) {
-        $user = get_userdata($user_id);
+    public static function get_current_user_info() {
+        $current_user = wp_get_current_user();
         
-        if ($user && !empty($user->roles)) {
-            return implode(', ', $user->roles);
+        if (empty($current_user) || !$current_user->exists()) {
+            return [
+                'id' => 0,
+                'username' => 'Guest',
+                'role' => 'Guest'
+            ];
         }
         
-        return 'Guest';
+        $user_roles = $current_user->roles;
+        $user_role = !empty($user_roles) ? ucfirst($user_roles[0]) : 'Unknown';
+        
+        return [
+            'id' => $current_user->ID,
+            'username' => $current_user->user_login,
+            'role' => $user_role
+        ];
     }
     
     /**
-     * Format date and time
+     * Log activity
+     *
+     * @param string $action
+     * @param string $severity
+     * @param array $context
+     * @return bool
      */
-    public static function format_datetime($datetime, $format = 'Y-m-d H:i:s') {
-        return date_i18n($format, strtotime($datetime));
-    }
-    
-    /**
-     * Get severity badge HTML
-     */
-    public static function get_severity_badge($severity) {
-        $class = 'bg-success';
-        
-        if ($severity === 'warning') {
-            $class = 'bg-warning';
-        } elseif ($severity === 'error') {
-            $class = 'bg-danger';
-        }
-        
-        return '<span class="badge ' . $class . '">' . strtoupper($severity) . '</span>';
-    }
-    
-    /**
-     * Get pagination HTML
-     */
-    public static function get_pagination($total_items, $per_page, $current_page, $base_url) {
-        $total_pages = ceil($total_items / $per_page);
-        
-        if ($total_pages <= 1) {
-            return '';
-        }
-        
-        $html = '<div class="pagination">';
-        
-        // Previous button
-        if ($current_page > 1) {
-            $html .= '<a href="' . add_query_arg('paged', ($current_page - 1), $base_url) . '" class="button">&laquo; ' . __('Previous', 'wp-activity-logger-pro') . '</a>';
-        } else {
-            $html .= '<span class="button disabled">&laquo; ' . __('Previous', 'wp-activity-logger-pro') . '</span>';
-        }
-        
-        // Page numbers
-        $start_page = max(1, $current_page - 2);
-        $end_page = min($total_pages, $current_page + 2);
-        
-        if ($start_page > 1) {
-            $html .= '<a href="' . add_query_arg('paged', 1, $base_url) . '" class="button">1</a>';
-            
-            if ($start_page > 2) {
-                $html .= '<span class="button disabled">...</span>';
-            }
-        }
-        
-        for ($i = $start_page; $i <= $end_page; $i++) {
-            if ($i == $current_page) {
-                $html .= '<span class="button button-primary">' . $i . '</span>';
-            } else {
-                $html .= '<a href="' . add_query_arg('paged', $i, $base_url) . '" class="button">' . $i . '</a>';
-            }
-        }
-        
-        if ($end_page < $total_pages) {
-            if ($end_page < $total_pages - 1) {
-                $html .= '<span class="button disabled">...</span>';
-            }
-            
-            $html .= '<a href="' . add_query_arg('paged', $total_pages, $base_url) . '" class="button">' . $total_pages . '</a>';
-        }
-        
-        // Next button
-        if ($current_page < $total_pages) {
-            $html .= '<a href="' . add_query_arg('paged', ($current_page + 1), $base_url) . '" class="button">' . __('Next', 'wp-activity-logger-pro') . ' &raquo;</a>';
-        } else {
-            $html .= '<span class="button disabled">' . __('Next', 'wp-activity-logger-pro') . ' &raquo;</span>';
-        }
-        
-        $html .= '</div>';
-        
-        return $html;
-    }
-    
-    /**
-     * Sanitize and validate data
-     */
-    public static function sanitize_data($data, $type = 'text') {
-        switch ($type) {
-            case 'email':
-                return sanitize_email($data);
-            
-            case 'url':
-                return esc_url_raw($data);
-            
-            case 'int':
-                return intval($data);
-            
-            case 'float':
-                return floatval($data);
-            
-            case 'bool':
-                return (bool) $data;
-            
-            case 'array':
-                return is_array($data) ? array_map('sanitize_text_field', $data) : [];
-            
-            case 'html':
-                return wp_kses_post($data);
-            
-            case 'json':
-                return json_encode(json_decode($data));
-            
-            case 'text':
-            default:
-                return sanitize_text_field($data);
-        }
-    }
-    
-    /**
-     * Write log to database and/or file
-     * This is the missing method that was causing the error
-     */
-    public static function write_log($log_data) {
+    public static function log_activity($action, $severity = 'info', $context = []) {
         global $wpdb;
-        self::init();
         
-        // Get log storage option
-        $log_storage = get_option('wpal_log_storage', 'both');
-        
-        // Write to database
-        if ($log_storage === 'database' || $log_storage === 'both') {
-            $wpdb->insert(
-                self::$db_table,
-                $log_data,
-                [
-                    'time' => '%s',
-                    'user_id' => '%d',
-                    'username' => '%s',
-                    'user_role' => '%s',
-                    'action' => '%s',
-                    'ip' => '%s',
-                    'browser' => '%s',
-                    'severity' => '%s',
-                    'context' => '%s',
-                ]
-            );
-            
-            // Get the inserted log ID
-            $log_id = $wpdb->insert_id;
-            
-            // Create log object for hooks
-            if ($log_id) {
-                $log = (object) $log_data;
-                $log->id = $log_id;
-                
-                // Trigger action for notifications
-                do_action('wpal_log_created', $log);
-                
-                return $log_id;
-            }
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
         }
         
-        // Write to CSV file
-        if ($log_storage === 'file' || $log_storage === 'both') {
-            $csv_file = WPAL_PATH . 'logs/activity.csv';
-            
-            // Create directory if it doesn't exist
-            $log_dir = WPAL_PATH . 'logs/';
-            if (!file_exists($log_dir)) {
-                mkdir($log_dir, 0755, true);
-            }
-            
-            // Create file with header if it doesn't exist
-            if (!file_exists($csv_file)) {
-                file_put_contents($csv_file, "Time,User,Action,IP,UserRole,Browser,Severity\n");
-            }
-            
-            // Append log entry
-            $line = sprintf(
-                "%s,%s,%s,%s,%s,%s,%s\n",
-                $log_data['time'],
-                $log_data['username'],
-                str_replace(',', ';', $log_data['action']),
-                $log_data['ip'],
-                str_replace(',', ';', $log_data['user_role']),
-                $log_data['browser'],
-                $log_data['severity']
-            );
-            
-            file_put_contents($csv_file, $line, FILE_APPEND);
+        // Get user info
+        $user_info = self::get_current_user_info();
+        
+        // Get IP and browser
+        $ip = self::get_client_ip();
+        $browser = self::get_browser();
+        
+        // Prepare context
+        $context_json = !empty($context) ? json_encode($context) : '{}';
+        
+        // Insert log
+        $result = $wpdb->insert(
+            self::$db_table,
+            [
+                'user_id' => $user_info['id'],
+                'username' => $user_info['username'],
+                'user_role' => $user_info['role'],
+                'action' => $action,
+                'severity' => $severity,
+                'ip' => $ip,
+                'browser' => $browser,
+                'context' => $context_json,
+                'time' => current_time('mysql')
+            ],
+            [
+                '%d',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s'
+            ]
+        );
+        
+        return $result !== false;
+    }
+    
+    /**
+     * Get log by ID
+     *
+     * @param int $id
+     * @return object|null
+     */
+    public static function get_log($id) {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
         }
         
-        return false;
+        return $wpdb->get_row($wpdb->prepare("SELECT * FROM " . self::$db_table . " WHERE id = %d", $id));
+    }
+    
+    /**
+     * Delete log by ID
+     *
+     * @param int $id
+     * @return bool
+     */
+    public static function delete_log($id) {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        $result = $wpdb->delete(
+            self::$db_table,
+            ['id' => $id],
+            ['%d']
+        );
+        
+        return $result !== false;
+    }
+    
+    /**
+     * Delete all logs
+     *
+     * @return bool
+     */
+    public static function delete_all_logs() {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        $result = $wpdb->query("TRUNCATE TABLE " . self::$db_table);
+        
+        return $result !== false;
+    }
+    
+    /**
+     * Delete old logs
+     *
+     * @param int $days
+     * @return bool
+     */
+    public static function delete_old_logs($days) {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        $date = date('Y-m-d H:i:s', strtotime('-' . $days . ' days'));
+        
+        $result = $wpdb->query($wpdb->prepare("DELETE FROM " . self::$db_table . " WHERE time < %s", $date));
+        
+        return $result !== false;
+    }
+    
+    /**
+     * Get logs count
+     *
+     * @return int
+     */
+    public static function get_logs_count() {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        return $wpdb->get_var("SELECT COUNT(*) FROM " . self::$db_table);
+    }
+    
+    /**
+     * Get logs by user
+     *
+     * @param int $user_id
+     * @param int $limit
+     * @return array
+     */
+    public static function get_logs_by_user($user_id, $limit = 10) {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        return $wpdb->get_results($wpdb->prepare("SELECT * FROM " . self::$db_table . " WHERE user_id = %d ORDER BY time DESC LIMIT %d", $user_id, $limit));
+    }
+    
+    /**
+     * Get logs by severity
+     *
+     * @param string $severity
+     * @param int $limit
+     * @return array
+     */
+    public static function get_logs_by_severity($severity, $limit = 10) {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        return $wpdb->get_results($wpdb->prepare("SELECT * FROM " . self::$db_table . " WHERE severity = %s ORDER BY time DESC LIMIT %d", $severity, $limit));
+    }
+    
+    /**
+     * Get logs by action
+     *
+     * @param string $action
+     * @param int $limit
+     * @return array
+     */
+    public static function get_logs_by_action($action, $limit = 10) {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        return $wpdb->get_results($wpdb->prepare("SELECT * FROM " . self::$db_table . " WHERE action = %s ORDER BY time DESC LIMIT %d", $action, $limit));
+    }
+    
+    /**
+     * Get logs by IP
+     *
+     * @param string $ip
+     * @param int $limit
+     * @return array
+     */
+    public static function get_logs_by_ip($ip, $limit = 10) {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        return $wpdb->get_results($wpdb->prepare("SELECT * FROM " . self::$db_table . " WHERE ip = %s ORDER BY time DESC LIMIT %d", $ip, $limit));
+    }
+    
+    /**
+     * Get top users
+     *
+     * @param int $limit
+     * @return array
+     */
+    public static function get_top_users($limit = 5) {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        return $wpdb->get_results($wpdb->prepare("SELECT username, COUNT(*) as count FROM " . self::$db_table . " GROUP BY username ORDER BY count DESC LIMIT %d", $limit));
+    }
+    
+    /**
+     * Get severity breakdown
+     *
+     * @return array
+     */
+    public static function get_severity_breakdown() {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        return $wpdb->get_results("SELECT severity, COUNT(*) as count FROM " . self::$db_table . " GROUP BY severity ORDER BY count DESC");
+    }
+    
+    /**
+     * Get activity over time
+     *
+     * @param int $days
+     * @return array
+     */
+    public static function get_activity_over_time($days = 7) {
+        global $wpdb;
+        
+        // Initialize if not already
+        if (empty(self::$db_table)) {
+            self::init();
+        }
+        
+        $results = $wpdb->get_results($wpdb->prepare("SELECT DATE(time) as date, COUNT(*) as count FROM " . self::$db_table . " WHERE time >= DATE_SUB(NOW(), INTERVAL %d DAY) GROUP BY DATE(time) ORDER BY date ASC", $days));
+        
+        // Fill in missing dates
+        $data = [];
+        $end_date = date('Y-m-d');
+        $start_date = date('Y-m-d', strtotime('-' . ($days - 1) . ' days'));
+        
+        $current_date = $start_date;
+        while ($current_date <= $end_date) {
+            $data[$current_date] = 0;
+            $current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
+        }
+        
+        foreach ($results as $result) {
+            $data[$result->date] = (int) $result->count;
+        }
+        
+        return $data;
     }
 }
