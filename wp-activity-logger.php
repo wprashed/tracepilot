@@ -1,496 +1,412 @@
 <?php
 /**
- * Plugin Name: WP Activity Logger Pro
- * Plugin URI: https://example.com/wp-activity-logger-pro
- * Description: Advanced activity logging for WordPress with enhanced features.
- * Version: 1.2.0
- * Author: Your Name
- * Author URI: https://example.com
- * Text Domain: wp-activity-logger-pro
- * Domain Path: /languages
- */
+* Plugin Name: WP Activity Logger Pro
+* Plugin URI: https://example.com/wp-activity-logger-pro
+* Description: Advanced activity logging for WordPress
+* Version: 1.2.0
+* Author: Your Name
+* Author URI: https://example.com
+* Text Domain: wp-activity-logger-pro
+* Domain Path: /languages
+*/
 
 // Exit if accessed directly
 if (!defined('ABSPATH')) {
     exit;
 }
 
-// Define plugin constants
-define('WPAL_VERSION', '1.2.0');
-define('WPAL_PATH', plugin_dir_path(__FILE__));
-define('WPAL_URL', plugin_dir_url(__FILE__));
-define('WPAL_BASENAME', plugin_basename(__FILE__));
+class WP_Activity_Logger_Pro {
+    /**
+     * Plugin instance
+     *
+     * @var WP_Activity_Logger_Pro
+     */
+    private static $instance;
 
-// Include required files
-require_once WPAL_PATH . 'includes/class-wpal-helpers.php';
-require_once WPAL_PATH . 'includes/class-wpal-tracker.php';
-require_once WPAL_PATH . 'includes/class-wpal-dashboard.php';
-require_once WPAL_PATH . 'includes/class-wpal-notifications.php';
-require_once WPAL_PATH . 'includes/class-wpal-api.php';
-require_once WPAL_PATH . 'includes/class-wpal-export.php';
+    /**
+     * Plugin version
+     *
+     * @var string
+     */
+    public $version = '1.2.0';
+
+    /**
+     * Plugin constructor
+     */
+    public function __construct() {
+        // Define constants
+        $this->define_constants();
+
+        // Include required files
+        $this->includes();
+
+        // Initialize the plugin
+        add_action('plugins_loaded', array($this, 'init'));
+        
+        // Register activation hook
+        register_activation_hook(__FILE__, array($this, 'activate'));
+
+        // Register deactivation hook
+        register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+    }
+
+    /**
+     * Get plugin instance
+     *
+     * @return WP_Activity_Logger_Pro
+     */
+    public static function get_instance() {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
+    /**
+     * Define constants
+     */
+    private function define_constants() {
+        define('WPAL_VERSION', $this->version);
+        define('WPAL_PLUGIN_FILE', __FILE__);
+        define('WPAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
+        define('WPAL_PLUGIN_URL', plugin_dir_url(__FILE__));
+        define('WPAL_PLUGIN_BASENAME', plugin_basename(__FILE__));
+    }
+
+    /**
+     * Include required files
+     */
+    private function includes() {
+        // Include helper functions
+        require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-helpers.php';
+        
+        // Include dashboard class - Make sure this file exists
+        require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-dashboard.php';
+        
+        // Include API class
+        require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-api.php';
+        
+        // Include notifications class
+        require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-notifications.php';
+        
+        // Include export class
+        require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-export.php';
+        
+        // Include tracker class
+        require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-tracker.php';
+    }
+
+    /**
+     * Initialize the plugin
+     */
+    public function init() {
+        // Load textdomain - MOVED HERE from constructor to fix the "too early" notice
+        $this->load_textdomain();
+        
+        // Make sure the WPAL_Dashboard class exists before trying to use it
+        if (class_exists('WPAL_Dashboard')) {
+            // Initialize dashboard
+            WPAL_Dashboard::init();
+        }
+        
+        // Initialize API
+        if (class_exists('WPAL_API')) {
+            WPAL_API::init();
+        }
+        
+        // Initialize notifications
+        if (class_exists('WPAL_Notifications')) {
+            WPAL_Notifications::init();
+        }
+        
+        // Initialize tracker
+        if (class_exists('WPAL_Tracker')) {
+            WPAL_Tracker::init();
+        }
+        
+        // Add admin menu
+        add_action('admin_menu', array($this, 'add_admin_menu'));
+        
+        // Add admin scripts
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        
+        // Add admin notices
+        add_action('admin_notices', array($this, 'admin_notices'));
+    }
+
+    /**
+     * Load textdomain
+     */
+    public function load_textdomain() {
+        load_plugin_textdomain('wp-activity-logger-pro', false, dirname(WPAL_PLUGIN_BASENAME) . '/languages');
+    }
+
+    /**
+     * Plugin activation
+     */
+    public function activate() {
+        // Create database table
+        $this->create_table();
+        
+        // Create log directory
+        $this->create_log_directory();
+        
+        // Set default options
+        $this->set_default_options();
+        
+        // Add activation timestamp
+        update_option('wpal_activated', time());
+        
+        // Redirect to dashboard
+        set_transient('wpal_activation_redirect', true, 30);
+    }
+
+    /**
+     * Plugin deactivation
+     */
+    public function deactivate() {
+        // Clear scheduled hooks
+        wp_clear_scheduled_hook('wpal_daily_cleanup');
+        wp_clear_scheduled_hook('wpal_daily_report');
+        wp_clear_scheduled_hook('wpal_scheduled_export');
+    }
+
+    /**
+     * Create database table
+     */
+    private function create_table() {
+        global $wpdb;
+        
+        $table_name = $wpdb->prefix . 'wpal_logs';
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            username varchar(60) NOT NULL,
+            user_role varchar(60) NOT NULL,
+            action varchar(255) NOT NULL,
+            severity varchar(20) NOT NULL,
+            ip varchar(45) NOT NULL,
+            browser varchar(255) NOT NULL,
+            context longtext NOT NULL,
+            time datetime NOT NULL,
+            PRIMARY KEY  (id),
+            KEY user_id (user_id),
+            KEY severity (severity),
+            KEY time (time)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Create log directory
+     */
+    private function create_log_directory() {
+        $upload_dir = wp_upload_dir();
+        $log_dir = $upload_dir['basedir'] . '/wpal-logs';
+        
+        if (!file_exists($log_dir)) {
+            wp_mkdir_p($log_dir);
+        }
+        
+        // Create .htaccess file to protect logs
+        $htaccess_file = $log_dir . '/.htaccess';
+        
+        if (!file_exists($htaccess_file)) {
+            $htaccess_content = "# Deny access to all files
+<Files *>
+    Order Allow,Deny
+    Deny from all
+</Files>";
+            
+            file_put_contents($htaccess_file, $htaccess_content);
+        }
+        
+        // Create index.php file
+        $index_file = $log_dir . '/index.php';
+        
+        if (!file_exists($index_file)) {
+            $index_content = "<?php
+// Silence is golden.";
+            file_put_contents($index_file, $index_content);
+        }
+    }
+
+    /**
+     * Set default options
+     */
+    private function set_default_options() {
+        // General settings
+        add_option('wpal_retention_days', 30);
+        add_option('wpal_log_storage', 'database');
+        add_option('wpal_track_404_errors', 1);
+        add_option('wpal_track_api_requests', 0);
+        
+        // Notification settings
+        add_option('wpal_notification_email', get_option('admin_email'));
+        add_option('wpal_notification_events', array('failed_login', 'plugin_activation', 'plugin_deactivation'));
+        add_option('wpal_daily_report', 0);
+        
+        // Schedule daily cleanup
+        if (!wp_next_scheduled('wpal_daily_cleanup')) {
+            wp_schedule_event(time(), 'daily', 'wpal_daily_cleanup');
+        }
+    }
+
+    /**
+     * Add admin menu
+     */
+    public function add_admin_menu() {
+        // Main menu
+        add_menu_page(
+            __('Activity Logs', 'wp-activity-logger-pro'),
+            __('Activity Logs', 'wp-activity-logger-pro'),
+            'manage_options',
+            'wp-activity-logger-pro',
+            array($this, 'logs_page'),
+            'dashicons-list-view',
+            30
+        );
+        
+        // Logs submenu
+        add_submenu_page(
+            'wp-activity-logger-pro',
+            __('View Logs', 'wp-activity-logger-pro'),
+            __('View Logs', 'wp-activity-logger-pro'),
+            'manage_options',
+            'wp-activity-logger-pro',
+            array($this, 'logs_page')
+        );
+        
+        // Dashboard submenu
+        add_submenu_page(
+            'wp-activity-logger-pro',
+            __('Dashboard', 'wp-activity-logger-pro'),
+            __('Dashboard', 'wp-activity-logger-pro'),
+            'manage_options',
+            'wp-activity-logger-pro-dashboard',
+            array($this, 'dashboard_page')
+        );
+        
+        // Export submenu
+        add_submenu_page(
+            'wp-activity-logger-pro',
+            __('Export', 'wp-activity-logger-pro'),
+            __('Export', 'wp-activity-logger-pro'),
+            'manage_options',
+            'wp-activity-logger-pro-export',
+            array($this, 'export_page')
+        );
+        
+        // Settings submenu
+        add_submenu_page(
+            'wp-activity-logger-pro',
+            __('Settings', 'wp-activity-logger-pro'),
+            __('Settings', 'wp-activity-logger-pro'),
+            'manage_options',
+            'wp-activity-logger-pro-settings',
+            array($this, 'settings_page')
+        );
+        
+        // Diagnostics submenu
+        add_submenu_page(
+            'wp-activity-logger-pro',
+            __('Diagnostics', 'wp-activity-logger-pro'),
+            __('Diagnostics', 'wp-activity-logger-pro'),
+            'manage_options',
+            'wp-activity-logger-pro-diagnostics',
+            array($this, 'diagnostics_page')
+        );
+    }
+
+    /**
+     * Enqueue admin scripts
+     */
+    public function enqueue_admin_scripts($hook) {
+        // Only load on plugin pages
+        if (strpos($hook, 'wp-activity-logger-pro') === false) {
+            return;
+        }
+        
+        // Enqueue styles
+        wp_enqueue_style('wpal-admin', WPAL_PLUGIN_URL . 'assets/css/wpal-admin.css', array(), WPAL_VERSION);
+        
+        // Enqueue scripts
+        wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js', array(), '3.7.1', true);
+        wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', array('jquery'), '5.1.3', true);
+        wp_enqueue_script('datatables-js', 'https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js', array('jquery'), '1.11.5', true);
+        wp_enqueue_script('wpal-admin', WPAL_PLUGIN_URL . 'assets/js/wpal-admin.js', array('jquery', 'chart-js', 'bootstrap-js', 'datatables-js'), WPAL_VERSION, true);
+        
+        // Localize script
+        wp_localize_script('wpal-admin', 'wpal_admin_vars', array(
+            'nonce' => wp_create_nonce('wpal_nonce'),
+            'delete_nonce' => wp_create_nonce('wpal_delete_nonce'),
+            'settings_nonce' => wp_create_nonce('wpal_settings_nonce'),
+            'confirm_delete' => __('Are you sure you want to delete this log entry?', 'wp-activity-logger-pro'),
+            'confirm_delete_all' => __('Are you sure you want to delete all logs? This action cannot be undone.', 'wp-activity-logger-pro')
+        ));
+    }
+
+    /**
+     * Admin notices
+     */
+    public function admin_notices() {
+        // Check for activation redirect
+        if (get_transient('wpal_activation_redirect')) {
+            delete_transient('wpal_activation_redirect');
+            
+            // Only redirect if not already on the dashboard page
+            if (!isset($_GET['page']) || $_GET['page'] !== 'wp-activity-logger-pro-dashboard') {
+                wp_redirect(admin_url('admin.php?page=wp-activity-logger-pro-dashboard'));
+                exit;
+            }
+        }
+    }
+
+    /**
+     * Logs page
+     */
+    public function logs_page() {
+        require_once WPAL_PLUGIN_DIR . 'templates/logs.php';
+    }
+
+    /**
+     * Dashboard page
+     */
+    public function dashboard_page() {
+        require_once WPAL_PLUGIN_DIR . 'templates/dashboard.php';
+    }
+
+    /**
+     * Export page
+     */
+    public function export_page() {
+        require_once WPAL_PLUGIN_DIR . 'templates/export.php';
+    }
+
+    /**
+     * Settings page
+     */
+    public function settings_page() {
+        require_once WPAL_PLUGIN_DIR . 'templates/settings.php';
+    }
+
+    /**
+     * Diagnostics page
+     */
+    public function diagnostics_page() {
+        require_once WPAL_PLUGIN_DIR . 'templates/diagnostics.php';
+    }
+}
 
 // Initialize the plugin
 function wpal_init() {
-    // Initialize classes
-    WPAL_Helpers::init();
-    WPAL_Tracker::init();
-    WPAL_Dashboard::init();
-    WPAL_Notifications::init();
-    WPAL_API::init();
-    WPAL_Export::init();
-    
-    // Check and fix database on activation
-    if (get_option('wpal_db_check_needed', false)) {
-        WPAL_Helpers::check_and_fix_database();
-        delete_option('wpal_db_check_needed');
-    }
-    
-    // Load translations
-    load_plugin_textdomain('wp-activity-logger-pro', false, dirname(WPAL_BASENAME) . '/languages');
-}
-add_action('plugins_loaded', 'wpal_init');
-
-// Plugin activation
-function wpal_activate() {
-    // Create database table
-    WPAL_Helpers::init();
-    WPAL_Helpers::create_db_table();
-    
-    // Create logs directory
-    $log_dir = WPAL_PATH . 'logs/';
-    if (!file_exists($log_dir)) {
-        mkdir($log_dir, 0755, true);
-    }
-    
-    // Create CSV file
-    $csv_file = $log_dir . 'activity.csv';
-    if (!file_exists($csv_file)) {
-        file_put_contents($csv_file, "Time,User,Action,IP,UserRole,Browser,Severity\n");
-    }
-    
-    // Set default options
-    if (!get_option('wpal_retention_days')) {
-        update_option('wpal_retention_days', 30);
-    }
-    
-    if (!get_option('wpal_log_storage')) {
-        update_option('wpal_log_storage', 'both'); // Options: 'database', 'file', 'both'
-    }
-    
-    if (!get_option('wpal_notification_email')) {
-        update_option('wpal_notification_email', get_option('admin_email'));
-    }
-    
-    if (!get_option('wpal_notification_events')) {
-        update_option('wpal_notification_events', ['login_failed', 'plugin_activated', 'plugin_deactivated']);
-    }
-    
-    if (!get_option('wpal_daily_report')) {
-        update_option('wpal_daily_report', true);
-    }
-    
-    if (!get_option('wpal_webhook_url')) {
-        update_option('wpal_webhook_url', '');
-    }
-    
-    if (!get_option('wpal_severity_colors')) {
-        update_option('wpal_severity_colors', [
-            'info' => '#28a745',
-            'warning' => '#ffc107',
-            'error' => '#dc3545',
-        ]);
-    }
-    
-    // Push notification settings
-    if (!get_option('wpal_push_enabled')) {
-        update_option('wpal_push_enabled', false);
-    }
-    
-    // Integration settings
-    if (!get_option('wpal_slack_webhook')) {
-        update_option('wpal_slack_webhook', '');
-    }
-    
-    if (!get_option('wpal_discord_webhook')) {
-        update_option('wpal_discord_webhook', '');
-    }
-    
-    if (!get_option('wpal_telegram_bot_token')) {
-        update_option('wpal_telegram_bot_token', '');
-    }
-    
-    if (!get_option('wpal_telegram_chat_id')) {
-        update_option('wpal_telegram_chat_id', '');
-    }
-    
-    // Flag to check database on next load
-    update_option('wpal_db_check_needed', true);
-    
-    // Log activation
-    WPAL_Tracker::log('Plugin activated: WP Activity Logger Pro', get_current_user_id(), 'info');
-}
-register_activation_hook(__FILE__, 'wpal_activate');
-
-// Plugin deactivation
-function wpal_deactivate() {
-    // Log deactivation
-    WPAL_Tracker::log('Plugin deactivated: WP Activity Logger Pro', get_current_user_id(), 'info');
-    
-    // Clear scheduled events
-    wp_clear_scheduled_hook('wpal_daily_cleanup');
-    wp_clear_scheduled_hook('wpal_daily_report');
-}
-register_deactivation_hook(__FILE__, 'wpal_deactivate');
-
-// Enqueue admin scripts and styles
-function wpal_admin_enqueue_scripts($hook) {
-    // Only load on plugin pages
-    if (strpos($hook, 'wpal-') === false) {
-        return;
-    }
-    
-    // Enqueue Chart.js
-    wp_enqueue_script('chartjs', WPAL_URL . 'assets/js/chart.min.js', [], '3.7.0', true);
-    
-    // Enqueue DataTables
-    wp_enqueue_style('datatables', WPAL_URL . 'assets/css/datatables.min.css', [], '1.10.25');
-    wp_enqueue_script('datatables', WPAL_URL . 'assets/js/datatables.min.js', ['jquery'], '1.10.25', true);
-    
-    // Enqueue plugin styles and scripts
-    wp_enqueue_style('wpal-admin', WPAL_URL . 'assets/css/wpal-admin.css', [], WPAL_VERSION);
-    wp_enqueue_script('wpal-admin', WPAL_URL . 'assets/js/wpal-admin.js', ['jquery', 'chartjs', 'datatables'], WPAL_VERSION, true);
-    
-    // Enqueue push notification script if enabled
-    if (get_option('wpal_push_enabled', false)) {
-        wp_enqueue_script('wpal-push', WPAL_URL . 'assets/js/wpal-push.js', ['jquery'], WPAL_VERSION, true);
-        wp_localize_script('wpal-push', 'WPAL_PUSH', [
-            'enabled' => get_option('wpal_push_enabled', false) ? '1' : '0',
-            'nonce' => wp_create_nonce('wpal_push'),
-            'icon' => WPAL_URL . 'assets/img/notification-icon.png',
-            'logs_url' => admin_url('admin.php?page=wpal-logs'),
-        ]);
-    }
-    
-    // Pass data to JavaScript
-    wp_localize_script('wpal-admin', 'WPAL', [
-        'ajax_url' => admin_url('ajax.php'),
-        'rest_url' => rest_url('wpal/v1/'),
-        'nonce' => wp_create_nonce('wpal_admin'),
-        'export_nonce' => wp_create_nonce('wpal_export'),
-        'delete_nonce' => wp_create_nonce('wpal_delete'),
-        'settings_nonce' => wp_create_nonce('wpal_settings'),
-        'confirm_delete' => __('Are you sure you want to delete this log entry?', 'wp-activity-logger-pro'),
-        'confirm_delete_all' => __('Are you sure you want to delete all log entries? This cannot be undone.', 'wp-activity-logger-pro'),
-        'error_loading' => __('Error loading dashboard data. Please try again.', 'wp-activity-logger-pro'),
-    ]);
-}
-add_action('admin_enqueue_scripts', 'wpal_admin_enqueue_scripts');
-
-// Schedule daily cleanup
-function wpal_schedule_events() {
-    if (!wp_next_scheduled('wpal_daily_cleanup')) {
-        wp_schedule_event(time(), 'daily', 'wpal_daily_cleanup');
-    }
-    
-    if (get_option('wpal_daily_report', false) && !wp_next_scheduled('wpal_daily_report')) {
-        wp_schedule_event(time(), 'daily', 'wpal_daily_report');
-    }
-}
-add_action('wp', 'wpal_schedule_events');
-
-// Daily cleanup action
-function wpal_daily_cleanup() {
-    $retention_days = get_option('wpal_retention_days', 30);
-    WPAL_Helpers::cleanup_old_logs($retention_days);
-}
-add_action('wpal_daily_cleanup', 'wpal_daily_cleanup');
-
-// Daily report action
-function wpal_daily_report() {
-    if (get_option('wpal_daily_report', false)) {
-        WPAL_Notifications::send_daily_report();
-    }
-}
-add_action('wpal_daily_report', 'wpal_daily_report');
-
-// AJAX handler for deleting logs
-add_action('wp_ajax_wpal_delete_log', function() {
-    check_ajax_referer('wpal_delete', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('Permission denied');
-    }
-    
-    $log_id = isset($_POST['log_id']) ? intval($_POST['log_id']) : 0;
-    
-    if ($log_id > 0) {
-        global $wpdb;
-        WPAL_Helpers::init();
-        $result = $wpdb->delete(WPAL_Helpers::$db_table, ['id' => $log_id], ['%d']);
-        
-        if ($result) {
-            wp_send_json_success('Log entry deleted successfully.');
-        } else {
-            wp_send_json_error('Failed to delete log entry.');
-        }
-    } else {
-        wp_send_json_error('Invalid log ID.');
-    }
-});
-
-// AJAX handler for deleting all logs
-add_action('wp_ajax_wpal_delete_all_logs', function() {
-    check_ajax_referer('wpal_delete', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('Permission denied');
-    }
-    
-    global $wpdb;
-    WPAL_Helpers::init();
-    $result = $wpdb->query("TRUNCATE TABLE " . WPAL_Helpers::$db_table);
-    
-    if ($result !== false) {
-        // Also clear the CSV file
-        $csv_file = WPAL_PATH . 'logs/activity.csv';
-        if (file_exists($csv_file)) {
-            file_put_contents($csv_file, "Time,User,Action,IP,UserRole,Browser,Severity\n");
-        }
-        
-        wp_send_json_success('All log entries deleted successfully.');
-    } else {
-        wp_send_json_error('Failed to delete log entries.');
-    }
-});
-
-// AJAX handler for saving settings
-add_action('wp_ajax_wpal_save_settings', function() {
-    check_ajax_referer('wpal_settings', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('Permission denied');
-    }
-    
-    $settings = isset($_POST['settings']) ? $_POST['settings'] : [];
-    
-    if (!empty($settings)) {
-        foreach ($settings as $key => $value) {
-            update_option('wpal_' . $key, $value);
-        }
-        
-        wp_send_json_success('Settings saved successfully.');
-    } else {
-        wp_send_json_error('No settings to save.');
-    }
-});
-
-// AJAX handler for repairing database
-add_action('wp_ajax_wpal_repair_database', function() {
-    check_ajax_referer('wpal_admin', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('Permission denied');
-    }
-    
-    WPAL_Helpers::init();
-    WPAL_Helpers::create_db_table();
-    
-    // Add a test entry
-    $current_user = wp_get_current_user();
-    $entry = [
-        'time' => current_time('mysql'),
-        'user_id' => $current_user->ID,
-        'username' => $current_user->user_login,
-        'user_role' => implode(', ', $current_user->roles),
-        'action' => 'Database table repaired',
-        'ip' => $_SERVER['REMOTE_ADDR'] ?? 'Unknown',
-        'browser' => WPAL_Helpers::get_browser_name(),
-        'severity' => 'info',
-        'context' => json_encode(['automatic' => true]),
-    ];
-    
-    global $wpdb;
-    $wpdb->insert(
-        WPAL_Helpers::$db_table,
-        $entry,
-        [
-            'time' => '%s',
-            'user_id' => '%d',
-            'username' => '%s',
-            'user_role' => '%s',
-            'action' => '%s',
-            'ip' => '%s',
-            'browser' => '%s',
-            'severity' => '%s',
-            'context' => '%s',
-        ]
-    );
-    
-    wp_send_json_success('Database table repaired successfully.');
-});
-
-// AJAX handler for repairing files
-add_action('wp_ajax_wpal_repair_files', function() {
-    check_ajax_referer('wpal_admin', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('Permission denied');
-    }
-    
-    WPAL_Helpers::init();
-    $log_dir = WPAL_PATH . 'logs/';
-    
-    // Create logs directory if it doesn't exist
-    if (!file_exists($log_dir)) {
-        if (!mkdir($log_dir, 0755, true)) {
-            wp_send_json_error('Failed to create logs directory. Please check file permissions.');
-        }
-    }
-    
-    // Create CSV file if it doesn't exist
-    $csv_file = $log_dir . 'activity.csv';
-    if (!file_exists($csv_file)) {
-        if (file_put_contents($csv_file, "Time,User,Action,IP,UserRole,Browser,Severity\n") === false) {
-            wp_send_json_error('Failed to create CSV file. Please check file permissions.');
-        }
-    }
-    
-    wp_send_json_success('Log files repaired successfully.');
-});
-
-// AJAX handler for resetting settings
-add_action('wp_ajax_wpal_reset_settings', function() {
-    check_ajax_referer('wpal_admin', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('Permission denied');
-    }
-    
-    // Default settings
-    $default_options = [
-        'retention_days' => 30,
-        'log_storage' => 'both',
-        'notification_email' => get_option('admin_email'),
-        'notification_events' => ['login_failed', 'plugin_activated', 'plugin_deactivated'],
-        'daily_report' => true,
-        'webhook_url' => '',
-        'severity_colors' => [
-            'info' => '#28a745',
-            'warning' => '#ffc107',
-            'error' => '#dc3545',
-        ],
-        'push_enabled' => false,
-        'slack_webhook' => '',
-        'discord_webhook' => '',
-        'telegram_bot_token' => '',
-        'telegram_chat_id' => '',
-    ];
-    
-    // Reset all settings
-    foreach ($default_options as $key => $value) {
-        update_option('wpal_' . $key, $value);
-    }
-    
-    wp_send_json_success('Settings reset to default values.');
-});
-
-// AJAX handler for creating test log
-add_action('wp_ajax_wpal_test_log', function() {
-    check_ajax_referer('wpal_admin', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('Permission denied');
-    }
-    
-    WPAL_Tracker::log('Test log entry from diagnostics page', get_current_user_id(), 'info', [
-        'test' => true,
-        'timestamp' => time(),
-    ]);
-    
-    wp_send_json_success('Test log entry created successfully. Check the logs page to see it.');
-});
-
-// Add plugin action links
-function wpal_plugin_action_links($links) {
-    $plugin_links = [
-        '<a href="' . admin_url('admin.php?page=wpal-logs') . '">' . __('View Logs', 'wp-activity-logger-pro') . '</a>',
-        '<a href="' . admin_url('admin.php?page=wpal-settings') . '">' . __('Settings', 'wp-activity-logger-pro') . '</a>',
-    ];
-    
-    return array_merge($plugin_links, $links);
-}
-add_filter('plugin_action_links_' . WPAL_BASENAME, 'wpal_plugin_action_links');
-
-// Add plugin meta links
-function wpal_plugin_meta_links($links, $file) {
-    if ($file === WPAL_BASENAME) {
-        $links[] = '<a href="https://example.com/docs/wp-activity-logger-pro/" target="_blank">' . __('Documentation', 'wp-activity-logger-pro') . '</a>';
-        $links[] = '<a href="https://example.com/support/" target="_blank">' . __('Support', 'wp-activity-logger-pro') . '</a>';
-    }
-    
-    return $links;
-}
-add_filter('plugin_row_meta', 'wpal_plugin_meta_links', 10, 2);
-
-// Find the register_admin_menu method and update it to ensure the dashboard page is properly registered
-public function register_admin_menu() {
-    add_menu_page(
-        'Activity Logs',
-        'Activity Logs',
-        'manage_options',
-        'wp-activity-logger-pro',
-        [$this, 'render_logs_page'],
-        'dashicons-chart-line',
-        30
-    );
-    
-    add_submenu_page(
-        'wp-activity-logger-pro',
-        'View Logs',
-        'View Logs',
-        'manage_options',
-        'wp-activity-logger-pro',
-        [$this, 'render_logs_page']
-    );
-    
-    add_submenu_page(
-        'wp-activity-logger-pro',
-        'Dashboard',
-        'Dashboard',
-        'manage_options',
-        'wp-activity-logger-pro-dashboard',
-        [$this, 'render_dashboard_page']
-    );
-    
-    add_submenu_page(
-        'wp-activity-logger-pro',
-        'Export',
-        'Export',
-        'manage_options',
-        'wp-activity-logger-pro-export',
-        [$this, 'render_export_page']
-    );
-    
-    add_submenu_page(
-        'wp-activity-logger-pro',
-        'Settings',
-        'Settings',
-        'manage_options',
-        'wp-activity-logger-pro-settings',
-        [$this, 'render_settings_page']
-    );
-    
-    add_submenu_page(
-        'wp-activity-logger-pro',
-        'Diagnostics',
-        'Diagnostics',
-        'manage_options',
-        'wp-activity-logger-pro-diagnostics',
-        [$this, 'render_diagnostics_page']
-    );
+    return WP_Activity_Logger_Pro::get_instance();
 }
 
-// Add the render_dashboard_page method if it doesn't exist
-public function render_dashboard_page() {
-    WPAL_Dashboard::render_dashboard_page();
-}
+// Start the plugin
+wpal_init();
