@@ -10,7 +10,7 @@ This guide is intended for developers who want to integrate with WP Activity Log
 
 To log a custom event, use the `WPAL_Helpers::log_activity()` method:
 
-\`\`\`php
+```php
 // Make sure the helper class is initialized
 WPAL_Helpers::init();
 
@@ -20,52 +20,52 @@ WPAL_Helpers::log_activity(
     'Description of action', // Human-readable description
     'info'                   // Severity: 'info', 'warning', or 'error'
 );
-\`\`\`
+````
 
 ### Advanced Usage
 
 For more detailed logging, you can include additional context:
 
-\`\`\`php
+```php
 // Log activity with context
 WPAL_Helpers::log_activity(
     'product_purchased',                  // Action identifier
     'User purchased Product X',           // Human-readable description
     'info',                               // Severity
     array(
-        'object_type' => 'product',       // Type of object affected
-        'object_id'   => 123,             // ID of the object
-        'object_name' => 'Product X',     // Name of the object
-        'context'     => array(           // Additional context (will be JSON encoded)
+        'object_type' => 'product',
+        'object_id'   => 123,
+        'object_name' => 'Product X',
+        'context'     => array(
             'price'   => 49.99,
             'quantity' => 2,
             'total'   => 99.98
         )
     )
 );
-\`\`\`
+```
 
 ### Available Severity Levels
 
-- `info`: Normal activities, informational only
-- `warning`: Activities that might require attention
-- `error`: Critical activities that indicate problems
+* `info`: Normal activities, informational only
+* `warning`: Activities that might require attention
+* `error`: Critical activities that indicate problems
 
 ### Logging User Actions
 
 When logging actions performed by users other than the current user:
 
-\`\`\`php
+```php
 // Log activity for a specific user
 WPAL_Helpers::log_activity(
     'custom_user_action',
     'User performed a custom action',
     'info',
     array(
-        'user_id' => 42  // Specify the user ID
+        'user_id' => 42
     )
 );
-\`\`\`
+```
 
 ## Hooks and Filters
 
@@ -75,32 +75,31 @@ WPAL_Helpers::log_activity(
 
 Fired before an activity is logged.
 
-\`\`\`php
+```php
 add_action('wpal_before_log_activity', function($action, $description, $severity, $args) {
     // Do something before logging
 }, 10, 4);
-\`\`\`
+```
 
 #### `wpal_after_log_activity`
 
 Fired after an activity has been logged.
 
-\`\`\`php
+```php
 add_action('wpal_after_log_activity', function($log_id, $action, $description, $severity, $args) {
     // Do something after logging
-    // $log_id contains the ID of the newly created log entry
 }, 10, 5);
-\`\`\`
+```
 
 #### `wpal_log_deleted`
 
 Fired when a log entry is deleted.
 
-\`\`\`php
+```php
 add_action('wpal_log_deleted', function($log_id) {
     // Do something when a log is deleted
 }, 10, 1);
-\`\`\`
+```
 
 ### Filters
 
@@ -108,43 +107,41 @@ add_action('wpal_log_deleted', function($log_id) {
 
 Filter the data before it's inserted into the database.
 
-\`\`\`php
+```php
 add_filter('wpal_log_data', function($log_data, $action, $description, $severity, $args) {
     // Modify $log_data before it's saved
     return $log_data;
 }, 10, 5);
-\`\`\`
+```
 
 #### `wpal_should_log_activity`
 
 Determine whether an activity should be logged.
 
-\`\`\`php
+```php
 add_filter('wpal_should_log_activity', function($should_log, $action, $description, $severity, $args) {
-    // Return false to prevent logging
     if ($action === 'some_action_to_ignore') {
         return false;
     }
     return $should_log;
 }, 10, 5);
-\`\`\`
+```
 
 #### `wpal_log_retention_days`
 
 Filter the number of days to keep logs.
 
-\`\`\`php
+```php
 add_filter('wpal_log_retention_days', function($days) {
-    // Change the retention period
     return 60; // Keep logs for 60 days
 }, 10, 1);
-\`\`\`
+```
 
 ## Database Schema
 
 The plugin stores logs in a custom table with the following structure:
 
-\`\`\`sql
+```sql
 CREATE TABLE {$wpdb->prefix}wpal_activity_log (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     time datetime NOT NULL,
@@ -166,7 +163,7 @@ CREATE TABLE {$wpdb->prefix}wpal_activity_log (
     KEY action (action),
     KEY severity (severity)
 );
-\`\`\`
+```
 
 ## Extending the Plugin
 
@@ -174,113 +171,101 @@ CREATE TABLE {$wpdb->prefix}wpal_activity_log (
 
 To add a custom widget to the dashboard:
 
-1. Create a template file in your theme or plugin
-2. Register it using the `wpal_dashboard_widgets` filter
-
-\`\`\`php
+```php
 add_filter('wpal_dashboard_widgets', function($widgets) {
     $widgets['my_custom_widget'] = array(
         'title' => 'My Custom Widget',
         'callback' => 'my_custom_widget_callback',
-        'icon' => 'bar-chart-2', // Feather icon name
-        'position' => 'column-1' // 'column-1' or 'column-2'
+        'icon' => 'bar-chart-2',
+        'position' => 'column-1'
     );
     return $widgets;
 });
 
 function my_custom_widget_callback() {
-    // Output your widget content
     echo '<div>Custom widget content</div>';
 }
-\`\`\`
+```
 
 ### Adding Export Formats
 
-To add a custom export format:
-
-\`\`\`php
+```php
 add_filter('wpal_export_formats', function($formats) {
     $formats['custom_format'] = array(
         'label' => 'My Custom Format',
         'callback' => 'my_custom_export_callback',
-        'icon' => 'file-text' // Feather icon name
+        'icon' => 'file-text'
     );
     return $formats;
 });
 
 function my_custom_export_callback($logs, $args) {
-    // Process logs and return the formatted content
     $output = ''; // Generate your formatted output
     return $output;
 }
-\`\`\`
+```
 
 ### Adding Custom Notification Channels
 
-To add a custom notification channel:
-
-\`\`\`php
+```php
 add_filter('wpal_notification_channels', function($channels) {
     $channels['custom_channel'] = array(
         'label' => 'My Custom Channel',
         'callback' => 'my_custom_notification_callback',
-        'icon' => 'bell' // Feather icon name
+        'icon' => 'bell'
     );
     return $channels;
 });
 
 function my_custom_notification_callback($event, $log_data) {
-    // Send notification through your custom channel
-    // Return true on success, false on failure
-    return true;
+    return true; // Send notification through your custom channel
 }
-\`\`\`
+```
 
 ## Best Practices
 
 ### Performance Considerations
 
-- Log only significant events to avoid database bloat
-- Use appropriate severity levels
-- Consider adding indexes if you're querying logs in custom ways
-- Use the context field for detailed data rather than putting everything in the description
+* Log only significant events
+* Use appropriate severity levels
+* Consider indexes for custom queries
+* Use `context` for detailed data
 
 ### Security Considerations
 
-- Never log sensitive information like passwords or API keys
-- Be mindful of personal data logging for GDPR compliance
-- Sanitize all data before logging
-- Use proper capability checks when displaying log data
+* Never log sensitive data (passwords, API keys)
+* Ensure GDPR compliance
+* Sanitize data before logging
+* Use proper capability checks
 
 ### Compatibility
 
-- Prefix all your custom actions with your plugin/theme slug to avoid conflicts
-- Check if the WPAL_Helpers class exists before using it
-- Use the provided hooks rather than modifying the plugin directly
+* Prefix actions with your plugin/theme slug
+* Check for `WPAL_Helpers` class existence
+* Use provided hooks and filters
 
 ## Example Implementations
 
 ### WooCommerce Integration
 
-\`\`\`php
-// Log product purchases
+```php
 add_action('woocommerce_order_status_completed', 'log_woocommerce_purchase');
 
 function log_woocommerce_purchase($order_id) {
     if (!class_exists('WPAL_Helpers')) {
         return;
     }
-    
+
     WPAL_Helpers::init();
-    
+
     $order = wc_get_order($order_id);
     $items = $order->get_items();
     $products = array();
-    
+
     foreach ($items as $item) {
         $products[] = $item->get_name() . ' (x' . $item->get_quantity() . ')';
     }
-    
+
     WPAL_Helpers::log_activity(
         'woocommerce_purchase',
         sprintf('Order #%s completed for %s', $order->get_order_number(), $order->get_formatted_billing_full_name()),
@@ -297,23 +282,22 @@ function log_woocommerce_purchase($order_id) {
         )
     );
 }
-\`\`\`
+```
 
 ### Custom Post Type Integration
 
-\`\`\`php
-// Log custom post type activities
+```php
 add_action('save_post_my_custom_post', 'log_custom_post_save', 10, 3);
 
 function log_custom_post_save($post_id, $post, $update) {
     if (!class_exists('WPAL_Helpers') || wp_is_post_revision($post_id)) {
         return;
     }
-    
+
     WPAL_Helpers::init();
-    
+
     $action = $update ? 'updated' : 'created';
-    
+
     WPAL_Helpers::log_activity(
         'custom_post_' . $action,
         sprintf('Custom post "%s" was %s', get_the_title($post_id), $action),
@@ -325,10 +309,8 @@ function log_custom_post_save($post_id, $post, $update) {
         )
     );
 }
-\`\`\`
+```
 
 ## Conclusion
 
-WP Activity Logger Pro provides a robust framework for tracking activities in WordPress. By using the provided API and hooks, you can integrate your own plugins and themes with the logging system to provide comprehensive activity tracking for your users.
-
-For additional support or to report issues, please contact our development team at dev-support@example.com.
+WP Activity Logger Pro provides a robust framework for tracking activities in WordPress. Use the provided API and hooks to integrate your plugins and themes for comprehensive logging.
