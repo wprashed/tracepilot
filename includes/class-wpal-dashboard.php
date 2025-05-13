@@ -1,170 +1,184 @@
 <?php
+
 /**
- * Dashboard class for WP Activity Logger Pro
+ * WP Activity Logger Pro Dashboard Class
+ *
+ * @package WP_Activity_Logger_Pro
+ * @since 1.0.0
  */
 
-// Exit if accessed directly
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
 }
 
 class WPAL_Dashboard {
-    /**
-     * Constructor
-     */
-    public function __construct() {
-        // Schedule cleanup
-        if (!wp_next_scheduled('wpal_cleanup_logs')) {
-            wp_schedule_event(time(), 'daily', 'wpal_cleanup_logs');
-        }
-        
-        // Add cleanup action
-        add_action('wpal_cleanup_logs', array('WPAL_Helpers', 'clean_old_logs'));
-    }
 
-    /**
-     * Add admin menu
-     */
-    public function add_admin_menu() {
-        // Main menu
-        add_menu_page(
-            __('Activity Logger', 'wp-activity-logger-pro'),
-            __('Activity Logger', 'wp-activity-logger-pro'),
-            'manage_options',
-            'wp-activity-logger-pro',
-            array($this, 'render_logs_page'),
-            'dashicons-list-view',
-            30
-        );
-        
-        // Logs submenu
-        add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Activity Logs', 'wp-activity-logger-pro'),
-            __('Activity Logs', 'wp-activity-logger-pro'),
-            'manage_options',
-            'wp-activity-logger-pro',
-            array($this, 'render_logs_page')
-        );
-        
-        // Dashboard submenu
-        add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Dashboard', 'wp-activity-logger-pro'),
-            __('Dashboard', 'wp-activity-logger-pro'),
-            'manage_options',
-            'wp-activity-logger-pro-dashboard',
-            array($this, 'render_dashboard_page')
-        );
-        
-        // Export submenu
-        add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Export', 'wp-activity-logger-pro'),
-            __('Export', 'wp-activity-logger-pro'),
-            'manage_options',
-            'wp-activity-logger-pro-export',
-            array($this, 'render_export_page')
-        );
-        
-        // Settings submenu
-        add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Settings', 'wp-activity-logger-pro'),
-            __('Settings', 'wp-activity-logger-pro'),
-            'manage_options',
-            'wp-activity-logger-pro-settings',
-            array($this, 'render_settings_page')
-        );
-        
-        // Diagnostics submenu
-        add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Diagnostics', 'wp-activity-logger-pro'),
-            __('Diagnostics', 'wp-activity-logger-pro'),
-            'manage_options',
-            'wp-activity-logger-pro-diagnostics',
-            array($this, 'render_diagnostics_page')
-        );
-    }
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_menu_styles' ) );
+	}
 
-    /**
-     * Render logs page
-     */
-    public function render_logs_page() {
-        include WPAL_PLUGIN_DIR . 'templates/logs.php';
-    }
+	/**
+	 * Add custom menu styles
+	 */
+	public function enqueue_menu_styles() {
+		wp_enqueue_style( 'wpal-menu-styles', WPAL_PLUGIN_URL . 'assets/css/wpal-menu.css', array(), WPAL_VERSION );
+	}
 
-    /**
-     * Render dashboard page
-     */
-    public function render_dashboard_page() {
-        include WPAL_PLUGIN_DIR . 'templates/dashboard.php';
-    }
+	/**
+	 * Add admin menu
+	 */
+	public function add_admin_menu() {
+		// Custom SVG icon for better quality
+		$menu_icon = 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect x="4" y="4" width="16" height="6" rx="2"/><rect x="4" y="14" width="16" height="6" rx="2"/></svg>');
+		
+		// Main menu
+		add_menu_page(
+			__('Activity Logger', 'wp-activity-logger-pro'),
+			__('Activity Logger', 'wp-activity-logger-pro'),
+			'manage_options',
+			'wp-activity-logger-pro',
+			array($this, 'render_dashboard_page'),
+			$menu_icon,
+			30
+		);
+		
+		// Organize menu items into logical groups
+		// Group 1: Core Features
+		add_submenu_page(
+			'wp-activity-logger-pro',
+			__('Dashboard', 'wp-activity-logger-pro'),
+			__('Dashboard', 'wp-activity-logger-pro'),
+			'manage_options',
+			'wp-activity-logger-pro',
+			array($this, 'render_dashboard_page')
+		);
+		
+		add_submenu_page(
+			'wp-activity-logger-pro',
+			__('Activity Logs', 'wp-activity-logger-pro'),
+			__('Activity Logs', 'wp-activity-logger-pro'),
+			'manage_options',
+			'wp-activity-logger-pro-logs',
+			array($this, 'render_logs_page')
+		);
+		
+		// Group 2: Analytics & Insights
+		add_submenu_page(
+			'wp-activity-logger-pro',
+			__('Analytics', 'wp-activity-logger-pro'),
+			'<span class="wpal-menu-group">Analytics</span>',
+			'manage_options',
+			'wp-activity-logger-pro-analytics',
+			array($this, 'render_analytics_page')
+		);
+		
+		add_submenu_page(
+			'wp-activity-logger-pro',
+			__('Search Console', 'wp-activity-logger-pro'),
+			'— ' . __('Search Console', 'wp-activity-logger-pro'),
+			'manage_options',
+			'wp-activity-logger-pro-search-console',
+			array($this, 'render_search_console_page')
+		);
+		
+		// Group 3: Security
+		add_submenu_page(
+			'wp-activity-logger-pro',
+			__('Threat Detection', 'wp-activity-logger-pro'),
+			'<span class="wpal-menu-group">Security</span>',
+			'manage_options',
+			'wp-activity-logger-pro-threat-detection',
+			array($this, 'render_threat_detection_page')
+		);
+		
+		// Group 4: System
+		add_submenu_page(
+			'wp-activity-logger-pro',
+			__('Server Recommendations', 'wp-activity-logger-pro'),
+			'<span class="wpal-menu-group">System</span>',
+			'manage_options',
+			'wp-activity-logger-pro-server',
+			array($this, 'render_server_recommendations_page')
+		);
+		
+		add_submenu_page(
+			'wp-activity-logger-pro',
+			__('Settings', 'wp-activity-logger-pro'),
+			'— ' . __('Settings', 'wp-activity-logger-pro'),
+			'manage_options',
+			'wp-activity-logger-pro-settings',
+			array($this, 'render_settings_page')
+		);
+		
+		add_submenu_page(
+			'wp-activity-logger-pro',
+			__('Diagnostics', 'wp-activity-logger-pro'),
+			'— ' . __('Diagnostics', 'wp-activity-logger-pro'),
+			'manage_options',
+			'wp-activity-logger-pro-diagnostics',
+			array($this, 'render_diagnostics_page')
+		);
+		
+		do_action('wpal_admin_menu');
+	}
 
-    /**
-     * Render export page
-     */
-    public function render_export_page() {
-        include WPAL_PLUGIN_DIR . 'templates/export.php';
-    }
+	/**
+	 * Render dashboard page
+	 */
+	public function render_dashboard_page() {
+		include_once WPAL_PLUGIN_DIR . 'templates/dashboard.php';
+	}
 
-    /**
-     * Render settings page
-     */
-    public function render_settings_page() {
-        include WPAL_PLUGIN_DIR . 'templates/settings.php';
-    }
+	/**
+	 * Render logs page
+	 */
+	public function render_logs_page() {
+		include_once WPAL_PLUGIN_DIR . 'templates/logs.php';
+	}
 
-    /**
-     * Render diagnostics page
-     */
-    public function render_diagnostics_page() {
-        include WPAL_PLUGIN_DIR . 'templates/diagnostics.php';
-    }
+	/**
+	 * Render analytics page
+	 */
+	public function render_analytics_page() {
+		include_once WPAL_PLUGIN_DIR . 'templates/analytics.php';
+	}
 
-    /**
-     * Enqueue admin scripts and styles
-     */
-    public function enqueue_admin_scripts($hook) {
-        // Only load on plugin pages
-        if (strpos($hook, 'wp-activity-logger-pro') === false) {
-            return;
-        }
-        
-        // Enqueue styles
-        wp_enqueue_style('wpal-admin', WPAL_PLUGIN_URL . 'assets/css/wpal-admin.css', array(), WPAL_VERSION);
-        
-        // Enqueue scripts
-        wp_enqueue_script('wpal-admin', WPAL_PLUGIN_URL . 'assets/js/wpal-admin.js', array('jquery'), WPAL_VERSION, true);
-        
-        // Localize script
-        wp_localize_script('wpal-admin', 'wpal_admin_vars', array(
-            'nonce' => wp_create_nonce('wpal_nonce'),
-            'delete_nonce' => wp_create_nonce('wpal_delete_nonce'),
-            'confirm_delete' => __('Are you sure you want to delete this log entry?', 'wp-activity-logger-pro'),
-            'confirm_delete_all' => __('Are you sure you want to delete all log entries? This action cannot be undone.', 'wp-activity-logger-pro'),
-            'ajax_url' => admin_url('admin-ajax.php')
-        ));
-        
-        // Enqueue jQuery UI for datepicker
-        wp_enqueue_script('jquery-ui-datepicker');
-        wp_enqueue_style('jquery-ui', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
-        
-        // Enqueue DataTables
-        wp_enqueue_style('datatables', 'https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css');
-        wp_enqueue_script('datatables', 'https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js', array('jquery'), '1.11.5', true);
-        
-        // Enqueue DataTables Buttons
-        wp_enqueue_style('datatables-buttons', 'https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css');
-        wp_enqueue_script('datatables-buttons', 'https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js', array('datatables'), '2.2.2', true);
-        wp_enqueue_script('datatables-buttons-html5', 'https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js', array('datatables-buttons'), '2.2.2', true);
-        wp_enqueue_script('datatables-buttons-print', 'https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js', array('datatables-buttons'), '2.2.2', true);
-        wp_enqueue_script('jszip', 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js', array(), '3.1.3', true);
-        wp_enqueue_script('pdfmake', 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js', array(), '0.1.53', true);
-        wp_enqueue_script('pdfmake-fonts', 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js', array('pdfmake'), '0.1.53', true);
-        
-        // Enqueue Chart.js
-        wp_enqueue_script('chartjs', 'https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js', array(), '3.7.1', true);
-    }
+	/**
+	 * Render threat detection page
+	 */
+	public function render_threat_detection_page() {
+		include_once WPAL_PLUGIN_DIR . 'templates/threat-detection.php';
+	}
+
+	/**
+	 * Render server recommendations page
+	 */
+	public function render_server_recommendations_page() {
+		include_once WPAL_PLUGIN_DIR . 'templates/server-recommendations.php';
+	}
+
+	/**
+	 * Render search console page
+	 */
+	public function render_search_console_page() {
+		include_once WPAL_PLUGIN_DIR . 'templates/search-console.php';
+	}
+
+	/**
+	 * Render settings page
+	 */
+	public function render_settings_page() {
+		include_once WPAL_PLUGIN_DIR . 'templates/settings.php';
+	}
+
+	/**
+	 * Render diagnostics page
+	 */
+	public function render_diagnostics_page() {
+		include_once WPAL_PLUGIN_DIR . 'templates/diagnostics.php';
+	}
 }
