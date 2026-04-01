@@ -1,0 +1,193 @@
+<?php
+/**
+ * Response actions for WP Activity Logger Pro.
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class WPAL_Response_Actions {
+    /**
+     * Constructor.
+     */
+    public function __construct() {
+        add_action('init', array($this, 'maybe_block_ip'));
+        add_filter('map_meta_cap', array($this, 'lock_plugin_changes'), 20, 4);
+        add_action('wp_ajax_wpal_block_ip', array($this, 'ajax_block_ip'));
+        add_action('wp_ajax_wpal_force_logout_user', array($this, 'ajax_force_logout_user'));
+        add_action('wp_ajax_wpal_reset_user_password', array($this, 'ajax_reset_user_password'));
+        add_action('wp_ajax_wpal_toggle_plugin_changes_lock', array($this, 'ajax_toggle_plugin_changes_lock'));
+        add_action('wp_ajax_wpal_export_user_logs', array($this, 'ajax_export_user_logs'));
+        add_action('wp_ajax_wpal_delete_user_logs', array($this, 'ajax_delete_user_logs'));
+    }
+
+    /**
+     * Block requests from blocked IPs.
+     */
+    public function maybe_block_ip() {
+        if (is_admin() && current_user_can('manage_options')) {
+            return;
+        }
+
+        $settings = WPAL_Helpers::get_settings();
+        $ip = WPAL_Helpers::get_ip_address();
+
+        if (!empty($ip) && in_array($ip, (array) $settings['blocked_ips'], true)) {
+            wp_die(esc_html__('Access denied by WP Activity Logger security policy.', 'wp-activity-logger-pro'), 403);
+        }
+    }
+
+    /**
+     * Prevent plugin-changing capabilities when locked.
+     *
+     * @param array  $caps Caps.
+     * @param string $cap Capability.
+     * @return array
+     */
+    public function lock_plugin_changes($caps, $cap) {
+        $settings = WPAL_Helpers::get_settings();
+        if (empty($settings['plugin_changes_locked'])) {
+            return $caps;
+        }
+
+        if (in_array($cap, array('activate_plugins', 'install_plugins', 'update_plugins', 'delete_plugins', 'edit_plugins'), true)) {
+            return array('do_not_allow');
+        }
+
+        return $caps;
+    }
+
+    /**
+     * Save settings helper.
+     *
+     * @param array $settings Settings.
+     */
+    private function persist_settings($settings) {
+        update_option('wpal_options', $settings);
+        update_option('wpal_settings', $settings);
+    }
+
+    /**
+     * AJAX block IP.
+     */
+    public function ajax_block_ip() {
+        check_ajax_referer('wpal_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+        }
+
+        $ip = isset($_POST['ip']) ? sanitize_text_field(wp_unslash($_POST['ip'])) : '';
+        if (!$ip) {
+            wp_send_json_error(array('message' => __('IP address is required.', 'wp-activity-logger-pro')));
+        }
+
+        $settings = WPAL_Helpers::get_settings();
+        $blocked = (array) $settings['blocked_ips'];
+        if (!in_array($ip, $blocked, true)) {
+            $blocked[] = $ip;
+        }
+        $settings['blocked_ips'] = array_values(array_unique($blocked));
+        $this->persist_settings($settings);
+
+        WPAL_Helpers::log_activity('ip_blocked', sprintf(__('Blocked IP address %s', 'wp-activity-logger-pro'), $ip), 'warning', array('ip' => $ip));
+        wp_send_json_success(array('message' => __('IP blocked successfully.', 'wp-activity-logger-pro')));
+    }
+
+    /**
+     * AJAX force logout.
+     */
+    public function ajax_force_logout_user() {
+        check_ajax_referer('wpal_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+        }
+
+        $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
+        if (!$user_id) {
+            wp_send_json_error(array('message' => __('User ID is required.', 'wp-activity-logger-pro')));
+        }
+
+        $tokens = WP_Session_Tokens::get_instance($user_id);
+        $tokens->destroy_all();
+
+        $user = get_userdata($user_id);
+        WPAL_Helpers::log_activity('user_forced_logout', sprintf(__('Forced logout for user %s', 'wp-activity-logger-pro'), $user ? $user->user_login : $user_id), 'warning', array('user_id' => $user_id));
+        wp_send_json_success(array('message' => __('User sessions cleared.', 'wp-activity-logger-pro')));
+    }
+
+    /**
+     * AJAX password reset.
+     */
+    public function ajax_reset_user_password() {
+        check_ajax_referer('wpal_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+        }
+
+        $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
+        $user = $user_id ? get_userdata($user_id) : false;
+        if (!$user) {
+            wp_send_json_error(array('message' => __('User not found.', 'wp-activity-logger-pro')));
+        }
+
+        retrieve_password($user->user_login);
+        WPAL_Helpers::log_activity('password_reset_requested', sprintf(__('Triggered password reset for user %s', 'wp-activity-logger-pro'), $user->user_login), 'warning', array('user_id' => $user_id));
+        wp_send_json_success(array('message' => __('Password reset email sent.', 'wp-activity-logger-pro')));
+    }
+
+    /**
+     * AJAX toggle plugin lock.
+     */
+    public function ajax_toggle_plugin_changes_lock() {
+        check_ajax_referer('wpal_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+        }
+
+        $enabled = !empty($_POST['enabled']) ? 1 : 0;
+        $settings = WPAL_Helpers::get_settings();
+        $settings['plugin_changes_locked'] = $enabled;
+        $this->persist_settings($settings);
+
+        WPAL_Helpers::log_activity('plugin_change_lock_toggled', $enabled ? __('Plugin changes locked', 'wp-activity-logger-pro') : __('Plugin changes unlocked', 'wp-activity-logger-pro'), 'warning');
+        wp_send_json_success(array('message' => __('Plugin change policy updated.', 'wp-activity-logger-pro')));
+    }
+
+    /**
+     * Export user logs.
+     */
+    public function ajax_export_user_logs() {
+        check_ajax_referer('wpal_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+        }
+
+        $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
+        $rows = WPAL_Helpers::export_user_logs($user_id);
+
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename=user-logs-' . $user_id . '.json');
+        echo wp_json_encode($rows);
+        exit;
+    }
+
+    /**
+     * Delete user logs.
+     */
+    public function ajax_delete_user_logs() {
+        check_ajax_referer('wpal_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+        }
+
+        $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
+        if (!$user_id) {
+            wp_send_json_error(array('message' => __('User ID is required.', 'wp-activity-logger-pro')));
+        }
+
+        $deleted = WPAL_Helpers::delete_user_logs($user_id);
+        WPAL_Helpers::log_activity('user_logs_deleted', sprintf(__('Deleted logs for user ID %d', 'wp-activity-logger-pro'), $user_id), 'warning');
+        wp_send_json_success(array('message' => sprintf(__('Deleted %d logs.', 'wp-activity-logger-pro'), (int) $deleted)));
+    }
+}
