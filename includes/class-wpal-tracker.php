@@ -774,36 +774,102 @@ class WPAL_Tracker {
      * Track WordPress update
      */
     public function track_wordpress_update($upgrader, $options) {
-        // Skip if not a core update
-        if (!isset($options['type']) || $options['type'] !== 'core') {
+        if (!isset($options['type'])) {
             return;
         }
-        
-        // Get current user
+
+        if (!function_exists('get_plugin_data')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
         $user = wp_get_current_user();
-        
-        // Get user data
         $user_data = $this->get_user_data($user);
-        
-        // Get geolocation data
         $geo_data = $this->get_geolocation_data();
-        
-        // Log activity
-        WPAL_Helpers::log_activity(
-            'wordpress_updated',
-            sprintf(__('WordPress updated to version %s', 'wp-activity-logger-pro'), get_bloginfo('version')),
-            'info',
-            array(
-                'user_id' => $user->ID,
-                'username' => $user->user_login,
-                'user_role' => $user_data['role'],
-                'version' => get_bloginfo('version'),
-                'ip' => $geo_data['ip'],
-                'location' => $geo_data['location'],
-                'country' => $geo_data['country'],
-                'country_code' => $geo_data['country_code']
-            )
+
+        $base_args = array(
+            'user_id' => $user->ID,
+            'username' => $user->user_login,
+            'user_role' => $user_data['role'],
+            'ip' => $geo_data['ip'],
+            'location' => $geo_data['location'],
+            'country' => $geo_data['country'],
+            'country_code' => $geo_data['country_code'],
         );
+
+        if ('core' === $options['type']) {
+            WPAL_Helpers::log_activity(
+                'wordpress_updated',
+                sprintf(__('WordPress updated to version %s', 'wp-activity-logger-pro'), get_bloginfo('version')),
+                'info',
+                array_merge(
+                    $base_args,
+                    array(
+                        'object_type' => 'core',
+                        'object_name' => 'wordpress',
+                        'context' => array(
+                            'version' => get_bloginfo('version'),
+                        ),
+                    )
+                )
+            );
+            return;
+        }
+
+        if (!in_array($options['type'], array('plugin', 'theme'), true) || empty($options['plugins']) && empty($options['themes'])) {
+            return;
+        }
+
+        if ('plugin' === $options['type'] && !empty($options['plugins'])) {
+            foreach ((array) $options['plugins'] as $plugin_file) {
+                $plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $plugin_file, false, false);
+                $plugin_name = !empty($plugin_data['Name']) ? $plugin_data['Name'] : $plugin_file;
+                $plugin_version = !empty($plugin_data['Version']) ? $plugin_data['Version'] : '';
+
+                WPAL_Helpers::log_activity(
+                    'plugin_updated',
+                    sprintf(__('Plugin updated: %s', 'wp-activity-logger-pro'), $plugin_name),
+                    'info',
+                    array_merge(
+                        $base_args,
+                        array(
+                            'object_type' => 'plugin',
+                            'object_name' => $plugin_name,
+                            'context' => array(
+                                'plugin' => $plugin_file,
+                                'version' => $plugin_version,
+                            ),
+                        )
+                    )
+                );
+            }
+
+            return;
+        }
+
+        if ('theme' === $options['type'] && !empty($options['themes'])) {
+            foreach ((array) $options['themes'] as $stylesheet) {
+                $theme = wp_get_theme($stylesheet);
+                $theme_name = $theme->exists() ? $theme->get('Name') : $stylesheet;
+                $theme_version = $theme->exists() ? $theme->get('Version') : '';
+
+                WPAL_Helpers::log_activity(
+                    'theme_updated',
+                    sprintf(__('Theme updated: %s', 'wp-activity-logger-pro'), $theme_name),
+                    'info',
+                    array_merge(
+                        $base_args,
+                        array(
+                            'object_type' => 'theme',
+                            'object_name' => $theme_name,
+                            'context' => array(
+                                'stylesheet' => $stylesheet,
+                                'version' => $theme_version,
+                            ),
+                        )
+                    )
+                );
+            }
+        }
     }
     
     /**
