@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 
 $options = WPAL_Helpers::get_settings();
 $integrity = wp_activity_logger_pro()->file_integrity->get_baseline_status();
+$vulnerability_report = !empty(wp_activity_logger_pro()->vulnerability_scanner) ? wp_activity_logger_pro()->vulnerability_scanner->get_latest_report() : array();
 ?>
 
 <div class="wrap wpal-wrap">
@@ -137,6 +138,105 @@ $integrity = wp_activity_logger_pro()->file_integrity->get_baseline_status();
     <section class="wpal-panel">
         <div class="wpal-panel-head">
             <div>
+                <h2><?php esc_html_e('Software Vulnerability Report', 'wp-activity-logger-pro'); ?></h2>
+                <p><?php esc_html_e('Check installed plugins, themes, and WordPress core against Wordfence, Patchstack, and WPScan, then combine that with local file-integrity signals.', 'wp-activity-logger-pro'); ?></p>
+            </div>
+            <div class="wpal-hero-actions">
+                <button type="button" id="wpal-scan-vulnerabilities" class="wpal-btn wpal-btn-primary"><?php esc_html_e('Scan Software', 'wp-activity-logger-pro'); ?></button>
+            </div>
+        </div>
+
+        <div id="wpal-vulnerability-status" class="wpal-note">
+            <?php
+            if (!empty($vulnerability_report['generated_at'])) {
+                echo esc_html(sprintf(__('Latest report generated %s.', 'wp-activity-logger-pro'), $vulnerability_report['generated_at']));
+            } else {
+                esc_html_e('No software security report has been generated yet.', 'wp-activity-logger-pro');
+            }
+            ?>
+        </div>
+
+        <div id="wpal-vulnerability-summary" class="wpal-stats-grid" style="<?php echo empty($vulnerability_report['summary']) ? 'display:none; margin-top:16px;' : 'margin-top:16px;'; ?>">
+            <article class="wpal-stat-card">
+                <span class="wpal-stat-label"><?php esc_html_e('Affected', 'wp-activity-logger-pro'); ?></span>
+                <strong id="wpal-vuln-affected" class="wpal-stat-value"><?php echo !empty($vulnerability_report['summary']) ? esc_html((int) $vulnerability_report['summary']['affected']) : 0; ?></strong>
+            </article>
+            <article class="wpal-stat-card">
+                <span class="wpal-stat-label"><?php esc_html_e('Critical', 'wp-activity-logger-pro'); ?></span>
+                <strong id="wpal-vuln-critical" class="wpal-stat-value"><?php echo !empty($vulnerability_report['summary']) ? esc_html((int) $vulnerability_report['summary']['critical']) : 0; ?></strong>
+            </article>
+            <article class="wpal-stat-card">
+                <span class="wpal-stat-label"><?php esc_html_e('High', 'wp-activity-logger-pro'); ?></span>
+                <strong id="wpal-vuln-high" class="wpal-stat-value"><?php echo !empty($vulnerability_report['summary']) ? esc_html((int) $vulnerability_report['summary']['high']) : 0; ?></strong>
+            </article>
+            <article class="wpal-stat-card">
+                <span class="wpal-stat-label"><?php esc_html_e('Clean', 'wp-activity-logger-pro'); ?></span>
+                <strong id="wpal-vuln-clean" class="wpal-stat-value"><?php echo !empty($vulnerability_report['summary']) ? esc_html((int) $vulnerability_report['summary']['clean']) : 0; ?></strong>
+            </article>
+        </div>
+
+        <div id="wpal-vulnerability-notes" class="wpal-list" style="margin-top:16px;<?php echo empty($vulnerability_report['notes']) ? 'display:none;' : ''; ?>">
+            <?php foreach ((array) ($vulnerability_report['notes'] ?? array()) as $note) : ?>
+                <div class="wpal-list-row"><div><?php echo esc_html($note); ?></div></div>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="wpal-table-wrap" style="margin-top:16px;">
+            <table class="wpal-table">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e('Component', 'wp-activity-logger-pro'); ?></th>
+                        <th><?php esc_html_e('Type', 'wp-activity-logger-pro'); ?></th>
+                        <th><?php esc_html_e('Version', 'wp-activity-logger-pro'); ?></th>
+                        <th><?php esc_html_e('Severity', 'wp-activity-logger-pro'); ?></th>
+                        <th><?php esc_html_e('Findings', 'wp-activity-logger-pro'); ?></th>
+                        <th><?php esc_html_e('Recommended fix', 'wp-activity-logger-pro'); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="wpal-vulnerability-table">
+                    <?php if (!empty($vulnerability_report['items'])) : ?>
+                        <?php foreach ($vulnerability_report['items'] as $item) : ?>
+                            <?php
+                            $badge_class = in_array($item['severity'], array('critical', 'high'), true) ? 'danger' : ('medium' === $item['severity'] ? 'warning' : 'info');
+                            $recommendation = __('No action needed right now.', 'wp-activity-logger-pro');
+                            if (!empty($item['findings'][0]['fixed_in'])) {
+                                $recommendation = sprintf(__('Update to %s or newer.', 'wp-activity-logger-pro'), $item['findings'][0]['fixed_in']);
+                            } elseif (!empty($item['local_changes'])) {
+                                $recommendation = __('Review recent file changes against the integrity baseline.', 'wp-activity-logger-pro');
+                            } elseif (!empty($item['findings'])) {
+                                $recommendation = __('Review the linked advisory and update or replace this component.', 'wp-activity-logger-pro');
+                            }
+                            ?>
+                            <tr>
+                                <td>
+                                    <strong><?php echo esc_html($item['name']); ?></strong>
+                                    <div class="wpal-list-subtext"><?php echo esc_html($item['slug']); ?></div>
+                                </td>
+                                <td><?php echo esc_html(ucfirst($item['type'])); ?></td>
+                                <td><?php echo esc_html($item['version']); ?></td>
+                                <td><span class="wpal-badge wpal-badge-<?php echo esc_attr($badge_class); ?>"><?php echo esc_html(ucfirst($item['severity'])); ?></span></td>
+                                <td>
+                                    <?php echo esc_html((int) $item['finding_count']); ?>
+                                    <?php if (!empty($item['local_change_count'])) : ?>
+                                        <span class="wpal-meta-pill"><?php echo esc_html(sprintf(__('%d local file changes', 'wp-activity-logger-pro'), (int) $item['local_change_count'])); ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php echo esc_html($recommendation); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr>
+                            <td colspan="6"><?php esc_html_e('Run a scan to generate a software security report.', 'wp-activity-logger-pro'); ?></td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="wpal-panel">
+        <div class="wpal-panel-head">
+            <div>
                 <h2><?php esc_html_e('File Integrity', 'wp-activity-logger-pro'); ?></h2>
                 <p><?php esc_html_e('Create a baseline of core, plugin, and theme files, then scan for new, deleted, or modified files.', 'wp-activity-logger-pro'); ?></p>
             </div>
@@ -234,6 +334,78 @@ jQuery(function($) {
         }).always(function() {
             $('#wpal-threat-loading').hide();
             button.prop('disabled', false).text('<?php echo esc_js(__('Analyze Threats', 'wp-activity-logger-pro')); ?>');
+        });
+    });
+
+    function severityBadge(severity) {
+        const badgeClass = (severity === 'critical' || severity === 'high') ? 'danger' : (severity === 'medium' ? 'warning' : 'info');
+        return '<span class="wpal-badge wpal-badge-' + badgeClass + '">' + severity.charAt(0).toUpperCase() + severity.slice(1) + '</span>';
+    }
+
+    function renderVulnerabilityReport(data) {
+        $('#wpal-vulnerability-status').text('Latest report generated ' + data.generated_at + '.');
+        $('#wpal-vulnerability-summary').show();
+        $('#wpal-vuln-affected').text(data.summary.affected);
+        $('#wpal-vuln-critical').text(data.summary.critical);
+        $('#wpal-vuln-high').text(data.summary.high);
+        $('#wpal-vuln-clean').text(data.summary.clean);
+
+        const notesBox = $('#wpal-vulnerability-notes').empty();
+        if (data.notes && data.notes.length) {
+            data.notes.forEach(function(note) {
+                notesBox.append('<div class="wpal-list-row"><div>' + $('<div>').text(note).html() + '</div></div>');
+            });
+            notesBox.show();
+        } else {
+            notesBox.hide();
+        }
+
+        const rows = (data.items || []).map(function(item) {
+            let recommendation = '<?php echo esc_js(__('No action needed right now.', 'wp-activity-logger-pro')); ?>';
+            if (item.findings && item.findings.length && item.findings[0].fixed_in) {
+                recommendation = '<?php echo esc_js(__('Update to', 'wp-activity-logger-pro')); ?> ' + item.findings[0].fixed_in + ' <?php echo esc_js(__('or newer.', 'wp-activity-logger-pro')); ?>';
+            } else if (item.local_change_count) {
+                recommendation = '<?php echo esc_js(__('Review recent file changes against the integrity baseline.', 'wp-activity-logger-pro')); ?>';
+            } else if (item.findings && item.findings.length) {
+                recommendation = '<?php echo esc_js(__('Review the linked advisory and update or replace this component.', 'wp-activity-logger-pro')); ?>';
+            }
+
+            const findings = [];
+            (item.findings || []).slice(0, 2).forEach(function(finding) {
+                findings.push('<div class="wpal-list-subtext"><strong>' + $('<div>').text(finding.provider).html() + ':</strong> ' + $('<div>').text(finding.title).html() + '</div>');
+            });
+
+            const localPill = item.local_change_count ? '<span class="wpal-meta-pill">' + item.local_change_count + ' <?php echo esc_js(__('local file changes', 'wp-activity-logger-pro')); ?></span>' : '';
+            return '<tr>' +
+                '<td><strong>' + $('<div>').text(item.name).html() + '</strong><div class="wpal-list-subtext">' + $('<div>').text(item.slug).html() + '</div></td>' +
+                '<td>' + $('<div>').text(item.type.charAt(0).toUpperCase() + item.type.slice(1)).html() + '</td>' +
+                '<td>' + $('<div>').text(item.version).html() + '</td>' +
+                '<td>' + severityBadge(item.severity) + '</td>' +
+                '<td>' + (item.finding_count || 0) + localPill + findings.join('') + '</td>' +
+                '<td>' + $('<div>').text(recommendation).html() + '</td>' +
+            '</tr>';
+        });
+
+        $('#wpal-vulnerability-table').html(rows.length ? rows.join('') : '<tr><td colspan="6"><?php echo esc_js(__('No installed components were found in the current scan scope.', 'wp-activity-logger-pro')); ?></td></tr>');
+    }
+
+    $('#wpal-scan-vulnerabilities').on('click', function() {
+        const button = $(this);
+        button.prop('disabled', true).text('<?php echo esc_js(__('Scanning...', 'wp-activity-logger-pro')); ?>');
+        $('#wpal-vulnerability-status').text('<?php echo esc_js(__('Checking installed software against vulnerability intelligence providers...', 'wp-activity-logger-pro')); ?>');
+
+        $.post(ajaxurl, {
+            action: 'wpal_scan_vulnerabilities',
+            nonce: '<?php echo esc_js(wp_create_nonce('wpal_nonce')); ?>'
+        }).done(function(response) {
+            if (!response.success) {
+                window.alert(response.data.message || 'Unable to scan software.');
+                return;
+            }
+
+            renderVulnerabilityReport(response.data);
+        }).always(function() {
+            button.prop('disabled', false).text('<?php echo esc_js(__('Scan Software', 'wp-activity-logger-pro')); ?>');
         });
     });
 
