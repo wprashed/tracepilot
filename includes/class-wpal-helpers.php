@@ -19,6 +19,13 @@ class WPAL_Helpers {
     public static $db_table;
 
     /**
+     * Cached log table columns.
+     *
+     * @var array|null
+     */
+    private static $log_table_columns = null;
+
+    /**
      * Initialize table names.
      */
     public static function init() {
@@ -58,6 +65,16 @@ class WPAL_Helpers {
             'monitor_file_changes' => 1,
             'monitor_privilege_escalation' => 1,
             'monitor_file_integrity' => 1,
+            'enable_vulnerability_scanner' => 1,
+            'vulnerability_auto_scan' => 0,
+            'vulnerability_sources' => array('wordfence', 'patchstack', 'wpscan'),
+            'vulnerability_scan_plugins' => 1,
+            'vulnerability_scan_themes' => 1,
+            'vulnerability_scan_core' => 1,
+            'vulnerability_include_file_integrity' => 1,
+            'wordfence_api_key' => '',
+            'patchstack_api_key' => '',
+            'wpscan_api_token' => '',
             'enable_geolocation' => 1,
             'anonymize_ip' => 0,
             'exclude_roles' => array(),
@@ -136,6 +153,7 @@ class WPAL_Helpers {
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
+        self::$log_table_columns = null;
     }
 
     /**
@@ -200,7 +218,13 @@ class WPAL_Helpers {
             'context' => null !== $context ? wp_json_encode($context) : null,
         );
 
+        $data = self::filter_log_data_for_existing_columns($data);
         $inserted = $wpdb->insert(self::$db_table, $data);
+        if (!$inserted && false !== strpos((string) $wpdb->last_error, 'doesn\'t exist')) {
+            self::create_tables();
+            $data = self::filter_log_data_for_existing_columns($data);
+            $inserted = $wpdb->insert(self::$db_table, $data);
+        }
         if (!$inserted) {
             return false;
         }
@@ -236,6 +260,41 @@ class WPAL_Helpers {
         }
 
         return true;
+    }
+
+    /**
+     * Filter log payload by actual table columns.
+     *
+     * @param array $data Log data.
+     * @return array
+     */
+    private static function filter_log_data_for_existing_columns($data) {
+        $columns = self::get_log_table_columns();
+        if (empty($columns)) {
+            return $data;
+        }
+
+        return array_intersect_key($data, array_flip($columns));
+    }
+
+    /**
+     * Get existing log table columns.
+     *
+     * @return array
+     */
+    private static function get_log_table_columns() {
+        global $wpdb;
+
+        if (null !== self::$log_table_columns) {
+            return self::$log_table_columns;
+        }
+
+        self::init();
+        $table = self::$db_table;
+        $columns = $wpdb->get_col("SHOW COLUMNS FROM {$table}", 0);
+        self::$log_table_columns = is_array($columns) ? $columns : array();
+
+        return self::$log_table_columns;
     }
 
     /**
@@ -309,25 +368,125 @@ class WPAL_Helpers {
     }
 
     /**
+     * Get normalized client IP diagnostics.
+     *
+     * @return array
+     */
+    public static function get_ip_details() {
+        $details = array(
+            'ip' => '',
+            'source' => '',
+            'is_public' => false,
+            'raw_headers' => array(),
+            'candidates' => array(),
+        );
+
+        $headers = array(
+            'HTTP_CF_CONNECTING_IP' => 'Cloudflare',
+            'HTTP_TRUE_CLIENT_IP' => 'True-Client-IP',
+            'HTTP_X_REAL_IP' => 'X-Real-IP',
+            'HTTP_X_FORWARDED_FOR' => 'X-Forwarded-For',
+            'HTTP_CLIENT_IP' => 'Client-IP',
+            'REMOTE_ADDR' => 'Remote Address',
+        );
+
+        foreach ($headers as $server_key => $label) {
+            if (empty($_SERVER[$server_key])) {
+                continue;
+            }
+
+            $raw_value = trim((string) wp_unslash($_SERVER[$server_key]));
+            if ('' === $raw_value) {
+                continue;
+            }
+
+            $details['raw_headers'][$server_key] = $raw_value;
+            $parts = array_map('trim', explode(',', $raw_value));
+
+            foreach ($parts as $part) {
+                $ip = self::normalize_ip_candidate($part);
+                if (!$ip) {
+                    continue;
+                }
+
+                $candidate = array(
+                    'ip' => $ip,
+                    'source' => $label,
+                    'is_public' => self::is_public_ip($ip),
+                );
+
+                $details['candidates'][] = $candidate;
+            }
+        }
+
+        if (empty($details['candidates'])) {
+            return $details;
+        }
+
+        $selected = null;
+        foreach ($details['candidates'] as $candidate) {
+            if ($candidate['is_public']) {
+                $selected = $candidate;
+                break;
+            }
+        }
+
+        if (!$selected) {
+            $selected = $details['candidates'][0];
+        }
+
+        $details['ip'] = $selected['ip'];
+        $details['source'] = $selected['source'];
+        $details['is_public'] = $selected['is_public'];
+
+        return $details;
+    }
+
+    /**
      * Get client IP.
      *
      * @return string
      */
     public static function get_ip_address() {
-        $ip = '';
+        $details = self::get_ip_details();
+        return $details['ip'];
+    }
 
-        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-            $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $parts = explode(',', wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
-            $ip = trim($parts[0]);
-        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
-            $ip = wp_unslash($_SERVER['REMOTE_ADDR']);
+    /**
+     * Normalize a possible IP value from a proxy header.
+     *
+     * @param string $value Header value.
+     * @return string
+     */
+    private static function normalize_ip_candidate($value) {
+        $value = trim($value, " \t\n\r\0\x0B\"'");
+        if ('' === $value || 'unknown' === strtolower($value)) {
+            return '';
         }
 
-        $ip = filter_var($ip, FILTER_VALIDATE_IP);
+        if (filter_var($value, FILTER_VALIDATE_IP)) {
+            return $value;
+        }
 
-        return $ip ? $ip : '';
+        if (preg_match('/^\[(.*)\]:(\d+)$/', $value, $matches) && filter_var($matches[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            return $matches[1];
+        }
+
+        if (preg_match('/^(.+):(\d+)$/', $value, $matches) && filter_var($matches[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            return $matches[1];
+        }
+
+        return '';
+    }
+
+    /**
+     * Determine whether an IP is public.
+     *
+     * @param string $ip IP address.
+     * @return bool
+     */
+    private static function is_public_ip($ip) {
+        return (bool) filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
     }
 
     /**
