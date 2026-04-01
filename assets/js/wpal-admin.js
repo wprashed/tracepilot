@@ -102,7 +102,8 @@
     $(document).on('click', '.wpal-view-log', function() {
         request({
             action: 'wpal_get_log_details',
-            log_id: $(this).data('log-id')
+            log_id: $(this).data('log-id'),
+            site_id: $(this).data('site-id') || 0
         }).done(function(html) {
             modal().find('.wpal-modal-body').html(html);
             modal().addClass('is-open');
@@ -127,7 +128,8 @@
 
         request({
             action: 'wpal_delete_log',
-            log_id: button.data('log-id')
+            log_id: button.data('log-id'),
+            site_id: button.data('site-id') || 0
         }).done(function(response) {
             if (response.success) {
                 const row = button.closest('tr');
@@ -158,7 +160,8 @@
         const button = $(this);
         request({
             action: 'wpal_archive_log',
-            log_id: button.data('log-id')
+            log_id: button.data('log-id'),
+            site_id: button.data('site-id') || 0
         }).done(function(response) {
             if (response.success) {
                 button.closest('tr').fadeOut(180, function() {
@@ -202,8 +205,64 @@
         });
     });
 
+    $(document).on('click', '.wpal-block-ip', function() {
+        const ip = $(this).data('ip');
+        if (!ip) {
+            return;
+        }
+        request({ action: 'wpal_block_ip', ip: ip }).done(function(response) {
+            if (response.success) {
+                window.alert(response.data.message);
+            }
+        });
+    });
+
+    $(document).on('click', '.wpal-force-logout', function() {
+        const userId = $(this).data('user-id');
+        if (!userId) {
+            return;
+        }
+        request({ action: 'wpal_force_logout_user', user_id: userId }).done(function(response) {
+            if (response.success) {
+                window.alert(response.data.message);
+            }
+        });
+    });
+
+    $(document).on('click', '.wpal-reset-password', function() {
+        const userId = $(this).data('user-id');
+        if (!userId) {
+            return;
+        }
+        request({ action: 'wpal_reset_user_password', user_id: userId }).done(function(response) {
+            if (response.success) {
+                window.alert(response.data.message);
+            }
+        });
+    });
+
+    $(document).on('click', '.wpal-delete-user-logs', function() {
+        const userId = $(this).data('user-id');
+        if (!userId || !window.confirm('Delete all logs for this user?')) {
+            return;
+        }
+        request({ action: 'wpal_delete_user_logs', user_id: userId }).done(function(response) {
+            if (response.success) {
+                window.alert(response.data.message);
+                window.location.reload();
+            }
+        });
+    });
+
     function collectOptions(form) {
         const data = {};
+        $(form).find('input[type="checkbox"][name^="wpal_options["]').each(function() {
+            const match = this.name.match(/^wpal_options\[([^\]]+)\](\[\])?$/);
+            if (!match || match[2]) {
+                return;
+            }
+            data[match[1]] = this.checked ? this.value : 0;
+        });
         const formData = new window.FormData(form);
 
         formData.forEach(function(value, key) {
@@ -235,6 +294,7 @@
 
         request({
             action: 'wpal_save_settings',
+            replace_mode: 1,
             wpal_options: collectOptions(this)
         }).done(function(response) {
             feedback.text(response.success ? response.data.message : 'Unable to save settings.');
@@ -249,6 +309,28 @@
         request({ action: 'wpal_reset_settings' }).done(function(response) {
             if (response.success) {
                 window.location.reload();
+            }
+        });
+    });
+
+    $('#wpal-export-user-logs').on('click', function() {
+        const userId = $('#wpal-privacy-user-id').val();
+        if (!userId) {
+            window.alert('Enter a user ID first.');
+            return;
+        }
+        const url = `${wpal_admin_vars.ajax_url}?action=wpal_export_user_logs&nonce=${encodeURIComponent(wpal_admin_vars.nonce)}&user_id=${encodeURIComponent(userId)}`;
+        window.location.href = url;
+    });
+
+    $('#wpal-delete-user-logs-btn').on('click', function() {
+        const userId = $('#wpal-privacy-user-id').val();
+        if (!userId || !window.confirm('Delete all logs for this user?')) {
+            return;
+        }
+        request({ action: 'wpal_delete_user_logs', user_id: userId }).done(function(response) {
+            if (response.success) {
+                window.alert(response.data.message);
             }
         });
     });
