@@ -16,6 +16,7 @@ class WPAL_Dashboard {
      */
     public function __construct() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
+        add_action('network_admin_menu', array($this, 'add_admin_menu'));
     }
 
     /**
