@@ -62,6 +62,12 @@ class WPAL_Settings {
             'monitor_file_changes',
             'monitor_privilege_escalation',
             'monitor_file_integrity',
+            'enable_vulnerability_scanner',
+            'vulnerability_auto_scan',
+            'vulnerability_scan_plugins',
+            'vulnerability_scan_themes',
+            'vulnerability_scan_core',
+            'vulnerability_include_file_integrity',
             'enable_geolocation',
             'anonymize_ip',
             'plugin_changes_locked',
@@ -85,6 +91,9 @@ class WPAL_Settings {
         $sanitized['discord_webhook_url'] = isset($options['discord_webhook_url']) ? esc_url_raw($options['discord_webhook_url']) : '';
         $sanitized['telegram_bot_token'] = isset($options['telegram_bot_token']) ? sanitize_text_field($options['telegram_bot_token']) : '';
         $sanitized['telegram_chat_id'] = isset($options['telegram_chat_id']) ? sanitize_text_field($options['telegram_chat_id']) : '';
+        $sanitized['wordfence_api_key'] = isset($options['wordfence_api_key']) ? sanitize_text_field($options['wordfence_api_key']) : '';
+        $sanitized['patchstack_api_key'] = isset($options['patchstack_api_key']) ? sanitize_text_field($options['patchstack_api_key']) : '';
+        $sanitized['wpscan_api_token'] = isset($options['wpscan_api_token']) ? sanitize_text_field($options['wpscan_api_token']) : '';
         $sanitized['excluded_actions'] = isset($options['excluded_actions']) ? sanitize_textarea_field($options['excluded_actions']) : '';
         $sanitized['severity_rules'] = isset($options['severity_rules']) ? sanitize_textarea_field($options['severity_rules']) : '';
         $sanitized['redact_context_keys'] = isset($options['redact_context_keys']) ? sanitize_textarea_field($options['redact_context_keys']) : '';
@@ -94,6 +103,7 @@ class WPAL_Settings {
         $sanitized['notification_severities'] = isset($options['notification_severities']) ? array_values(array_filter(array_map('sanitize_key', (array) $options['notification_severities']))) : array();
         $sanitized['suppressed_severities'] = isset($options['suppressed_severities']) ? array_values(array_filter(array_map('sanitize_key', (array) $options['suppressed_severities']))) : array();
         $sanitized['exclude_roles'] = isset($options['exclude_roles']) ? array_values(array_filter(array_map('sanitize_key', (array) $options['exclude_roles']))) : array();
+        $sanitized['vulnerability_sources'] = isset($options['vulnerability_sources']) ? array_values(array_filter(array_map('sanitize_key', (array) $options['vulnerability_sources']))) : array();
         $sanitized['blocked_ips'] = isset($options['blocked_ips']) ? array_values(array_filter(array_map('sanitize_text_field', (array) $options['blocked_ips']))) : $defaults['blocked_ips'];
 
         if (!empty($options['default_export_format']) && in_array($options['default_export_format'], array('csv', 'json', 'xml', 'pdf'), true)) {
