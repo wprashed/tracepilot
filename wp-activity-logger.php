@@ -38,6 +38,7 @@ require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-settings.php';
 require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-archive.php';
 require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-response-actions.php';
 require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-file-integrity.php';
+require_once WPAL_PLUGIN_DIR . 'includes/class-wpal-vulnerability-scanner.php';
 
 class WP_Activity_Logger_Pro {
     /**
@@ -66,6 +67,7 @@ class WP_Activity_Logger_Pro {
     public $archive;
     public $response_actions;
     public $file_integrity;
+    public $vulnerability_scanner;
 
     /**
      * Get singleton.
@@ -100,6 +102,7 @@ class WP_Activity_Logger_Pro {
         $this->archive = new WPAL_Archive();
         $this->response_actions = new WPAL_Response_Actions();
         $this->file_integrity = new WPAL_File_Integrity();
+        $this->vulnerability_scanner = new WPAL_Vulnerability_Scanner();
 
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
