@@ -159,6 +159,33 @@
   padding: 22px;
 }
 
+.wpal-score-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.wpal-score-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -32px -32px auto;
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  opacity: 0.12;
+}
+
+.wpal-score-card-good::after {
+  background: var(--wpal-green);
+}
+
+.wpal-score-card-warning::after {
+  background: var(--wpal-brand);
+}
+
+.wpal-score-card-danger::after {
+  background: var(--wpal-danger);
+}
+
 .wpal-stat-label {
   color: var(--wpal-muted);
   display: block;
@@ -517,6 +544,43 @@ textarea.wpal-input {
   color: var(--wpal-muted);
   font-size: 13px;
   padding: 14px 16px;
+}
+
+.wpal-issue-card h3 {
+  margin-bottom: 6px;
+}
+
+.wpal-suggestion-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.wpal-suggestion-card {
+  background: #fff;
+  border: 1px solid var(--wpal-line);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.wpal-suggestion-card p {
+  color: var(--wpal-muted);
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
+.wpal-suggestion-head {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.wpal-history-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 .wpal-code-inline {
