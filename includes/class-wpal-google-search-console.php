@@ -26,7 +26,6 @@ class WPAL_Google_Search_Console {
      * Constructor
      */
     public function __construct() {
-        add_action('admin_menu', array($this, 'add_submenu_page'), 35);
         add_action('admin_init', array($this, 'handle_oauth_callback'));
         add_action('wp_ajax_wpal_gsc_fetch_data', array($this, 'ajax_fetch_data'));
         add_action('wp_ajax_wpal_gsc_disconnect', array($this, 'ajax_disconnect'));
@@ -37,7 +36,7 @@ class WPAL_Google_Search_Console {
      */
     public function add_submenu_page() {
         add_submenu_page(
-            'wp-activity-logger-pro-dashboard',
+            'wp-activity-logger-pro',
             __('Search Console', 'wp-activity-logger-pro'),
             __('Search Console', 'wp-activity-logger-pro'),
             'manage_options',
