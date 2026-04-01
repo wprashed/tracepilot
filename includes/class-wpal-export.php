@@ -1,269 +1,156 @@
 <?php
 /**
- * Export class for WP Activity Logger Pro
+ * Export class for WP Activity Logger Pro.
  */
 
-// Exit if accessed directly
 if (!defined('ABSPATH')) {
     exit;
 }
 
 class WPAL_Export {
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct() {
-        // Nothing to do here
+        add_action('admin_menu', array($this, 'add_export_page'), 35);
+        add_action('wp_ajax_wpal_export_logs', array($this, 'export_logs'));
     }
 
     /**
-     * Export logs
+     * Register export page.
+     */
+    public function add_export_page() {
+        add_submenu_page(
+            'wp-activity-logger-pro',
+            __('Export', 'wp-activity-logger-pro'),
+            __('Export', 'wp-activity-logger-pro'),
+            'manage_options',
+            'wp-activity-logger-pro-export',
+            array($this, 'render_export_page')
+        );
+    }
+
+    /**
+     * Render export page.
+     */
+    public function render_export_page() {
+        include WPAL_PLUGIN_DIR . 'templates/export.php';
+    }
+
+    /**
+     * Export logs.
      */
     public function export_logs() {
-        // Check nonce
         check_ajax_referer('wpal_nonce', 'nonce');
-        
-        // Check if user has permission
+
         if (!current_user_can('manage_options')) {
             wp_die(__('You do not have permission to export logs.', 'wp-activity-logger-pro'));
         }
-        
-        // Get export format
-        $format = isset($_POST['format']) ? sanitize_text_field($_POST['format']) : 'csv';
-        
-        // Get filters
-        $filter_user = isset($_POST['user']) ? sanitize_text_field($_POST['user']) : '';
-        $filter_action = isset($_POST['action']) ? sanitize_text_field($_POST['action']) : '';
-        $filter_severity = isset($_POST['severity']) ? sanitize_text_field($_POST['severity']) : '';
-        $filter_date_from = isset($_POST['date_from']) ? sanitize_text_field($_POST['date_from']) : '';
-        $filter_date_to = isset($_POST['date_to']) ? sanitize_text_field($_POST['date_to']) : '';
-        
-        // Get logs
+
+        $format = isset($_POST['format']) ? sanitize_key(wp_unslash($_POST['format'])) : 'csv';
+        $format = in_array($format, array('csv', 'json', 'xml', 'pdf'), true) ? $format : 'csv';
+
         global $wpdb;
         WPAL_Helpers::init();
-        
-        // Build query
-        $query = "SELECT * FROM " . WPAL_Helpers::$db_table . " WHERE 1=1";
-        $query_args = array();
-        
-        if ($filter_user) {
-            $query .= " AND username LIKE %s";
-            $query_args[] = '%' . $wpdb->esc_like($filter_user) . '%';
-        }
-        
-        if ($filter_action) {
-            $query .= " AND action LIKE %s";
-            $query_args[] = '%' . $wpdb->esc_like($filter_action) . '%';
-        }
-        
-        if ($filter_severity) {
-            $query .= " AND severity = %s";
-            $query_args[] = $filter_severity;
-        }
-        
-        if ($filter_date_from) {
-            $query .= " AND time >= %s";
-            $query_args[] = $filter_date_from . ' 00:00:00';
-        }
-        
-        if ($filter_date_to) {
-            $query .= " AND time <= %s";
-            $query_args[] = $filter_date_to . ' 23:59:59';
-        }
-        
-        $query .= " ORDER BY time DESC";
-        
-        // Prepare query if there are arguments
-        if (!empty($query_args)) {
-            $query = $wpdb->prepare($query, $query_args);
-        }
-        
-        // Get logs
-        $logs = $wpdb->get_results($query, ARRAY_A);
-        
-        // Export based on format
-        switch ($format) {
-            case 'csv':
-                $this->export_csv($logs);
-                break;
-            case 'json':
-                $this->export_json($logs);
-                break;
-            case 'xml':
-                $this->export_xml($logs);
-                break;
-            case 'pdf':
-                $this->export_pdf($logs);
-                break;
-            default:
-                $this->export_csv($logs);
-        }
-        
-        wp_die();
-    }
+        $table_name = WPAL_Helpers::$db_table;
 
-    /**
-     * Export logs as CSV
-     */
-    private function export_csv($logs) {
-        // Set headers
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename=activity-logs-' . date('Y-m-d') . '.csv');
-        
-        // Create a file pointer connected to the output stream
-        $output = fopen('php://output', 'w');
-        
-        // Output the column headings
-        fputcsv($output, array(
-            'ID',
-            'Time',
-            'User ID',
-            'Username',
-            'User Role',
-            'Action',
-            'Object Type',
-            'Object ID',
-            'Object Name',
-            'Context',
-            'IP',
-            'Browser',
-            'Severity'
-        ));
-        
-        // Output each row of the data
-        foreach ($logs as $log) {
-            fputcsv($output, $log);
-        }
-        
-        // Close the file pointer
-        fclose($output);
-        exit;
-    }
+        $where = array('1=1');
+        $args = array();
 
-    /**
-     * Export logs as JSON
-     */
-    private function export_json($logs) {
-        // Set headers
-        header('Content-Type: application/json; charset=utf-8');
-        header('Content-Disposition: attachment; filename=activity-logs-' . date('Y-m-d') . '.json');
-        
-        // Output JSON
-        echo json_encode($logs);
-        exit;
-    }
+        $filters = array(
+            'user' => 'username = %s',
+            'action_filter' => 'action = %s',
+            'severity' => 'severity = %s',
+        );
 
-    /**
-     * Export logs as XML
-     */
-    private function export_xml($logs) {
-        // Set headers
-        header('Content-Type: application/xml; charset=utf-8');
-        header('Content-Disposition: attachment; filename=activity-logs-' . date('Y-m-d') . '.xml');
-        
-        // Create XML document
-        $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><logs></logs>');
-        
-        // Add logs to XML
-        foreach ($logs as $log) {
-            $log_xml = $xml->addChild('log');
-            
-            foreach ($log as $key => $value) {
-                if ($key === 'context') {
-                    // Handle context as CDATA
-                    $context = $log_xml->addChild($key);
-                    $context_node = dom_import_simplexml($context);
-                    $context_owner = $context_node->ownerDocument;
-                    $context_node->appendChild($context_owner->createCDATASection($value));
-                } else {
-                    $log_xml->addChild($key, htmlspecialchars($value));
-                }
+        foreach ($filters as $field => $sql) {
+            if (!empty($_POST[$field])) {
+                $where[] = $sql;
+                $args[] = sanitize_text_field(wp_unslash($_POST[$field]));
             }
         }
-        
-        // Output XML
-        echo $xml->asXML();
-        exit;
-    }
 
-    /**
-     * Export logs as PDF
-     */
-    private function export_pdf($logs) {
-        // Check if TCPDF is available
-        if (!class_exists('TCPDF')) {
-            // If TCPDF is not available, fallback to CSV
-            $this->export_csv($logs);
-            return;
+        if (!empty($_POST['date_from'])) {
+            $where[] = 'time >= %s';
+            $args[] = sanitize_text_field(wp_unslash($_POST['date_from'])) . ' 00:00:00';
         }
-        
-        // Create new PDF document
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        
-        // Set document information
-        $pdf->SetCreator(PDF_CREATOR);
-        $pdf->SetAuthor('WP Activity Logger Pro');
-        $pdf->SetTitle('Activity Logs');
-        $pdf->SetSubject('Activity Logs Export');
-        $pdf->SetKeywords('WordPress, Activity, Logs, Export');
-        
-        // Set default header data
-        $pdf->SetHeaderData('', 0, 'Activity Logs', 'Generated on ' . date('Y-m-d H:i:s'));
-        
-        // Set header and footer fonts
-        $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-        $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-        
-        // Set default monospaced font
-        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-        
-        // Set margins
-        $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-        
-        // Set auto page breaks
-        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-        
-        // Set image scale factor
-        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-        
-        // Add a page
-        $pdf->AddPage();
-        
-        // Create table header
-        $html = '<table border="1" cellpadding="5">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Time</th>
-                    <th>Username</th>
-                    <th>Action</th>
-                    <th>Severity</th>
-                    <th>IP</th>
-                </tr>
-            </thead>
-            <tbody>';
-        
-        // Add logs to table
-        foreach ($logs as $log) {
-            $html .= '<tr>
-                <td>' . $log['id'] . '</td>
-                <td>' . $log['time'] . '</td>
-                <td>' . $log['username'] . '</td>
-                <td>' . $log['action'] . '</td>
-                <td>' . $log['severity'] . '</td>
-                <td>' . $log['ip'] . '</td>
-            </tr>';
+
+        if (!empty($_POST['date_to'])) {
+            $where[] = 'time <= %s';
+            $args[] = sanitize_text_field(wp_unslash($_POST['date_to'])) . ' 23:59:59';
         }
-        
-        $html .= '</tbody></table>';
-        
-        // Output HTML
-        $pdf->writeHTML($html, true, false, true, false, '');
-        
-        // Close and output PDF document
-        $pdf->Output('activity-logs-' . date('Y-m-d') . '.pdf', 'D');
+
+        $query = "SELECT * FROM $table_name WHERE " . implode(' AND ', $where) . ' ORDER BY time DESC';
+        if (!empty($args)) {
+            $query = $wpdb->prepare($query, $args);
+        }
+
+        $logs = $wpdb->get_results($query, ARRAY_A);
+        $filename = 'activity-logs-' . gmdate('Y-m-d');
+
+        switch ($format) {
+            case 'json':
+                header('Content-Type: application/json; charset=utf-8');
+                header('Content-Disposition: attachment; filename=' . $filename . '.json');
+                echo wp_json_encode($logs);
+                break;
+
+            case 'xml':
+                header('Content-Type: application/xml; charset=utf-8');
+                header('Content-Disposition: attachment; filename=' . $filename . '.xml');
+                $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><logs></logs>');
+                foreach ($logs as $log) {
+                    $node = $xml->addChild('log');
+                    foreach ($log as $key => $value) {
+                        $node->addChild($key, htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'));
+                    }
+                }
+                echo $xml->asXML();
+                break;
+
+            case 'pdf':
+                header('Content-Type: text/plain; charset=utf-8');
+                header('Content-Disposition: attachment; filename=' . $filename . '.txt');
+                echo "WP Activity Logger Export\n\n";
+                foreach ($logs as $log) {
+                    echo sprintf(
+                        "[%s] %s | %s | %s | %s\n",
+                        $log['time'],
+                        $log['severity'],
+                        $log['username'],
+                        $log['action'],
+                        $log['description']
+                    );
+                }
+                break;
+
+            case 'csv':
+            default:
+                header('Content-Type: text/csv; charset=utf-8');
+                header('Content-Disposition: attachment; filename=' . $filename . '.csv');
+                $output = fopen('php://output', 'w');
+                fputcsv($output, array('ID', 'Time', 'User', 'Role', 'Action', 'Severity', 'IP', 'Browser', 'Object', 'Description'));
+                foreach ($logs as $log) {
+                    fputcsv(
+                        $output,
+                        array(
+                            $log['id'],
+                            $log['time'],
+                            $log['username'],
+                            $log['user_role'],
+                            $log['action'],
+                            $log['severity'],
+                            $log['ip'],
+                            $log['browser'],
+                            $log['object_name'],
+                            $log['description'],
+                        )
+                    );
+                }
+                fclose($output);
+                break;
+        }
+
         exit;
     }
 }
