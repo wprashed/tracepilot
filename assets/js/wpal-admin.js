@@ -82,7 +82,7 @@
     }
 
     function initTables() {
-        if ($.fn.dataTable && $('#wpal-logs-table').length && !$.fn.dataTable.isDataTable('#wpal-logs-table')) {
+        if ($.fn.dataTable && $('#wpal-logs-table.wpal-data-table').length && !$.fn.dataTable.isDataTable('#wpal-logs-table')) {
             $('#wpal-logs-table').DataTable({
                 pageLength: 25,
                 order: [[0, 'desc']]
