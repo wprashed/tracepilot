@@ -117,13 +117,22 @@ class WPAL_Archive {
         
         // Get log ID
         $log_id = isset($_POST['log_id']) ? intval($_POST['log_id']) : 0;
+        $site_id = isset($_POST['site_id']) ? intval($_POST['site_id']) : 0;
         
         if (!$log_id) {
             wp_send_json_error(array('message' => __('Invalid log ID.', 'wp-activity-logger-pro')));
         }
         
+        if (is_multisite() && $site_id) {
+            switch_to_blog($site_id);
+        }
+
         // Archive log
         $result = $this->archive_log($log_id);
+
+        if (is_multisite() && $site_id) {
+            restore_current_blog();
+        }
         
         if (is_wp_error($result)) {
             wp_send_json_error(array('message' => $result->get_error_message()));
