@@ -16,7 +16,6 @@ class WPAL_Threat_Detection {
      * Constructor
      */
     public function __construct() {
-        add_action('admin_menu', array($this, 'add_submenu_page'), 25);
         add_action('wp_ajax_wpal_analyze_threats', array($this, 'ajax_analyze_threats'));
         add_action('wpal_after_log_activity', array($this, 'analyze_log_for_threats'), 10, 5);
         add_action('wpal_daily_cron', array($this, 'scheduled_threat_analysis'));
@@ -27,7 +26,7 @@ class WPAL_Threat_Detection {
      */
     public function add_submenu_page() {
         add_submenu_page(
-            'wp-activity-logger-pro-dashboard',
+            'wp-activity-logger-pro',
             __('Threat Detection', 'wp-activity-logger-pro'),
             __('Threat Detection', 'wp-activity-logger-pro'),
             'manage_options',
