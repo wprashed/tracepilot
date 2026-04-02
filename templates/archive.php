@@ -39,7 +39,7 @@ if ($exists) {
             <p><?php esc_html_e('No archived logs found.', 'wp-activity-logger-pro'); ?></p>
         <?php else : ?>
             <div class="wpal-table-wrap">
-                <table class="wpal-table">
+                <table class="wpal-table wpal-responsive-table">
                     <thead>
                         <tr>
                             <th><?php esc_html_e('Archived', 'wp-activity-logger-pro'); ?></th>
@@ -52,11 +52,11 @@ if ($exists) {
                     <tbody>
                         <?php foreach ($logs as $log) : ?>
                             <tr>
-                                <td><?php echo esc_html(WPAL_Helpers::format_datetime($log->archived_at)); ?></td>
-                                <td><?php echo esc_html($log->username); ?></td>
-                                <td><?php echo esc_html($log->action); ?></td>
-                                <td><?php echo WPAL_Helpers::get_severity_badge($log->severity); ?></td>
-                                <td class="wpal-table-actions">
+                                <td data-label="<?php esc_attr_e('Archived', 'wp-activity-logger-pro'); ?>"><?php echo esc_html(WPAL_Helpers::format_datetime($log->archived_at)); ?></td>
+                                <td data-label="<?php esc_attr_e('User', 'wp-activity-logger-pro'); ?>"><?php echo esc_html($log->username); ?></td>
+                                <td data-label="<?php esc_attr_e('Action', 'wp-activity-logger-pro'); ?>"><?php echo esc_html($log->action); ?></td>
+                                <td data-label="<?php esc_attr_e('Severity', 'wp-activity-logger-pro'); ?>"><?php echo WPAL_Helpers::get_severity_badge($log->severity); ?></td>
+                                <td data-label="<?php esc_attr_e('Actions', 'wp-activity-logger-pro'); ?>" class="wpal-table-actions">
                                     <button type="button" class="wpal-btn wpal-btn-secondary wpal-restore-log" data-log-id="<?php echo esc_attr($log->id); ?>"><?php esc_html_e('Restore', 'wp-activity-logger-pro'); ?></button>
                                     <button type="button" class="wpal-btn wpal-btn-danger wpal-delete-archived-log" data-log-id="<?php echo esc_attr($log->id); ?>"><?php esc_html_e('Delete', 'wp-activity-logger-pro'); ?></button>
                                 </td>
