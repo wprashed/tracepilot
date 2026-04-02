@@ -190,7 +190,7 @@ $assistant_hint = !empty($report['assistant_hint']) ? $report['assistant_hint'] 
             <div class="wpal-form-stack">
                 <label>
                     <span><?php esc_html_e('Plugins to hide in your admin session', 'wp-activity-logger-pro'); ?></span>
-                    <select multiple class="wpal-input" id="wpal-safe-mode-plugins">
+                    <select multiple class="wpal-input wpal-select-tall" id="wpal-safe-mode-plugins">
                         <?php foreach ($active_plugins as $plugin) : ?>
                             <option value="<?php echo esc_attr($plugin['file']); ?>" <?php selected(in_array($plugin['file'], (array) ($safe_mode['plugins'] ?? array()), true)); ?>>
                                 <?php
@@ -265,7 +265,7 @@ $assistant_hint = !empty($report['assistant_hint']) ? $report['assistant_hint'] 
                     </div>
                 <?php else : ?>
                     <?php foreach ($timeline as $entry) : ?>
-                        <div class="wpal-list-row">
+                        <div class="wpal-list-row wpal-list-row-compact">
                             <div>
                                 <strong><?php echo esc_html($entry['message']); ?></strong>
                                 <div class="wpal-list-subtext">
@@ -306,7 +306,7 @@ $assistant_hint = !empty($report['assistant_hint']) ? $report['assistant_hint'] 
                     </div>
                 <?php else : ?>
                     <?php foreach ($correlations as $correlation) : ?>
-                        <div class="wpal-list-row">
+                        <div class="wpal-list-row wpal-list-row-compact">
                             <div>
                                 <strong><?php echo esc_html($correlation['issue']); ?></strong>
                                 <div class="wpal-list-subtext">
@@ -373,7 +373,7 @@ $assistant_hint = !empty($report['assistant_hint']) ? $report['assistant_hint'] 
                     </div>
                 <?php else : ?>
                     <?php foreach ($client_errors as $entry) : ?>
-                        <div class="wpal-list-row">
+                        <div class="wpal-list-row wpal-list-row-compact">
                             <div>
                                 <strong><?php echo esc_html($entry['message']); ?></strong>
                                 <div class="wpal-list-subtext">
@@ -407,7 +407,7 @@ $assistant_hint = !empty($report['assistant_hint']) ? $report['assistant_hint'] 
                     </div>
                 <?php else : ?>
                     <?php foreach ($history as $entry) : ?>
-                        <div class="wpal-list-row">
+                        <div class="wpal-list-row wpal-list-row-compact">
                             <div>
                                 <strong>
                                     <?php
@@ -438,34 +438,51 @@ $assistant_hint = !empty($report['assistant_hint']) ? $report['assistant_hint'] 
                 <p><?php esc_html_e('The scanner checks the active theme, plugin stack, server limits, WordPress debug status, REST API state, cron backlog, and the activity log database.', 'wp-activity-logger-pro'); ?></p>
             </div>
         </div>
-        <div class="wpal-grid wpal-grid-2">
-            <div class="wpal-detail-card">
-                <dl>
-                    <dt><?php esc_html_e('WordPress', 'wp-activity-logger-pro'); ?></dt>
-                    <dd><?php echo esc_html($inventory['wordpress_version'] ?? ''); ?></dd>
-                    <dt><?php esc_html_e('PHP', 'wp-activity-logger-pro'); ?></dt>
-                    <dd><?php echo esc_html($inventory['php_version'] ?? ''); ?></dd>
-                    <dt><?php esc_html_e('REST routes', 'wp-activity-logger-pro'); ?></dt>
-                    <dd><?php echo esc_html(isset($inventory['rest_routes']) ? number_format_i18n((int) $inventory['rest_routes']) : 0); ?></dd>
-                    <dt><?php esc_html_e('Cron events', 'wp-activity-logger-pro'); ?></dt>
-                    <dd><?php echo esc_html(isset($inventory['cron_total']) ? number_format_i18n((int) $inventory['cron_total']) : 0); ?></dd>
-                    <dt><?php esc_html_e('WP_DEBUG', 'wp-activity-logger-pro'); ?></dt>
-                    <dd><?php echo !empty($inventory['wp_debug']) ? esc_html__('Enabled', 'wp-activity-logger-pro') : esc_html__('Disabled', 'wp-activity-logger-pro'); ?></dd>
-                </dl>
+        <div class="wpal-inventory-grid">
+            <div class="wpal-metric-card">
+                <span><?php esc_html_e('WordPress', 'wp-activity-logger-pro'); ?></span>
+                <strong><?php echo esc_html($inventory['wordpress_version'] ?? ''); ?></strong>
+                <small><?php esc_html_e('Core version scanned', 'wp-activity-logger-pro'); ?></small>
             </div>
-            <div class="wpal-detail-card">
-                <dl>
-                    <dt><?php esc_html_e('Memory limit', 'wp-activity-logger-pro'); ?></dt>
-                    <dd><?php echo esc_html($inventory['memory_limit'] ?? ''); ?></dd>
-                    <dt><?php esc_html_e('Max execution time', 'wp-activity-logger-pro'); ?></dt>
-                    <dd><?php echo esc_html($inventory['max_execution_time'] ?? ''); ?></dd>
-                    <dt><?php esc_html_e('Log table', 'wp-activity-logger-pro'); ?></dt>
-                    <dd><?php echo !empty($inventory['table_ready']) ? esc_html__('Ready', 'wp-activity-logger-pro') : esc_html__('Missing', 'wp-activity-logger-pro'); ?></dd>
-                    <dt><?php esc_html_e('Stored log rows', 'wp-activity-logger-pro'); ?></dt>
-                    <dd><?php echo esc_html(isset($inventory['log_total']) ? number_format_i18n((int) $inventory['log_total']) : 0); ?></dd>
-                    <dt><?php esc_html_e('Active theme', 'wp-activity-logger-pro'); ?></dt>
-                    <dd><?php echo esc_html(!empty($active_theme['name']) ? $active_theme['name'] : __('Unknown', 'wp-activity-logger-pro')); ?></dd>
-                </dl>
+            <div class="wpal-metric-card">
+                <span><?php esc_html_e('PHP', 'wp-activity-logger-pro'); ?></span>
+                <strong><?php echo esc_html($inventory['php_version'] ?? ''); ?></strong>
+                <small><?php esc_html_e('Runtime powering the site', 'wp-activity-logger-pro'); ?></small>
+            </div>
+            <div class="wpal-metric-card">
+                <span><?php esc_html_e('REST routes', 'wp-activity-logger-pro'); ?></span>
+                <strong><?php echo esc_html(isset($inventory['rest_routes']) ? number_format_i18n((int) $inventory['rest_routes']) : 0); ?></strong>
+                <small><?php esc_html_e('Registered API endpoints', 'wp-activity-logger-pro'); ?></small>
+            </div>
+            <div class="wpal-metric-card">
+                <span><?php esc_html_e('Cron events', 'wp-activity-logger-pro'); ?></span>
+                <strong><?php echo esc_html(isset($inventory['cron_total']) ? number_format_i18n((int) $inventory['cron_total']) : 0); ?></strong>
+                <small><?php esc_html_e('Scheduled jobs discovered', 'wp-activity-logger-pro'); ?></small>
+            </div>
+            <div class="wpal-metric-card">
+                <span><?php esc_html_e('WP_DEBUG', 'wp-activity-logger-pro'); ?></span>
+                <strong><?php echo !empty($inventory['wp_debug']) ? esc_html__('Enabled', 'wp-activity-logger-pro') : esc_html__('Disabled', 'wp-activity-logger-pro'); ?></strong>
+                <small><?php esc_html_e('Debug mode state', 'wp-activity-logger-pro'); ?></small>
+            </div>
+            <div class="wpal-metric-card">
+                <span><?php esc_html_e('Memory limit', 'wp-activity-logger-pro'); ?></span>
+                <strong><?php echo esc_html($inventory['memory_limit'] ?? ''); ?></strong>
+                <small><?php esc_html_e('Current PHP memory ceiling', 'wp-activity-logger-pro'); ?></small>
+            </div>
+            <div class="wpal-metric-card">
+                <span><?php esc_html_e('Max execution time', 'wp-activity-logger-pro'); ?></span>
+                <strong><?php echo esc_html($inventory['max_execution_time'] ?? ''); ?></strong>
+                <small><?php esc_html_e('Maximum PHP request duration', 'wp-activity-logger-pro'); ?></small>
+            </div>
+            <div class="wpal-metric-card">
+                <span><?php esc_html_e('Log table', 'wp-activity-logger-pro'); ?></span>
+                <strong><?php echo !empty($inventory['table_ready']) ? esc_html__('Ready', 'wp-activity-logger-pro') : esc_html__('Missing', 'wp-activity-logger-pro'); ?></strong>
+                <small><?php printf(esc_html__('%d stored log rows', 'wp-activity-logger-pro'), isset($inventory['log_total']) ? (int) $inventory['log_total'] : 0); ?></small>
+            </div>
+            <div class="wpal-metric-card">
+                <span><?php esc_html_e('Active theme', 'wp-activity-logger-pro'); ?></span>
+                <strong><?php echo esc_html(!empty($active_theme['name']) ? $active_theme['name'] : __('Unknown', 'wp-activity-logger-pro')); ?></strong>
+                <small><?php esc_html_e('Theme currently rendered publicly', 'wp-activity-logger-pro'); ?></small>
             </div>
         </div>
     </section>
