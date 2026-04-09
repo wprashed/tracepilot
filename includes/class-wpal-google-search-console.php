@@ -26,9 +26,48 @@ class WPAL_Google_Search_Console {
      * Constructor
      */
     public function __construct() {
+        add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_init', array($this, 'handle_oauth_callback'));
         add_action('wp_ajax_wpal_gsc_fetch_data', array($this, 'ajax_fetch_data'));
         add_action('wp_ajax_wpal_gsc_disconnect', array($this, 'ajax_disconnect'));
+    }
+
+    /**
+     * Register Search Console settings.
+     *
+     * @return void
+     */
+    public function register_settings() {
+        register_setting(
+            'wpal_gsc_options',
+            'wpal_gsc_options',
+            array(
+                'sanitize_callback' => array($this, 'sanitize_options'),
+                'default' => array(),
+            )
+        );
+    }
+
+    /**
+     * Sanitize Search Console options.
+     *
+     * @param array $options Raw options.
+     * @return array
+     */
+    public function sanitize_options($options) {
+        $current = get_option('wpal_gsc_options', array());
+        $options = is_array($options) ? $options : array();
+
+        $sanitized = array(
+            'client_id' => isset($options['client_id']) ? sanitize_text_field(wp_unslash($options['client_id'])) : '',
+            'client_secret' => isset($options['client_secret']) ? sanitize_text_field(wp_unslash($options['client_secret'])) : '',
+        );
+
+        if (!empty($current['access_token']) && is_array($current['access_token'])) {
+            $sanitized['access_token'] = $current['access_token'];
+        }
+
+        return $sanitized;
     }
 
     /**
@@ -102,38 +141,48 @@ class WPAL_Google_Search_Console {
      * Handle OAuth callback
      */
     public function handle_oauth_callback() {
-        if (isset($_GET['page']) && $_GET['page'] === 'wp-activity-logger-pro-search-console' && 
-            isset($_GET['oauth']) && $_GET['oauth'] === 'callback' && 
-            isset($_GET['code'])) {
-            
+        $page  = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
+        $oauth = isset($_GET['oauth']) ? sanitize_key(wp_unslash($_GET['oauth'])) : '';
+        $code  = isset($_GET['code']) ? sanitize_text_field(wp_unslash($_GET['code'])) : '';
+
+        if ('wp-activity-logger-pro-search-console' === $page && 'callback' === $oauth && !empty($code)) {
+            if (!WPAL_Helpers::current_user_can_manage()) {
+                return;
+            }
+
             $client = $this->initialize_client();
-            
+
             try {
-                // Exchange authorization code for access token
-                $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-                
+                $token = $client->fetchAccessTokenWithAuthCode($code);
+
                 if (isset($token['error'])) {
                     add_settings_error(
                         'wpal_gsc',
                         'oauth_error',
-                        sprintf(__('OAuth error: %s', 'wp-activity-logger-pro'), $token['error']),
+                        sprintf(
+                            /* translators: %s: OAuth error message. */
+                            esc_html__('OAuth error: %s', 'wp-activity-logger-pro'),
+                            esc_html($token['error'])
+                        ),
                         'error'
                     );
                 } else {
-                    // Save access token
                     $options = get_option('wpal_gsc_options', array());
                     $options['access_token'] = $token;
                     update_option('wpal_gsc_options', $options);
-                    
-                    // Redirect to remove query parameters
-                    wp_redirect(admin_url('admin.php?page=wp-activity-logger-pro-search-console&connected=1'));
+
+                    wp_safe_redirect(admin_url('admin.php?page=wp-activity-logger-pro-search-console&connected=1'));
                     exit;
                 }
             } catch (Exception $e) {
                 add_settings_error(
                     'wpal_gsc',
                     'oauth_exception',
-                    sprintf(__('OAuth exception: %s', 'wp-activity-logger-pro'), $e->getMessage()),
+                    sprintf(
+                        /* translators: %s: Exception message returned during OAuth flow. */
+                        esc_html__('OAuth exception: %s', 'wp-activity-logger-pro'),
+                        esc_html($e->getMessage())
+                    ),
                     'error'
                 );
             }
@@ -218,10 +267,10 @@ class WPAL_Google_Search_Console {
         }
         
         // Get parameters
-        $site_url = isset($_POST['site_url']) ? sanitize_text_field($_POST['site_url']) : '';
-        $start_date = isset($_POST['start_date']) ? sanitize_text_field($_POST['start_date']) : date('Y-m-d', strtotime('-30 days'));
-        $end_date = isset($_POST['end_date']) ? sanitize_text_field($_POST['end_date']) : date('Y-m-d');
-        $dimensions = isset($_POST['dimensions']) ? (array) $_POST['dimensions'] : array('query');
+        $site_url   = isset($_POST['site_url']) ? esc_url_raw(wp_unslash($_POST['site_url'])) : '';
+        $start_date = isset($_POST['start_date']) ? sanitize_text_field(wp_unslash($_POST['start_date'])) : gmdate('Y-m-d', strtotime('-30 days'));
+        $end_date   = isset($_POST['end_date']) ? sanitize_text_field(wp_unslash($_POST['end_date'])) : gmdate('Y-m-d');
+        $dimensions = isset($_POST['dimensions']) ? array_values(array_filter(array_map('sanitize_key', (array) wp_unslash($_POST['dimensions'])))) : array('query');
         
         if (empty($site_url)) {
             wp_send_json_error(array('message' => __('Site URL is required.', 'wp-activity-logger-pro')));
@@ -231,7 +280,7 @@ class WPAL_Google_Search_Console {
         $data = $this->get_search_data($site_url, $start_date, $end_date, $dimensions);
         
         if (isset($data['error'])) {
-            wp_send_json_error(array('message' => $data['error']));
+            wp_send_json_error(array('message' => sanitize_text_field($data['error'])));
         }
         
         // Get log data for correlation
