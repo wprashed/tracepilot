@@ -3,7 +3,7 @@
  * Plugin Name: WP Activity Logger Pro
  * Plugin URI: https://example.com/wp-activity-logger-pro
  * Description: Advanced activity logging for WordPress with real-time notifications, analytics, threat detection, and modern reporting tools.
- * Version: 1.2.5
+ * Version: 1.2.6
  * Author: Your Name
  * Author URI: https://example.com
  * Text Domain: wp-activity-logger-pro
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WPAL_VERSION', '1.2.5');
+define('WPAL_VERSION', '1.2.6');
 define('WPAL_PLUGIN_FILE', __FILE__);
 define('WPAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPAL_PLUGIN_URL', plugin_dir_url(__FILE__));
