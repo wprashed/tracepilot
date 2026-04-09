@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: WP Activity Logger Pro
- * Plugin URI: https://example.com/wp-activity-logger-pro
+ * Plugin URI: https://rashed.im/
  * Description: Advanced activity logging for WordPress with real-time notifications, analytics, threat detection, and modern reporting tools.
- * Version: 1.2.6
- * Author: Your Name
- * Author URI: https://example.com
+ * Version: 1.3.0
+ * Author: Rashed Hossain
+ * Author URI: https://rashed.im/
  * Text Domain: wp-activity-logger-pro
  * Domain Path: /languages
  * License: GPL v2 or later
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WPAL_VERSION', '1.2.6');
+define('WPAL_VERSION', '1.3.0');
 define('WPAL_PLUGIN_FILE', __FILE__);
 define('WPAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPAL_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -208,6 +208,11 @@ class WP_Activity_Logger_Pro {
                 'nonce' => wp_create_nonce('wpal_nonce'),
                 'confirm_delete' => __('Are you sure you want to delete this log entry?', 'wp-activity-logger-pro'),
                 'confirm_delete_all' => __('Are you sure you want to delete all log entries? This action cannot be undone.', 'wp-activity-logger-pro'),
+                'confirm_reset_settings' => __('Reset all settings to defaults?', 'wp-activity-logger-pro'),
+                'confirm_delete_user_logs' => __('Delete all logs for this user?', 'wp-activity-logger-pro'),
+                'enter_user_id' => __('Enter a user ID first.', 'wp-activity-logger-pro'),
+                'running_scan' => __('Running scan...', 'wp-activity-logger-pro'),
+                'scan_failed' => __('Unable to run the diagnostics scan.', 'wp-activity-logger-pro'),
                 'export_url' => admin_url('admin-ajax.php'),
             )
         );
