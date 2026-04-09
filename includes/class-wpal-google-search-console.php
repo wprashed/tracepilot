@@ -39,7 +39,7 @@ class WPAL_Google_Search_Console {
             'wp-activity-logger-pro',
             __('Search Console', 'wp-activity-logger-pro'),
             __('Search Console', 'wp-activity-logger-pro'),
-            'manage_options',
+            WPAL_Helpers::get_admin_capability(),
             'wp-activity-logger-pro-search-console',
             array($this, 'render_page')
         );
@@ -208,7 +208,7 @@ class WPAL_Google_Search_Console {
         }
         
         // Check permissions
-        if (!current_user_can('manage_options')) {
+        if (!WPAL_Helpers::current_user_can_manage()) {
             wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
         }
         
@@ -333,7 +333,7 @@ class WPAL_Google_Search_Console {
         }
         
         // Check permissions
-        if (!current_user_can('manage_options')) {
+        if (!WPAL_Helpers::current_user_can_manage()) {
             wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
         }
         
