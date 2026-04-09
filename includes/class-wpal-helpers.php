@@ -111,6 +111,28 @@ class WPAL_Helpers {
     }
 
     /**
+     * Get the capability used for plugin admin menus on the current screen.
+     *
+     * @return string
+     */
+    public static function get_admin_capability() {
+        if (is_multisite() && is_network_admin()) {
+            return 'manage_network_options';
+        }
+
+        return 'manage_options';
+    }
+
+    /**
+     * Check whether the current user can manage the plugin.
+     *
+     * @return bool
+     */
+    public static function current_user_can_manage() {
+        return current_user_can('manage_options') || (is_multisite() && is_super_admin());
+    }
+
+    /**
      * Create or upgrade plugin tables.
      */
     public static function create_tables() {
