@@ -1,128 +1,108 @@
 === WP Activity Logger Pro ===
 Contributors: wprashed
-Donate link: https://example.com/donate
-Tags: activity log, security, audit log, user tracking, monitoring, user activity, admin, logger
-Requires at least: 5.0
-Tested up to: 6.4
-Stable tag: 1.0.0
-Requires PHP: 7.2
+Tags: activity log, audit log, security, diagnostics, monitoring, logging
+Requires at least: 6.0
+Tested up to: 6.9.4
+Requires PHP: 7.4
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Monitor and log all activity on your WordPress site with detailed reports, real-time notifications, and advanced filtering.
+Track WordPress activity, investigate conflicts, review security signals, and export audit-ready logs from one modern admin dashboard.
 
 == Description ==
 
-WP Activity Logger Pro provides comprehensive activity tracking for your WordPress site. Monitor user actions, system changes, and security events with an intuitive dashboard and detailed logs.
+WP Activity Logger Pro helps site owners, agencies, and administrators understand what is happening inside WordPress.
 
-= Key Features =
+The plugin records user and system activity, highlights suspicious patterns, offers diagnostics for common site issues, and provides a clear export workflow for compliance or troubleshooting.
 
-* **Comprehensive Activity Tracking** - Log user logins, content changes, plugin/theme updates, and more
-* **Real-time Dashboard** - View recent activities and trends at a glance
-* **Detailed Activity Logs** - See who did what and when with comprehensive context
-* **Advanced Filtering** - Filter logs by user, action type, date range, and severity
-* **Export Capabilities** - Export logs to CSV, JSON, or PDF formats
-* **Notification System** - Get email alerts for critical events
-* **User-friendly Interface** - Intuitive admin interface with modern design
-* **Role-based Access Control** - Control who can view and manage logs
-* **IP Geolocation** - See where activities originate from
-* **Custom Event Tracking** - Track custom events in your themes or plugins
+= Core features =
 
-= Use Cases =
+* Activity logging for logins, settings changes, content updates, plugin and theme actions, and other tracked events.
+* Modern dashboard with charts, summaries, and recent event visibility.
+* Searchable log stream with filters for severity, role, action, date range, and multisite context.
+* Log detail view with timeline context and response actions.
+* Threat detection tools for suspicious logins, file changes, and privilege-related events.
+* Diagnostics scanner with issue explanations, safe mode debugging, timeline, and change correlation.
+* Software vulnerability intelligence settings for Wordfence, Patchstack, and WPScan integrations.
+* File integrity baseline and scan tools.
+* Export tools for CSV, JSON, XML, and plain-text report output.
+* Privacy-oriented controls for IP anonymization, context redaction, and user log export/delete helpers.
 
-* **Security Monitoring** - Keep track of login attempts, user registrations, and role changes
-* **Content Change Tracking** - Monitor who creates, edits, or deletes content
-* **Troubleshooting** - Identify the cause of issues by reviewing recent activities
-* **User Training** - Understand how users interact with your site to provide better training
-* **Compliance** - Maintain detailed logs for compliance with regulations like GDPR
+= Built for administrators =
 
-= Pro Features =
+WP Activity Logger Pro is designed for:
 
-* Real-time email notifications for critical events
-* Advanced export options (CSV, JSON, PDF)
-* IP geolocation tracking
-* Extended log retention
-* Custom event tracking API
-* Role-based access control
-* Dashboard widgets with activity trends
+* site owners who need an audit trail
+* agencies managing client sites
+* support engineers investigating regressions
+* administrators reviewing plugin conflicts and security signals
+* teams handling compliance requests and log exports
+
+= Developer-friendly foundation =
+
+The plugin follows WordPress patterns for escaping, sanitization, AJAX nonce checks, and translatable strings. It also includes a helper API for custom activity entries.
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/wp-activity-logger-pro` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Use the 'Activity Logger' menu item to access the plugin's features
+1. Upload the plugin folder to `/wp-content/plugins/`, or install it from the WordPress admin plugins screen.
+2. Activate the plugin through the `Plugins` screen in WordPress.
+3. Open `Activity Logger` in the admin menu.
+4. Review the `Settings`, `Diagnostics`, and `Threat Detection` pages to configure the plugin for your workflow.
 
 == Frequently Asked Questions ==
 
-= How far back does the plugin keep logs? =
+= What does the plugin log? =
 
-By default, logs are kept for 30 days, but this can be configured in the Settings page to match your requirements.
+It logs tracked user and system events such as authentication activity, settings changes, content updates, and selected plugin or theme operations.
 
-= Can I get notified when specific events occur? =
+= Can I filter the logs? =
 
-Yes, you can configure email notifications for specific events in the Notifications settings.
+Yes. The log stream supports filtering by text search, role, action, severity, date range, and site context on multisite installs.
 
-= Is this plugin compatible with multisite? =
+= Does the plugin support multisite? =
 
-Yes, WP Activity Logger Pro works with WordPress multisite installations.
+Yes. The plugin includes multisite-aware log retrieval and site filters for supported admin views.
 
-= Can I track custom events from my theme or plugins? =
+= Can I export data for privacy or compliance requests? =
 
-Yes, developers can use our API to log custom events. See the Developer Documentation for details.
+Yes. You can export filtered logs or export/delete log history for a specific user from the settings tools.
 
-= What information is logged for each activity? =
+= Does it support diagnostics and conflict testing? =
 
-For each activity, we log:
-* Date and time
-* User (username, ID, and role)
-* IP address
-* Browser/user agent
-* Action performed
-* Affected content (if applicable)
-* Additional context data
+Yes. The diagnostics area includes system checks, issue explanations, change correlation, and admin-session safe mode for plugin conflict testing.
 
-= Is the plugin GDPR compliant? =
+= Does the plugin include vulnerability scanning? =
 
-Yes, the plugin is designed with privacy in mind. It includes tools to manage and export user data in compliance with GDPR requirements.
+It includes configuration for software vulnerability intelligence sources and combines that data with file-integrity checks when configured.
 
 == Screenshots ==
 
-1. Dashboard Overview - Get a quick overview of site activity
-2. Detailed Activity Logs - View comprehensive logs with filtering options
-3. Log Details - See detailed information about each activity
-4. Export Options - Export logs in various formats
-5. Settings Panel - Configure the plugin to suit your needs
+1. Dashboard with activity summaries and charts.
+2. Log stream with filters and event cards.
+3. Detailed log modal with timeline context.
+4. Diagnostics scanner with issue explanations and safe mode tools.
+5. Threat Detection and vulnerability intelligence controls.
+6. Export screen with filterable report generation.
 
 == Changelog ==
 
-= 1.0.0 =
-* Initial release
+= 1.3.0 =
+* Added WordPress.org-ready readme content and full repository documentation.
+* Improved standards coverage for sanitization, escaping, and translatable strings in key admin flows.
+* Added stricter Search Console option sanitization and export request handling.
+* Refined logs and diagnostics UI behavior, including improved filters and control consistency.
+
+= 1.2.9 =
+* Added log stream action filters and refreshed checkbox styling.
+* Improved diagnostics layout and card behavior.
+
+= 1.2.8 =
+* Reorganized settings into multiple tabs.
+* Converted diagnostics into sub-tabs.
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-Initial release of WP Activity Logger Pro.
+= 1.3.0 =
+This release improves documentation and hardens several admin handlers for better WordPress standards compliance.
 
-== Developer Documentation ==
-
-= Logging Custom Events =
-
-Developers can log custom events using the following code:
-
-`
-// Make sure the helper class is initialized
-WPAL_Helpers::init();
-
-// Log a simple activity
-WPAL_Helpers::log_activity(
-    'custom_action_name',    // Action identifier
-    'Description of action', // Human-readable description
-    'info'                   // Severity: 'info', 'warning', or 'error'
-);
-`
-
-For more detailed documentation, please visit our [Developer Guide](https://example.com/developer-guide).
-
-== Support ==
-
-If you need help with the plugin, please contact our support team at support@example.com or visit our [support portal](https://example.com/support).
