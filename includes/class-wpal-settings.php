@@ -17,6 +17,7 @@ class WPAL_Settings {
     public function __construct() {
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_menu', array($this, 'add_settings_page'), 40);
+        add_action('network_admin_menu', array($this, 'add_settings_page'), 40);
         add_action('wp_ajax_wpal_save_settings', array($this, 'ajax_save_settings'));
         add_action('wp_ajax_wpal_reset_settings', array($this, 'ajax_reset_settings'));
     }
@@ -131,7 +132,7 @@ class WPAL_Settings {
             'wp-activity-logger-pro',
             __('Settings', 'wp-activity-logger-pro'),
             __('Settings', 'wp-activity-logger-pro'),
-            'manage_options',
+            WPAL_Helpers::get_admin_capability(),
             'wp-activity-logger-pro-settings',
             array($this, 'render_settings_page')
         );
@@ -150,7 +151,7 @@ class WPAL_Settings {
     public function ajax_save_settings() {
         check_ajax_referer('wpal_nonce', 'nonce');
 
-        if (!current_user_can('manage_options')) {
+        if (!WPAL_Helpers::current_user_can_manage()) {
             wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
         }
 
@@ -183,7 +184,7 @@ class WPAL_Settings {
     public function ajax_reset_settings() {
         check_ajax_referer('wpal_nonce', 'nonce');
 
-        if (!current_user_can('manage_options')) {
+        if (!WPAL_Helpers::current_user_can_manage()) {
             wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
         }
 
