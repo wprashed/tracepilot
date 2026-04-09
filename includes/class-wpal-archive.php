@@ -22,6 +22,7 @@ class WPAL_Archive {
      */
     public function __construct() {
         add_action('admin_menu', array($this, 'add_submenu_page'), 15);
+        add_action('network_admin_menu', array($this, 'add_submenu_page'), 15);
         add_action('wp_ajax_wpal_archive_log', array($this, 'ajax_archive_log'));
         add_action('wp_ajax_wpal_archive_all_logs', array($this, 'ajax_archive_all_logs'));
         add_action('wp_ajax_wpal_restore_log', array($this, 'ajax_restore_log'));
@@ -47,7 +48,7 @@ class WPAL_Archive {
             'wp-activity-logger-pro',
             __('Archive', 'wp-activity-logger-pro'),
             __('Archive', 'wp-activity-logger-pro'),
-            'manage_options',
+            WPAL_Helpers::get_admin_capability(),
             'wp-activity-logger-pro-archive',
             array($this, 'render_page')
         );
@@ -111,7 +112,7 @@ class WPAL_Archive {
         }
         
         // Check permissions
-        if (!current_user_can('manage_options')) {
+        if (!WPAL_Helpers::current_user_can_manage()) {
             wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
         }
         
@@ -226,7 +227,7 @@ class WPAL_Archive {
         }
         
         // Check permissions
-        if (!current_user_can('manage_options')) {
+        if (!WPAL_Helpers::current_user_can_manage()) {
             wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
         }
         
@@ -380,7 +381,7 @@ class WPAL_Archive {
         }
         
         // Check permissions
-        if (!current_user_can('manage_options')) {
+        if (!WPAL_Helpers::current_user_can_manage()) {
             wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
         }
         
@@ -484,7 +485,7 @@ class WPAL_Archive {
         }
         
         // Check permissions
-        if (!current_user_can('manage_options')) {
+        if (!WPAL_Helpers::current_user_can_manage()) {
             wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
         }
         
