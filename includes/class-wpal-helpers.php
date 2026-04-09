@@ -768,6 +768,7 @@ class WPAL_Helpers {
         $map = array(
             'role_filter' => 'user_role = %s',
             'severity_filter' => 'severity = %s',
+            'action_filter' => 'action = %s',
             'site_id' => 'site_id = %d',
         );
 
