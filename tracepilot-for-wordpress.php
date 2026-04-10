@@ -3,7 +3,7 @@
  * Plugin Name: TracePilot for WordPress
  * Plugin URI: https://rashed.im/
  * Description: Activity logging, diagnostics, threat review, and export tooling for WordPress administrators.
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author: Rashed Hossain
  * Author URI: https://rashed.im/
  * Text Domain: wp-activity-logger-pro
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('TracePilot_VERSION', '1.3.1');
+define('TracePilot_VERSION', '1.3.2');
 define('TracePilot_PLUGIN_FILE', __FILE__);
 define('TracePilot_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TracePilot_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -218,7 +218,8 @@ class TracePilot_For_WordPress {
         wp_enqueue_script('jquery-ui-datepicker');
         wp_enqueue_script('tracepilot-chartjs', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js', array(), '4.4.2', true);
         wp_enqueue_script('tracepilot-datatables', 'https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js', array('jquery'), '1.13.8', true);
-        wp_enqueue_script('tracepilot-admin', TracePilot_PLUGIN_URL . 'assets/js/tracepilot-admin.js', array('jquery', 'jquery-ui-datepicker', 'tracepilot-chartjs', 'tracepilot-datatables'), TracePilot_VERSION, true);
+        // Keep the core admin UI working even if optional CDN assets fail to load.
+        wp_enqueue_script('tracepilot-admin', TracePilot_PLUGIN_URL . 'assets/js/tracepilot-admin.js', array('jquery', 'jquery-ui-datepicker'), TracePilot_VERSION, true);
 
         wp_localize_script(
             'tracepilot-admin',
