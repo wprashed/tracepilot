@@ -110,6 +110,18 @@ class TracePilot_Settings {
         $sanitized['vulnerability_sources'] = isset($options['vulnerability_sources']) ? array_values(array_filter(array_map('sanitize_key', (array) $options['vulnerability_sources']))) : array();
         $sanitized['blocked_ips'] = isset($options['blocked_ips']) ? array_values(array_filter(array_map('sanitize_text_field', (array) $options['blocked_ips']))) : $defaults['blocked_ips'];
 
+        if (!empty($sanitized['exclude_roles']) && function_exists('wp_roles')) {
+            $roles_obj = wp_roles();
+            $all_roles = ($roles_obj && is_array($roles_obj->roles)) ? array_keys($roles_obj->roles) : array();
+            if (!empty($all_roles)) {
+                $excluded_known = array_intersect($all_roles, $sanitized['exclude_roles']);
+                // Failsafe: never allow excluding every role (appears like logging is broken).
+                if (count($excluded_known) >= count($all_roles)) {
+                    $sanitized['exclude_roles'] = array();
+                }
+            }
+        }
+
         $normal_severities = array('info', 'warning', 'error');
         if (count(array_intersect($normal_severities, $sanitized['suppressed_severities'])) === count($normal_severities)) {
             $sanitized['suppressed_severities'] = array();
