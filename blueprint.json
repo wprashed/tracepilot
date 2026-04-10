@@ -1,0 +1,22 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "landingPage": "/wp-admin/admin.php?page=cartflush-settings",
+  "preferredVersions": {
+    "php": "8.2",
+    "wp": "latest"
+  },
+  "login": true,
+  "steps": [
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "url",
+        "url": "https://github.com/wprashed/tracepilot-for-wordpress/archive/refs/tags/1.3.3.zip"
+      }
+    },
+    {
+      "step": "activatePlugin",
+      "pluginPath": "tracepilot-for-wordpress/tracepilot-for-wordpress.php"
+    }
+  ]
+}
