@@ -12,9 +12,25 @@ Track WordPress activity, investigate conflicts, review security signals, and ex
 
 == Description ==
 
-TracePilot for WordPress helps site owners, agencies, and administrators understand what is happening inside WordPress.
+TracePilot for WordPress helps site owners, agencies, and administrators understand what is happening inside WordPress, and what changed right before something broke.
 
-The plugin records user and system activity, highlights suspicious patterns, offers diagnostics for common site issues, and provides a clear export workflow for compliance or troubleshooting.
+It records user and system activity, highlights suspicious patterns, offers diagnostics for common site issues, and provides export and privacy workflows for compliance or troubleshooting.
+
+= Try it in 2 minutes =
+
+1. Install and activate TracePilot.
+2. Go to `TracePilot` -> `Activity Logs`.
+3. Update a page, activate a plugin, or change a setting.
+4. Refresh the log stream and click `View Details` on the newest entry.
+5. Optional: enable alerts so your team gets notified on high-signal events.
+
+= What gets logged (examples) =
+
+* ✍️ Content: post/page publish, update, unpublish, trash/restore, delete.
+* 🔐 Auth: login, logout, failed logins.
+* ⚙️ Settings: options/settings updates (high value for “what changed?” debugging).
+* 🧩 Plugins/Themes: activation, deactivation, updates, and install/delete signals (when WordPress reports them via the upgrader).
+* 🧠 Diagnostics: scanner findings and conflict signals (so you can correlate issues with changes over time).
 
 = Features =
 
@@ -29,11 +45,18 @@ The plugin records user and system activity, highlights suspicious patterns, off
 * 🔔 Real alert channels: Route alerts to Email, generic webhooks, Slack, Discord, and Telegram.
 * 🧩 Threat review workflow: Flag suspicious patterns (failed logins, unusual logins, file integrity signals) and review them in admin.
 * 🧬 File integrity: Build a baseline for core/plugin/theme files and scan for new, deleted, or modified files.
-* 🧠 Vulnerability intelligence: Configure Wordfence, Patchstack, and WPScan lookups for installed plugins/themes/core.
+* 🧠 Vulnerability intelligence: Configure optional Wordfence, Patchstack, and WPScan lookups for installed plugins/themes/core.
 * 📤 Exports: Download logs as CSV, JSON, XML, or a plain-text report for incident review.
 * 🧹 Retention and suppression: Reduce noise with excluded actions, suppressed severities, and per-action retention rules.
 * 🔐 Privacy and GDPR guardrails: IP anonymization, UI masking, context redaction keys, and per-user export/delete tools.
 * 🌐 Multisite support: When used in multisite/network admin, aggregate logs across sites and filter by site.
+
+= Choose your workflow =
+
+* 🧾 “I need an audit trail”: Open `Activity Logs`, filter by `Action` or `Severity`, then export to CSV for review.
+* 🧪 “A page is broken”: Open `Diagnostics`, run a scan, then use `Safe Mode` to isolate plugin conflicts without impacting visitors.
+* 🛡️ “I suspect suspicious activity”: Enable alerts, review threat rules, and build a file-integrity baseline for change detection.
+* 🔐 “I got a privacy request”: Use per-user export/delete tools, IP anonymization, and context redaction keys.
 
 = Built for administrators =
 
@@ -49,6 +72,10 @@ TracePilot for WordPress is designed for:
 
 The plugin follows WordPress patterns for escaping, sanitization, AJAX nonce checks, and translatable strings. It also includes a helper API for custom activity entries.
 
+You can also create your own log entries from another plugin/theme using:
+
+* `TracePilot_Helpers::log_activity( $action, $description, $severity, $args )`
+
 == Installation ==
 
 1. Upload the plugin folder to `/wp-content/plugins/`, or install it from the WordPress admin plugins screen.
@@ -60,11 +87,19 @@ The plugin follows WordPress patterns for escaping, sanitization, AJAX nonce che
 
 = What does the plugin log? =
 
-It logs tracked user and system events such as authentication activity, settings changes, content updates, and selected plugin or theme operations.
+It logs tracked user and system events such as authentication activity, settings changes, content updates, and selected plugin or theme operations. The exact scope is designed to be useful, searchable, and exportable, not “everything forever”.
 
 = Can I filter the logs? =
 
 Yes. The log stream supports filtering by text search, role, action, severity, date range, and site context on multisite installs.
+
+= Why don’t I see new logs? =
+
+Most commonly, logging is filtered by settings.
+
+1. Check `Settings` -> `Privacy` and confirm you are not excluding your role under “Exclude roles from logging”.
+2. Check `Settings` -> `Retention` / `Suppression` to confirm severities are not suppressed and your actions are not excluded.
+3. Try a high-signal event like a failed login or a plugin activation and then refresh `Activity Logs`.
 
 = Does the plugin support multisite? =
 
@@ -80,7 +115,7 @@ Yes. The diagnostics area includes system checks, issue explanations, change cor
 
 = Does the plugin include vulnerability scanning? =
 
-It includes configuration for software vulnerability intelligence sources and combines that data with file-integrity checks when configured.
+It includes configuration for software vulnerability intelligence sources and can combine that data with file-integrity signals when configured.
 
 == Screenshots ==
 
