@@ -173,6 +173,7 @@
             const root = $(this).closest('.tracepilot-panel');
             const buttons = $(this).find('.tracepilot-panel-tab');
             const panels = root.find('.tracepilot-tab-panel');
+            const activeTabInput = $('#tracepilot-active-tab');
 
             function activateTab(target) {
                 buttons.removeClass('is-active');
@@ -180,13 +181,18 @@
 
                 buttons.filter(`[data-tab-target="${target}"]`).addClass('is-active');
                 panels.filter(`[data-tab-panel="${target}"]`).addClass('is-active');
+
+                if (activeTabInput.length) {
+                    activeTabInput.val(target);
+                }
             }
 
             buttons.on('click', function() {
                 activateTab($(this).attr('data-tab-target'));
             });
 
-            const initial = buttons.filter('.is-active').attr('data-tab-target') || buttons.first().attr('data-tab-target');
+            const requested = activeTabInput.length ? activeTabInput.val() : '';
+            const initial = requested || buttons.filter('.is-active').attr('data-tab-target') || buttons.first().attr('data-tab-target');
             if (initial) {
                 activateTab(initial);
             }
