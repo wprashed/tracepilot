@@ -1,21 +1,20 @@
 # TracePilot for WordPress - Frequently Asked Questions
 
+[Back to README](../readme.md)
+
 ## General Questions
 
 ### What is TracePilot for WordPress?
 
-TracePilot for WordPress is a comprehensive activity tracking solution for WordPress. It logs user and system activities, providing detailed reports, real-time notifications, and advanced filtering capabilities.
+TracePilot for WordPress is an admin-focused activity log, diagnostics, and threat-review toolkit. It records useful site events, helps you investigate conflicts safely, and supports exports/alerts and privacy workflows.
 
 ### How is this different from other logging plugins?
 
 TracePilot for WordPress offers several advantages:
-- More comprehensive event tracking
-- Real-time notifications
-- Advanced export options
-- User-friendly interface
-- IP geolocation
-- Detailed context for each activity
-- Developer API for custom event tracking
+- 🧾 A modern log stream focused on “what changed?” investigations
+- 🧪 Diagnostics + conflict signals + admin-only safe mode debugging
+- 🔔 Real alert channels (Email, webhooks, Slack, Discord, Telegram)
+- 🔐 Privacy guardrails (IP anonymization/masking, context redaction keys, per-user export/delete tools)
 
 ### Will this plugin slow down my site?
 
@@ -23,40 +22,30 @@ The plugin is designed to be lightweight and efficient. It uses optimized databa
 
 For high-traffic sites, we recommend:
 - Setting a reasonable log retention period
-- Being selective about which events to track
+- Using excluded actions and suppressed severities to reduce noise
 - Using the database cleanup tools regularly
 
 ## Features and Functionality
 
 ### What activities does the plugin track?
 
-The plugin tracks a wide range of activities, including:
+TracePilot tracks key signals across:
 
 **User Activities:**
 - Logins and login attempts
-- User registrations
-- Profile updates
-- Password changes
-- Role changes
+- Logouts
+- Failed login attempts
+- Profile updates and role changes (when triggered)
 
 **Content Activities:**
-- Post/page creation, updates, and deletions
+- Post/page publish, update, unpublish, trash/restore, and delete
 - Comment activities
-- Media uploads and deletions
-- Category/tag changes
 
 **System Activities:**
-- Plugin installations, updates, and deletions
+- Plugin activation/deactivation and update/install/delete signals (when WordPress reports them via the upgrader)
 - Theme changes
+- Theme update/install/delete signals (when reported)
 - WordPress core updates
-- Widget changes
-- Menu modifications
-
-**WooCommerce Activities (if applicable):**
-- Order status changes
-- Product modifications
-- Coupon usage
-- Settings changes
 
 ### Can I track custom events from my own plugins?
 
@@ -71,13 +60,12 @@ By default, logs are kept for 30 days. You can adjust this in the Settings page 
 Yes, you can export logs in several formats:
 - CSV (for spreadsheet analysis)
 - JSON (for data processing)
-- PDF (for reporting)
-
-You can also set up scheduled exports to automatically send logs to an email address on a regular basis.
+- XML (for integrations)
+- Plain-text report (for incident notes)
 
 ### Does the plugin support notifications?
 
-Yes, you can configure email notifications for specific events. For example, you might want to be notified about failed login attempts, plugin updates, or user role changes.
+Yes. You can route alerts to Email, generic webhooks, Slack, Discord, and Telegram. Start with high-signal events like failed logins, role changes, and file integrity changes.
 
 ## Technical Questions
 
@@ -103,31 +91,29 @@ Yes, the plugin is designed with privacy in mind. It includes:
 
 ### How does IP geolocation work?
 
-The plugin uses a geolocation database to determine the approximate location of IP addresses. This information is displayed in the log details. No external API calls are made for this feature, ensuring privacy and performance.
+If enabled, TracePilot can enrich logs with basic IP context. When GDPR guardrails are enabled, it will default to safer behavior like IP anonymization and UI masking.
 
 ## Troubleshooting
 
 ### Some activities aren't being logged. Why?
 
 Check the following:
-1. Ensure the relevant event types are enabled in Settings
-2. Verify that the user role is being tracked
-3. Check if any other plugins might be interfering with the logging process
-4. Look for errors in the WordPress debug log
+1. Go to `TracePilot -> Settings -> Privacy` and confirm your role is not excluded under “Exclude roles from logging”
+2. Go to `TracePilot -> Settings -> Retention` and confirm severities/actions are not suppressed/excluded
+3. Perform a high-signal event (failed login, plugin activation) and refresh Activity Logs
 
 ### The plugin is using too much database space. What can I do?
 
 To reduce database usage:
 1. Decrease the log retention period
-2. Be more selective about which events to track
-3. Use the database optimization tools in the Diagnostics page
-4. Consider exporting and then clearing older logs
+2. Exclude noisy actions (heartbeat/autosave) and suppress low-signal severities
+3. Export logs for offline retention and keep shorter on-site retention
 
 ### I'm not receiving email notifications. How can I fix this?
 
 If notifications aren't working:
 1. Check your spam folder
-2. Verify the email settings in the Notifications page
+2. Verify the settings in `TracePilot -> Settings -> Notifications`
 3. Test your WordPress email functionality with another plugin
 4. Consider using an SMTP plugin to improve email deliverability
 
@@ -138,30 +124,6 @@ Look for log entries with the action "post_deleted" or similar. The log will sho
 - When it happened
 - Details about the deleted post (if available)
 
-## Licensing and Support
-
-### Do I need to renew my license?
-
-Yes, your license needs to be renewed annually to continue receiving updates and support. You can find your license information in the Settings page.
-
-### How do I get support?
-
-Support is available through:
-- Our [documentation](https://example.com/docs)
-- Email support at support@example.com
-- Our support portal at https://example.com/support
-
-### Can I use this plugin on multiple sites?
-
-This depends on your license:
-- Single site license: One WordPress installation
-- Developer license: Up to 5 sites
-- Agency license: Unlimited sites
-
-### Is there a refund policy?
-
-Yes, we offer a 30-day money-back guarantee. If you're not satisfied with the plugin, contact our support team within 30 days of purchase for a full refund.
-
 ## Advanced Usage
 
 ### Can I create custom reports?
@@ -171,14 +133,6 @@ While the plugin doesn't include a report builder, you can:
 2. Filter logs before exporting to focus on specific activities
 3. Use the exported data with your preferred reporting tools
 
-### Is there an API for retrieving log data?
-
-Yes, developers can use our API to retrieve and analyze log data programmatically. See the [Developer Guide](developer-guide.md) for details.
-
-### Can I customize the email notification templates?
-
-Yes, you can customize the email templates in the Notifications settings. You can use HTML and several variables to personalize the notifications to match your brand and include relevant information about the logged event.
-
 ### Can I integrate with third-party services?
 
 Yes, you can use webhooks to send log data to external services. This allows integration with:
@@ -186,30 +140,6 @@ Yes, you can use webhooks to send log data to external services. This allows int
 - Custom dashboards
 - Security monitoring services
 - Data analytics platforms
-
-## Future Development
-
-### What features are planned for future releases?
-
-We're constantly improving the plugin based on user feedback. Some planned features include:
-- Advanced reporting dashboard
-- More notification channels (Slack, SMS, etc.)
-- Enhanced user activity tracking
-- Integration with popular security plugins
-- Mobile app for on-the-go monitoring
-
-### Can I request a feature?
-
-We welcome feature requests from our users. Please send your ideas to features@example.com or use the feature request form on our website.
-
-### How often is the plugin updated?
-
-We typically release:
-- Minor updates (bug fixes) monthly
-- Major feature updates quarterly
-- Security updates as needed
-
-All updates are announced on our website and through the WordPress admin dashboard.
 
 ## Getting Started
 
@@ -220,15 +150,6 @@ After installation, we recommend:
 2. Setting up notifications for critical events
 3. Exploring the dashboard to understand the available information
 4. Checking the logs regularly to establish a baseline of normal activity
-
-### Are there any tutorials available?
-
-Yes, we provide:
-- Video tutorials on our YouTube channel
-- Step-by-step guides in our documentation
-- Webinars for advanced usage (scheduled monthly)
-
-Visit our website for links to all these resources.
 
 ### How can I get the most out of this plugin?
 

@@ -1,5 +1,7 @@
 # TracePilot for WordPress - Developer Guide
 
+[Back to README](../readme.md)
+
 ## Introduction
 
 This guide is intended for developers who want to integrate with TracePilot for WordPress, either to log custom events or to extend the plugin's functionality.
@@ -20,7 +22,7 @@ TracePilot_Helpers::log_activity(
     'Description of action', // Human-readable description
     'info'                   // Severity: 'info', 'warning', or 'error'
 );
-````
+```
 
 ### Advanced Usage
 
@@ -45,11 +47,22 @@ TracePilot_Helpers::log_activity(
 );
 ```
 
+### Triggering a custom event via action (no extra context)
+
+TracePilot also listens for a lightweight action hook you can call:
+
+```php
+do_action('tracepilot_track_custom_event', 'my_action', 'Something happened', 'warning');
+```
+
+Note: this hook is intended for a simple “action + description + severity” signal. For structured context data, use `TracePilot_Helpers::log_activity()` directly.
+
 ### Available Severity Levels
 
 * `info`: Normal activities, informational only
 * `warning`: Activities that might require attention
 * `error`: Critical activities that indicate problems
+* `critical`: Highest urgency (reserved for severe signals)
 
 ### Logging User Actions
 
@@ -62,7 +75,9 @@ TracePilot_Helpers::log_activity(
     'User performed a custom action',
     'info',
     array(
-        'user_id' => 42
+        'user_id' => 42,
+        'username' => 'someuser',
+        'user_role' => 'editor',
     )
 );
 ```
@@ -70,16 +85,6 @@ TracePilot_Helpers::log_activity(
 ## Hooks and Filters
 
 ### Actions
-
-#### `tracepilot_before_log_activity`
-
-Fired before an activity is logged.
-
-```php
-add_action('tracepilot_before_log_activity', function($action, $description, $severity, $args) {
-    // Do something before logging
-}, 10, 4);
-```
 
 #### `tracepilot_after_log_activity`
 
@@ -91,135 +96,39 @@ add_action('tracepilot_after_log_activity', function($log_id, $action, $descript
 }, 10, 5);
 ```
 
-#### `tracepilot_log_deleted`
-
-Fired when a log entry is deleted.
-
-```php
-add_action('tracepilot_log_deleted', function($log_id) {
-    // Do something when a log is deleted
-}, 10, 1);
-```
-
-### Filters
-
-#### `tracepilot_log_data`
-
-Filter the data before it's inserted into the database.
-
-```php
-add_filter('tracepilot_log_data', function($log_data, $action, $description, $severity, $args) {
-    // Modify $log_data before it's saved
-    return $log_data;
-}, 10, 5);
-```
-
-#### `tracepilot_should_log_activity`
-
-Determine whether an activity should be logged.
-
-```php
-add_filter('tracepilot_should_log_activity', function($should_log, $action, $description, $severity, $args) {
-    if ($action === 'some_action_to_ignore') {
-        return false;
-    }
-    return $should_log;
-}, 10, 5);
-```
-
-#### `tracepilot_log_retention_days`
-
-Filter the number of days to keep logs.
-
-```php
-add_filter('tracepilot_log_retention_days', function($days) {
-    return 60; // Keep logs for 60 days
-}, 10, 1);
-```
+TracePilot also fires a legacy-compatible action: `wpal_after_log_activity`.
 
 ## Database Schema
 
-The plugin stores logs in a custom table with the following structure:
+The plugin stores logs in a custom table (default: `{$wpdb->prefix}wpal_logs`) with a schema similar to:
 
 ```sql
-CREATE TABLE {$wpdb->prefix}tracepilot_activity_log (
+CREATE TABLE {$wpdb->prefix}wpal_logs (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     time datetime NOT NULL,
+    site_id bigint(20) unsigned DEFAULT NULL,
     user_id bigint(20) unsigned DEFAULT NULL,
     username varchar(60) DEFAULT NULL,
-    user_role varchar(255) DEFAULT NULL,
+    user_role varchar(60) DEFAULT NULL,
     action varchar(255) NOT NULL,
     description text NOT NULL,
     severity varchar(20) NOT NULL DEFAULT 'info',
-    object_type varchar(255) DEFAULT NULL,
-    object_id varchar(255) DEFAULT NULL,
-    object_name varchar(255) DEFAULT NULL,
     ip varchar(45) DEFAULT NULL,
     browser varchar(255) DEFAULT NULL,
+    location varchar(255) DEFAULT NULL,
+    country varchar(100) DEFAULT NULL,
+    country_code varchar(10) DEFAULT NULL,
+    object_type varchar(50) DEFAULT NULL,
+    object_id bigint(20) unsigned DEFAULT NULL,
+    object_name varchar(255) DEFAULT NULL,
     context longtext DEFAULT NULL,
     PRIMARY KEY (id),
     KEY time (time),
+    KEY site_id (site_id),
     KEY user_id (user_id),
     KEY action (action),
     KEY severity (severity)
 );
-```
-
-## Extending the Plugin
-
-### Adding Custom Widgets
-
-To add a custom widget to the dashboard:
-
-```php
-add_filter('tracepilot_dashboard_widgets', function($widgets) {
-    $widgets['my_custom_widget'] = array(
-        'title' => 'My Custom Widget',
-        'callback' => 'my_custom_widget_callback',
-        'icon' => 'bar-chart-2',
-        'position' => 'column-1'
-    );
-    return $widgets;
-});
-
-function my_custom_widget_callback() {
-    echo '<div>Custom widget content</div>';
-}
-```
-
-### Adding Export Formats
-
-```php
-add_filter('tracepilot_export_formats', function($formats) {
-    $formats['custom_format'] = array(
-        'label' => 'My Custom Format',
-        'callback' => 'my_custom_export_callback',
-        'icon' => 'file-text'
-    );
-    return $formats;
-});
-
-function my_custom_export_callback($logs, $args) {
-    $output = ''; // Generate your formatted output
-    return $output;
-}
-```
-
-### Adding Custom Notification Channels
-
-```php
-add_filter('tracepilot_notification_channels', function($channels) {
-    $channels['custom_channel'] = array(
-        'label' => 'My Custom Channel',
-        'callback' => 'my_custom_notification_callback',
-        'icon' => 'bell'
-    );
-    return $channels;
-});
-
-function my_custom_notification_callback($event, $log_data) {
-    return true; // Send notification through your custom channel
-}
 ```
 
 ## Best Practices
@@ -229,12 +138,12 @@ function my_custom_notification_callback($event, $log_data) {
 * Log only significant events
 * Use appropriate severity levels
 * Consider indexes for custom queries
-* Use `context` for detailed data
+* Use `context` for structured data (avoid huge payloads)
 
 ### Security Considerations
 
 * Never log sensitive data (passwords, API keys)
-* Ensure GDPR compliance
+* Prefer redaction and avoid storing personal data you don’t need
 * Sanitize data before logging
 * Use proper capability checks
 
@@ -242,7 +151,7 @@ function my_custom_notification_callback($event, $log_data) {
 
 * Prefix actions with your plugin/theme slug
 * Check for `TracePilot_Helpers` class existence
-* Use provided hooks and filters
+* Prefer calling `TracePilot_Helpers::log_activity()` directly for best compatibility
 
 ## Example Implementations
 
