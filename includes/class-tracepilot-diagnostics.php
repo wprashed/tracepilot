@@ -40,7 +40,7 @@ class TracePilot_Diagnostics {
     public function ajax_run_diagnostics() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
 
         $report = $this->run_diagnostics(true);
@@ -53,7 +53,7 @@ class TracePilot_Diagnostics {
     public function ajax_enable_safe_mode() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
 
         $plugins = isset($_POST['plugins']) ? array_values(array_filter(array_map('sanitize_text_field', (array) wp_unslash($_POST['plugins'])))) : array();
@@ -70,12 +70,12 @@ class TracePilot_Diagnostics {
 
         TracePilot_Helpers::log_activity(
             'safe_mode_enabled',
-            __('Safe mode enabled for current admin session', 'wp-activity-logger-pro'),
+            __('Safe mode enabled for current admin session', 'tracepilot'),
             'warning',
             array('context' => array('plugins' => $plugins))
         );
 
-        wp_send_json_success(array('message' => __('Safe mode enabled for this admin session.', 'wp-activity-logger-pro')));
+        wp_send_json_success(array('message' => __('Safe mode enabled for this admin session.', 'tracepilot')));
     }
 
     /**
@@ -84,7 +84,7 @@ class TracePilot_Diagnostics {
     public function ajax_disable_safe_mode() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
 
         $token = isset($_COOKIE[self::SAFE_MODE_COOKIE]) ? sanitize_text_field(wp_unslash($_COOKIE[self::SAFE_MODE_COOKIE])) : '';
@@ -97,11 +97,11 @@ class TracePilot_Diagnostics {
 
         TracePilot_Helpers::log_activity(
             'safe_mode_disabled',
-            __('Safe mode disabled for current admin session', 'wp-activity-logger-pro'),
+            __('Safe mode disabled for current admin session', 'tracepilot'),
             'info'
         );
 
-        wp_send_json_success(array('message' => __('Safe mode disabled.', 'wp-activity-logger-pro')));
+        wp_send_json_success(array('message' => __('Safe mode disabled.', 'tracepilot')));
     }
 
     /**
@@ -110,12 +110,12 @@ class TracePilot_Diagnostics {
     public function ajax_ask_diagnostics_ai() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
 
         $question = isset($_POST['question']) ? sanitize_textarea_field(wp_unslash($_POST['question'])) : '';
         if ('' === $question) {
-            wp_send_json_error(array('message' => __('Ask a question first.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Ask a question first.', 'tracepilot')));
         }
 
         wp_send_json_success(array('answer' => $this->answer_contextual_question($question)));
@@ -235,7 +235,7 @@ class TracePilot_Diagnostics {
             'correlations' => $correlations,
             'conflict_plan' => $conflict_plan,
             'history' => $this->get_scan_history(8),
-            'assistant_hint' => __('Ask things like “Why is my site slow?” or “What should I disable first?”', 'wp-activity-logger-pro'),
+            'assistant_hint' => __('Ask things like “Why is my site slow?” or “What should I disable first?”', 'tracepilot'),
         );
 
         if ($persist) {
@@ -343,21 +343,21 @@ class TracePilot_Diagnostics {
             'active_software',
             'info',
             sprintf(
-                __('%1$d active plugins and theme %2$s are currently loaded.', 'wp-activity-logger-pro'),
+                __('%1$d active plugins and theme %2$s are currently loaded.', 'tracepilot'),
                 count($inventory['active_plugins']),
                 $inventory['active_theme']['name']
             ),
-            __('This is the current active software stack being scanned.', 'wp-activity-logger-pro'),
-            array($this->make_fix(__('Review active components', 'wp-activity-logger-pro'), __('Use this inventory when narrowing conflicts or performance issues.', 'wp-activity-logger-pro'), 'high'))
+            __('This is the current active software stack being scanned.', 'tracepilot'),
+            array($this->make_fix(__('Review active components', 'tracepilot'), __('Use this inventory when narrowing conflicts or performance issues.', 'tracepilot'), 'high'))
         );
 
         if (version_compare($inventory['php_version'], '8.0', '<')) {
             $issues[] = $this->make_issue(
                 'php_version',
                 'critical',
-                sprintf(__('PHP %s is below the recommended level.', 'wp-activity-logger-pro'), $inventory['php_version']),
-                __('An older PHP version can break plugin compatibility and reduce stability.', 'wp-activity-logger-pro'),
-                array($this->make_fix(__('Upgrade PHP', 'wp-activity-logger-pro'), __('Move the site to PHP 8.0 or newer.', 'wp-activity-logger-pro'), 'high'))
+                sprintf(__('PHP %s is below the recommended level.', 'tracepilot'), $inventory['php_version']),
+                __('An older PHP version can break plugin compatibility and reduce stability.', 'tracepilot'),
+                array($this->make_fix(__('Upgrade PHP', 'tracepilot'), __('Move the site to PHP 8.0 or newer.', 'tracepilot'), 'high'))
             );
         }
 
@@ -366,11 +366,11 @@ class TracePilot_Diagnostics {
                 $issues[] = $this->make_issue(
                     'plugin_php_compatibility_' . md5($plugin['file']),
                     'critical',
-                    sprintf(__('Plugin %1$s requires PHP %2$s or newer.', 'wp-activity-logger-pro'), $plugin['name'], $plugin['requires_php']),
-                    __('This plugin may behave unpredictably because the server PHP version is lower than the plugin requirement.', 'wp-activity-logger-pro'),
+                    sprintf(__('Plugin %1$s requires PHP %2$s or newer.', 'tracepilot'), $plugin['name'], $plugin['requires_php']),
+                    __('This plugin may behave unpredictably because the server PHP version is lower than the plugin requirement.', 'tracepilot'),
                     array(
-                        $this->make_fix(__('Upgrade PHP', 'wp-activity-logger-pro'), __('Raise the site PHP version to match this plugin requirement.', 'wp-activity-logger-pro'), 'high'),
-                        $this->make_fix(__('Temporarily disable the plugin', 'wp-activity-logger-pro'), __('If upgrade is not immediate, disable the incompatible plugin first.', 'wp-activity-logger-pro'), 'medium')
+                        $this->make_fix(__('Upgrade PHP', 'tracepilot'), __('Raise the site PHP version to match this plugin requirement.', 'tracepilot'), 'high'),
+                        $this->make_fix(__('Temporarily disable the plugin', 'tracepilot'), __('If upgrade is not immediate, disable the incompatible plugin first.', 'tracepilot'), 'medium')
                     ),
                     array('plugins' => array($plugin['file']))
                 );
@@ -380,10 +380,10 @@ class TracePilot_Diagnostics {
                 $issues[] = $this->make_issue(
                     'plugin_wp_compatibility_' . md5($plugin['file']),
                     'warning',
-                    sprintf(__('Plugin %1$s expects WordPress %2$s or newer.', 'wp-activity-logger-pro'), $plugin['name'], $plugin['requires_wp']),
-                    __('This version gap can cause admin breakage, editor problems, or missing functions.', 'wp-activity-logger-pro'),
+                    sprintf(__('Plugin %1$s expects WordPress %2$s or newer.', 'tracepilot'), $plugin['name'], $plugin['requires_wp']),
+                    __('This version gap can cause admin breakage, editor problems, or missing functions.', 'tracepilot'),
                     array(
-                        $this->make_fix(__('Update WordPress', 'wp-activity-logger-pro'), __('Bring WordPress to the version required by this plugin.', 'wp-activity-logger-pro'), 'high')
+                        $this->make_fix(__('Update WordPress', 'tracepilot'), __('Bring WordPress to the version required by this plugin.', 'tracepilot'), 'high')
                     ),
                     array('plugins' => array($plugin['file']))
                 );
@@ -394,10 +394,10 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'theme_php_compatibility',
                 'critical',
-                sprintf(__('Theme %1$s requires PHP %2$s or newer.', 'wp-activity-logger-pro'), $inventory['active_theme']['name'], $inventory['active_theme']['requires_php']),
-                __('The active theme expects a newer PHP version than the server currently provides.', 'wp-activity-logger-pro'),
+                sprintf(__('Theme %1$s requires PHP %2$s or newer.', 'tracepilot'), $inventory['active_theme']['name'], $inventory['active_theme']['requires_php']),
+                __('The active theme expects a newer PHP version than the server currently provides.', 'tracepilot'),
                 array(
-                    $this->make_fix(__('Upgrade PHP', 'wp-activity-logger-pro'), __('Raise PHP to a compatible version for the active theme.', 'wp-activity-logger-pro'), 'high')
+                    $this->make_fix(__('Upgrade PHP', 'tracepilot'), __('Raise PHP to a compatible version for the active theme.', 'tracepilot'), 'high')
                 )
             );
         }
@@ -406,9 +406,9 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'debug_mode',
                 'info',
-                __('WP_DEBUG is disabled.', 'wp-activity-logger-pro'),
-                __('Debug mode is off, so WordPress will be less verbose while you investigate issues.', 'wp-activity-logger-pro'),
-                array($this->make_fix(__('Enable debug temporarily', 'wp-activity-logger-pro'), __('Turn on WP_DEBUG briefly while investigating a hard failure.', 'wp-activity-logger-pro'), 'advanced'))
+                __('WP_DEBUG is disabled.', 'tracepilot'),
+                __('Debug mode is off, so WordPress will be less verbose while you investigate issues.', 'tracepilot'),
+                array($this->make_fix(__('Enable debug temporarily', 'tracepilot'), __('Turn on WP_DEBUG briefly while investigating a hard failure.', 'tracepilot'), 'advanced'))
             );
         }
 
@@ -416,11 +416,11 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'rest_api',
                 'critical',
-                __('REST API routes are unavailable.', 'wp-activity-logger-pro'),
-                __('The REST API appears unhealthy, which can break modern editors, AJAX tools, and integrations.', 'wp-activity-logger-pro'),
+                __('REST API routes are unavailable.', 'tracepilot'),
+                __('The REST API appears unhealthy, which can break modern editors, AJAX tools, and integrations.', 'tracepilot'),
                 array(
-                    $this->make_fix(__('Regenerate permalinks', 'wp-activity-logger-pro'), __('Open Permalinks settings and save once to refresh rewrite rules.', 'wp-activity-logger-pro'), 'high'),
-                    $this->make_fix(__('Check security/firewall rules', 'wp-activity-logger-pro'), __('A security plugin or server rule may be blocking REST requests.', 'wp-activity-logger-pro'), 'medium'),
+                    $this->make_fix(__('Regenerate permalinks', 'tracepilot'), __('Open Permalinks settings and save once to refresh rewrite rules.', 'tracepilot'), 'high'),
+                    $this->make_fix(__('Check security/firewall rules', 'tracepilot'), __('A security plugin or server rule may be blocking REST requests.', 'tracepilot'), 'medium'),
                 )
             );
         }
@@ -437,10 +437,10 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'cron_health',
                 $overdue > 10 ? 'warning' : 'info',
-                sprintf(__('There are %d overdue cron events.', 'wp-activity-logger-pro'), $overdue),
-                __('Scheduled WordPress tasks are falling behind, which can affect emails, cleanup jobs, and automations.', 'wp-activity-logger-pro'),
+                sprintf(__('There are %d overdue cron events.', 'tracepilot'), $overdue),
+                __('Scheduled WordPress tasks are falling behind, which can affect emails, cleanup jobs, and automations.', 'tracepilot'),
                 array(
-                    $this->make_fix(__('Trigger WP-Cron manually', 'wp-activity-logger-pro'), __('Visit the site or configure a real server cron to call wp-cron.php.', 'wp-activity-logger-pro'), 'high')
+                    $this->make_fix(__('Trigger WP-Cron manually', 'tracepilot'), __('Visit the site or configure a real server cron to call wp-cron.php.', 'tracepilot'), 'high')
                 )
             );
         }
@@ -449,9 +449,9 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'database_table',
                 'critical',
-                __('The activity log table is missing.', 'wp-activity-logger-pro'),
-                __('Without the main table, the plugin cannot store activity or issue data.', 'wp-activity-logger-pro'),
-                array($this->make_fix(__('Recreate plugin tables', 'wp-activity-logger-pro'), __('Deactivate and reactivate the plugin or run the built-in repair flow.', 'wp-activity-logger-pro'), 'high'))
+                __('The activity log table is missing.', 'tracepilot'),
+                __('Without the main table, the plugin cannot store activity or issue data.', 'tracepilot'),
+                array($this->make_fix(__('Recreate plugin tables', 'tracepilot'), __('Deactivate and reactivate the plugin or run the built-in repair flow.', 'tracepilot'), 'high'))
             );
         } else {
             $expected_columns = array('time', 'site_id', 'user_id', 'username', 'user_role', 'action', 'description', 'severity', 'ip', 'browser', 'context');
@@ -460,10 +460,10 @@ class TracePilot_Diagnostics {
                 $issues[] = $this->make_issue(
                     'database_schema',
                     'warning',
-                    sprintf(__('The activity log table is missing %s.', 'wp-activity-logger-pro'), implode(', ', $missing_columns)),
-                    __('The log schema is older than the current plugin expectations. Logging may partially work but some features can fail or lose context.', 'wp-activity-logger-pro'),
+                    sprintf(__('The activity log table is missing %s.', 'tracepilot'), implode(', ', $missing_columns)),
+                    __('The log schema is older than the current plugin expectations. Logging may partially work but some features can fail or lose context.', 'tracepilot'),
                     array(
-                        $this->make_fix(__('Run the table upgrade flow', 'wp-activity-logger-pro'), __('Reactivate the plugin or trigger the table creation routine so missing columns are added.', 'wp-activity-logger-pro'), 'high')
+                        $this->make_fix(__('Run the table upgrade flow', 'tracepilot'), __('Reactivate the plugin or trigger the table creation routine so missing columns are added.', 'tracepilot'), 'high')
                     ),
                     array('missing_columns' => array_values($missing_columns))
                 );
@@ -474,9 +474,9 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'memory_limit',
                 'warning',
-                sprintf(__('Memory limit is %s.', 'wp-activity-logger-pro'), $inventory['memory_limit']),
-                __('A low PHP memory limit can trigger white screens, export failures, or editor crashes.', 'wp-activity-logger-pro'),
-                array($this->make_fix(__('Increase PHP memory', 'wp-activity-logger-pro'), __('Raise WordPress memory to 128M or higher.', 'wp-activity-logger-pro'), 'medium'))
+                sprintf(__('Memory limit is %s.', 'tracepilot'), $inventory['memory_limit']),
+                __('A low PHP memory limit can trigger white screens, export failures, or editor crashes.', 'tracepilot'),
+                array($this->make_fix(__('Increase PHP memory', 'tracepilot'), __('Raise WordPress memory to 128M or higher.', 'tracepilot'), 'medium'))
             );
         }
 
@@ -484,9 +484,9 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'execution_time',
                 'warning',
-                sprintf(__('Max execution time is %s seconds.', 'wp-activity-logger-pro'), $inventory['max_execution_time']),
-                __('Long tasks like scans, imports, and exports may stop before they finish.', 'wp-activity-logger-pro'),
-                array($this->make_fix(__('Raise max execution time', 'wp-activity-logger-pro'), __('Increase PHP max_execution_time to at least 120 seconds.', 'wp-activity-logger-pro'), 'medium'))
+                sprintf(__('Max execution time is %s seconds.', 'tracepilot'), $inventory['max_execution_time']),
+                __('Long tasks like scans, imports, and exports may stop before they finish.', 'tracepilot'),
+                array($this->make_fix(__('Raise max execution time', 'tracepilot'), __('Increase PHP max_execution_time to at least 120 seconds.', 'tracepilot'), 'medium'))
             );
         }
 
@@ -494,9 +494,9 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'database_error',
                 'warning',
-                __('A recent database error was detected during the current request.', 'wp-activity-logger-pro'),
+                __('A recent database error was detected during the current request.', 'tracepilot'),
                 $this->explain_error_message($wpdb->last_error),
-                array($this->make_fix(__('Review recent database queries', 'wp-activity-logger-pro'), __('Inspect query-heavy features and verify table structure.', 'wp-activity-logger-pro'), 'advanced')),
+                array($this->make_fix(__('Review recent database queries', 'tracepilot'), __('Inspect query-heavy features and verify table structure.', 'tracepilot'), 'advanced')),
                 array('raw_error' => $wpdb->last_error)
             );
         }
@@ -520,7 +520,7 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'javascript_error',
                 'warning',
-                __('Recent JavaScript runtime errors were captured in the browser.', 'wp-activity-logger-pro'),
+                __('Recent JavaScript runtime errors were captured in the browser.', 'tracepilot'),
                 $this->explain_error_message($recent_error['message']),
                 $this->get_suggestions_for_issue('javascript_error', array('plugins' => $plugins)),
                 array('raw_error' => $recent_error['message'], 'page' => $recent_error['page'], 'plugins' => $plugins)
@@ -533,7 +533,7 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'php_fatal',
                 'critical',
-                __('A recent PHP fatal error was detected.', 'wp-activity-logger-pro'),
+                __('A recent PHP fatal error was detected.', 'tracepilot'),
                 $this->explain_error_message($fatal['message']),
                 $this->get_suggestions_for_issue('php_fatal', array('plugins' => $plugins)),
                 array('raw_error' => $fatal['message'], 'plugins' => $plugins)
@@ -544,11 +544,11 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'hook_collision_' . md5($collision['hook'] . '|' . implode(',', $collision['plugins'])),
                 'warning',
-                sprintf(__('Potential hook collision on %1$s between %2$s.', 'wp-activity-logger-pro'), $collision['hook'], implode(', ', $collision['plugins'])),
-                __('Multiple plugins are attaching heavily to the same WordPress lifecycle point with the same priority. That can cause unexpected overrides or ordering problems.', 'wp-activity-logger-pro'),
+                sprintf(__('Potential hook collision on %1$s between %2$s.', 'tracepilot'), $collision['hook'], implode(', ', $collision['plugins'])),
+                __('Multiple plugins are attaching heavily to the same WordPress lifecycle point with the same priority. That can cause unexpected overrides or ordering problems.', 'tracepilot'),
                 array(
-                    $this->make_fix(__('Use safe mode to split-test plugins', 'wp-activity-logger-pro'), __('Disable half of the involved plugins in your admin-only safe mode session, then retry the failing page.', 'wp-activity-logger-pro'), 'high'),
-                    $this->make_fix(__('Update the involved plugins', 'wp-activity-logger-pro'), __('Conflicts are often fixed in newer plugin releases.', 'wp-activity-logger-pro'), 'high'),
+                    $this->make_fix(__('Use safe mode to split-test plugins', 'tracepilot'), __('Disable half of the involved plugins in your admin-only safe mode session, then retry the failing page.', 'tracepilot'), 'high'),
+                    $this->make_fix(__('Update the involved plugins', 'tracepilot'), __('Conflicts are often fixed in newer plugin releases.', 'tracepilot'), 'high'),
                 ),
                 $collision
             );
@@ -593,8 +593,8 @@ class TracePilot_Diagnostics {
             $issues[] = $this->make_issue(
                 'issue_timeline_context',
                 'info',
-                sprintf(__('Recent site change recorded: %1$s at %2$s.', 'wp-activity-logger-pro'), $latest->action, TracePilot_Helpers::format_datetime($latest->time)),
-                __('Use the timeline below to compare new issues against recent plugin, theme, and content changes.', 'wp-activity-logger-pro'),
+                sprintf(__('Recent site change recorded: %1$s at %2$s.', 'tracepilot'), $latest->action, TracePilot_Helpers::format_datetime($latest->time)),
+                __('Use the timeline below to compare new issues against recent plugin, theme, and content changes.', 'tracepilot'),
                 array(),
                 array('recent_changes' => $updates)
             );
@@ -710,7 +710,7 @@ class TracePilot_Diagnostics {
             'suspect_count' => count($suspect_plugins),
             'group_a' => $group_a,
             'group_b' => $group_b,
-            'summary' => __('Use admin-only safe mode to disable half of the suspected plugins, retest the failing page, then switch halves. This narrows the conflict quickly without affecting visitors.', 'wp-activity-logger-pro'),
+            'summary' => __('Use admin-only safe mode to disable half of the suspected plugins, retest the failing page, then switch halves. This narrows the conflict quickly without affecting visitors.', 'tracepilot'),
         );
     }
 
@@ -850,7 +850,7 @@ class TracePilot_Diagnostics {
     private function record_report_logs($report) {
         TracePilot_Helpers::log_activity(
             'system_scan_completed',
-            sprintf(__('System scan completed with health score %d.', 'wp-activity-logger-pro'), (int) $report['health_score']),
+            sprintf(__('System scan completed with health score %d.', 'tracepilot'), (int) $report['health_score']),
             $report['counts']['critical'] > 0 ? 'error' : ($report['counts']['warning'] > 0 ? 'warning' : 'info'),
             array('context' => array('counts' => $report['counts']))
         );
@@ -889,9 +889,9 @@ class TracePilot_Diagnostics {
         $top = array_slice(array_values($top), 0, 3);
 
         $message = sprintf(
-            __('Critical site issues detected. Health score %1$d. Top issue: %2$s', 'wp-activity-logger-pro'),
+            __('Critical site issues detected. Health score %1$d. Top issue: %2$s', 'tracepilot'),
             (int) $report['health_score'],
-            !empty($top[0]['message']) ? $top[0]['message'] : __('Unknown critical issue', 'wp-activity-logger-pro')
+            !empty($top[0]['message']) ? $top[0]['message'] : __('Unknown critical issue', 'tracepilot')
         );
 
         tracepilot_for_wordpress()->notifications->send_custom_notification(
@@ -966,11 +966,11 @@ class TracePilot_Diagnostics {
             $other = sanitize_text_field($matches[1]);
             if ('woocommerce' !== $other) {
                 $issues[] = array(
-                    'message' => sprintf(__('Conflict detected between WooCommerce and %s on a recent frontend page.', 'wp-activity-logger-pro'), $other),
-                    'explanation' => __('WooCommerce appears in the failing stack alongside another plugin, which usually means the second plugin is interrupting WooCommerce behavior on that page.', 'wp-activity-logger-pro'),
+                    'message' => sprintf(__('Conflict detected between WooCommerce and %s on a recent frontend page.', 'tracepilot'), $other),
+                    'explanation' => __('WooCommerce appears in the failing stack alongside another plugin, which usually means the second plugin is interrupting WooCommerce behavior on that page.', 'tracepilot'),
                     'suggestions' => array(
-                        $this->make_fix(__('Disable the conflicting plugin in safe mode', 'wp-activity-logger-pro'), __('Start safe mode and disable the suspected plugin only for your admin session, then retest checkout privately.', 'wp-activity-logger-pro'), 'high'),
-                        $this->make_fix(__('Update both plugins', 'wp-activity-logger-pro'), __('Compatibility fixes often ship in plugin updates.', 'wp-activity-logger-pro'), 'high'),
+                        $this->make_fix(__('Disable the conflicting plugin in safe mode', 'tracepilot'), __('Start safe mode and disable the suspected plugin only for your admin session, then retest checkout privately.', 'tracepilot'), 'high'),
+                        $this->make_fix(__('Update both plugins', 'tracepilot'), __('Compatibility fixes often ship in plugin updates.', 'tracepilot'), 'high'),
                     ),
                     'context' => array('plugins' => array('woocommerce', $other), 'page' => $recent_error['page'] ?? ''),
                 );
@@ -1018,12 +1018,12 @@ class TracePilot_Diagnostics {
     private function explain_error_message($message) {
         $message = (string) $message;
         $patterns = array(
-            '/undefined function wc_get_product/i' => __('WooCommerce is not loaded properly. This usually happens when another plugin interrupts WooCommerce before it finishes loading.', 'wp-activity-logger-pro'),
-            '/allowed memory size/i' => __('PHP ran out of memory while handling the request. The site needs a higher memory limit or a lighter workload on that page.', 'wp-activity-logger-pro'),
-            '/class .* not found/i' => __('A plugin or theme expected a PHP class that never loaded. This usually points to an update problem, a file loading issue, or a plugin conflict.', 'wp-activity-logger-pro'),
-            '/call to undefined function/i' => __('A required PHP function is missing during execution. Another component may be loading too early, too late, or not at all.', 'wp-activity-logger-pro'),
-            '/rest/i' => __('A REST request is failing. This can affect the block editor, AJAX-powered settings, and modern plugin screens.', 'wp-activity-logger-pro'),
-            '/cron/i' => __('A scheduled task is failing or delayed. Background jobs may not be running reliably.', 'wp-activity-logger-pro'),
+            '/undefined function wc_get_product/i' => __('WooCommerce is not loaded properly. This usually happens when another plugin interrupts WooCommerce before it finishes loading.', 'tracepilot'),
+            '/allowed memory size/i' => __('PHP ran out of memory while handling the request. The site needs a higher memory limit or a lighter workload on that page.', 'tracepilot'),
+            '/class .* not found/i' => __('A plugin or theme expected a PHP class that never loaded. This usually points to an update problem, a file loading issue, or a plugin conflict.', 'tracepilot'),
+            '/call to undefined function/i' => __('A required PHP function is missing during execution. Another component may be loading too early, too late, or not at all.', 'tracepilot'),
+            '/rest/i' => __('A REST request is failing. This can affect the block editor, AJAX-powered settings, and modern plugin screens.', 'tracepilot'),
+            '/cron/i' => __('A scheduled task is failing or delayed. Background jobs may not be running reliably.', 'tracepilot'),
         );
 
         foreach ($patterns as $pattern => $explanation) {
@@ -1032,7 +1032,7 @@ class TracePilot_Diagnostics {
             }
         }
 
-        return __('This issue indicates that WordPress or one of its extensions is failing during runtime. The suggestions below focus on the safest next debugging steps.', 'wp-activity-logger-pro');
+        return __('This issue indicates that WordPress or one of its extensions is failing during runtime. The suggestions below focus on the safest next debugging steps.', 'tracepilot');
     }
 
     /**
@@ -1046,25 +1046,25 @@ class TracePilot_Diagnostics {
         $suggestions = array();
 
         if (false !== strpos($code, 'php_fatal') || false !== strpos($code, 'hook_collision') || false !== strpos($code, 'special_conflict')) {
-            $suggestions[] = $this->make_fix(__('Disable suspected plugin in safe mode', 'wp-activity-logger-pro'), __('Use admin-only safe mode so visitors are unaffected while you isolate the failure.', 'wp-activity-logger-pro'), 'high');
-            $suggestions[] = $this->make_fix(__('Update plugin/theme', 'wp-activity-logger-pro'), __('Install the latest updates for the affected software.', 'wp-activity-logger-pro'), 'high');
+            $suggestions[] = $this->make_fix(__('Disable suspected plugin in safe mode', 'tracepilot'), __('Use admin-only safe mode so visitors are unaffected while you isolate the failure.', 'tracepilot'), 'high');
+            $suggestions[] = $this->make_fix(__('Update plugin/theme', 'tracepilot'), __('Install the latest updates for the affected software.', 'tracepilot'), 'high');
         }
 
         if (false !== strpos($code, 'memory')) {
-            $suggestions[] = $this->make_fix(__('Increase PHP memory', 'wp-activity-logger-pro'), __('Raise WordPress memory and test the failing page again.', 'wp-activity-logger-pro'), 'medium');
+            $suggestions[] = $this->make_fix(__('Increase PHP memory', 'tracepilot'), __('Raise WordPress memory and test the failing page again.', 'tracepilot'), 'medium');
         }
 
         if (false !== strpos($code, 'rest_api')) {
-            $suggestions[] = $this->make_fix(__('Regenerate permalinks', 'wp-activity-logger-pro'), __('Save permalink settings once to rebuild rewrite rules.', 'wp-activity-logger-pro'), 'high');
-            $suggestions[] = $this->make_fix(__('Clear cache', 'wp-activity-logger-pro'), __('Clear page cache, server cache, and CDN cache if present.', 'wp-activity-logger-pro'), 'medium');
+            $suggestions[] = $this->make_fix(__('Regenerate permalinks', 'tracepilot'), __('Save permalink settings once to rebuild rewrite rules.', 'tracepilot'), 'high');
+            $suggestions[] = $this->make_fix(__('Clear cache', 'tracepilot'), __('Clear page cache, server cache, and CDN cache if present.', 'tracepilot'), 'medium');
         }
 
         if (false !== strpos($code, 'javascript_error')) {
-            $suggestions[] = $this->make_fix(__('Clear cache', 'wp-activity-logger-pro'), __('Clear browser and site cache, then test again to avoid stale JavaScript bundles.', 'wp-activity-logger-pro'), 'high');
+            $suggestions[] = $this->make_fix(__('Clear cache', 'tracepilot'), __('Clear browser and site cache, then test again to avoid stale JavaScript bundles.', 'tracepilot'), 'high');
         }
 
         if (empty($suggestions)) {
-            $suggestions[] = $this->make_fix(__('Review latest updates', 'wp-activity-logger-pro'), __('Check what changed recently, especially plugin/theme updates and configuration edits.', 'wp-activity-logger-pro'), 'medium');
+            $suggestions[] = $this->make_fix(__('Review latest updates', 'tracepilot'), __('Check what changed recently, especially plugin/theme updates and configuration edits.', 'tracepilot'), 'medium');
         }
 
         return $suggestions;
@@ -1085,28 +1085,28 @@ class TracePilot_Diagnostics {
             foreach ($issues as $issue) {
                 if (in_array($issue['code'], array('memory_limit', 'execution_time', 'cron_health'), true)) {
                     return sprintf(
-                        __('The strongest slowdown signal right now is: %1$s. Suggested next step: %2$s', 'wp-activity-logger-pro'),
+                        __('The strongest slowdown signal right now is: %1$s. Suggested next step: %2$s', 'tracepilot'),
                         $issue['message'],
-                        !empty($issue['suggestions'][0]['title']) ? $issue['suggestions'][0]['title'] : __('review diagnostics', 'wp-activity-logger-pro')
+                        !empty($issue['suggestions'][0]['title']) ? $issue['suggestions'][0]['title'] : __('review diagnostics', 'tracepilot')
                     );
                 }
             }
 
-            return __('No major performance-specific issue stands out in the latest scan. I would next check heavy plugins, caching, and slow server resources.', 'wp-activity-logger-pro');
+            return __('No major performance-specific issue stands out in the latest scan. I would next check heavy plugins, caching, and slow server resources.', 'tracepilot');
         }
 
         if (false !== strpos($question, 'disable') || false !== strpos($question, 'conflict')) {
             if (!empty($report['conflict_plan']['group_a'])) {
                 $names = wp_list_pluck((array) $report['conflict_plan']['group_a'], 'name');
                 return sprintf(
-                    __('Start with the first isolation batch: %1$s. If the issue disappears, the conflict is inside that group. If not, switch to the second batch.', 'wp-activity-logger-pro'),
+                    __('Start with the first isolation batch: %1$s. If the issue disappears, the conflict is inside that group. If not, switch to the second batch.', 'tracepilot'),
                     implode(', ', array_slice($names, 0, 4))
                 );
             }
 
             foreach ($issues as $issue) {
                 if (false !== strpos($issue['code'], 'hook_collision') || false !== strpos($issue['code'], 'special_conflict')) {
-                    return sprintf(__('Start with this suspected conflict: %s. The safest path is to use admin-only safe mode and disable half of the suspected plugins, then retest.', 'wp-activity-logger-pro'), $issue['message']);
+                    return sprintf(__('Start with this suspected conflict: %s. The safest path is to use admin-only safe mode and disable half of the suspected plugins, then retest.', 'tracepilot'), $issue['message']);
                 }
             }
         }
@@ -1115,7 +1115,7 @@ class TracePilot_Diagnostics {
             if (!empty($report['correlations'][0])) {
                 $correlation = $report['correlations'][0];
                 return sprintf(
-                    __('The strongest timeline clue is that "%1$s" first appeared near the change "%2$s" around %3$s.', 'wp-activity-logger-pro'),
+                    __('The strongest timeline clue is that "%1$s" first appeared near the change "%2$s" around %3$s.', 'tracepilot'),
                     $correlation['issue'],
                     $correlation['change_label'],
                     TracePilot_Helpers::format_datetime($correlation['change_time'])
@@ -1124,10 +1124,10 @@ class TracePilot_Diagnostics {
         }
 
         if (!empty($issues[0])) {
-            return sprintf(__('Top current issue: %1$s. Human explanation: %2$s', 'wp-activity-logger-pro'), $issues[0]['message'], $issues[0]['explanation']);
+            return sprintf(__('Top current issue: %1$s. Human explanation: %2$s', 'tracepilot'), $issues[0]['message'], $issues[0]['explanation']);
         }
 
-        return __('The latest scan does not show a major active issue. Run a fresh scan after reproducing the problem for more context.', 'wp-activity-logger-pro');
+        return __('The latest scan does not show a major active issue. Run a fresh scan after reproducing the problem for more context.', 'tracepilot');
     }
 
     /**
@@ -1360,7 +1360,7 @@ class TracePilot_Diagnostics {
         }
 
         $screen = function_exists('get_current_screen') ? get_current_screen() : null;
-        if (!$screen || false === strpos((string) $screen->id, 'wp-activity-logger-pro')) {
+        if (!$screen || false === strpos((string) $screen->id, 'tracepilot')) {
             return;
         }
 
@@ -1374,15 +1374,15 @@ class TracePilot_Diagnostics {
             return;
         }
 
-        $top_issue = !empty($report['issues'][0]['message']) ? $report['issues'][0]['message'] : __('Critical site issue detected.', 'wp-activity-logger-pro');
+        $top_issue = !empty($report['issues'][0]['message']) ? $report['issues'][0]['message'] : __('Critical site issue detected.', 'tracepilot');
         ?>
         <div class="notice notice-error">
             <p>
-                <strong><?php esc_html_e('WP Activity Logger Diagnostics Alert:', 'wp-activity-logger-pro'); ?></strong>
+                <strong><?php esc_html_e('WP Activity Logger Diagnostics Alert:', 'tracepilot'); ?></strong>
                 <?php echo esc_html($top_issue); ?>
                 <?php
                 printf(
-                    esc_html__('Latest health score: %d.', 'wp-activity-logger-pro'),
+                    esc_html__('Latest health score: %d.', 'tracepilot'),
                     (int) $report['health_score']
                 );
                 ?>

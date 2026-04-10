@@ -6,7 +6,7 @@
  * Version: 1.3.3
  * Author: Rashed Hossain
  * Author URI: https://rashed.im/
- * Text Domain: wp-activity-logger-pro
+ * Text Domain: tracepilot
  * Domain Path: /languages
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -173,7 +173,7 @@ class TracePilot_For_WordPress {
      * Load translations.
      */
     public function load_textdomain() {
-        load_plugin_textdomain('wp-activity-logger-pro', false, dirname(plugin_basename(__FILE__)) . '/languages');
+        load_plugin_textdomain('tracepilot', false, dirname(plugin_basename(__FILE__)) . '/languages');
     }
 
     /**
@@ -186,7 +186,7 @@ class TracePilot_For_WordPress {
         if (!isset($schedules['weekly'])) {
             $schedules['weekly'] = array(
                 'interval' => WEEK_IN_SECONDS,
-                'display' => __('Once Weekly', 'wp-activity-logger-pro'),
+                'display' => __('Once Weekly', 'tracepilot'),
             );
         }
 
@@ -208,7 +208,7 @@ class TracePilot_For_WordPress {
      * @param string $hook Current admin hook.
      */
     public function enqueue_admin_assets($hook) {
-        if (strpos($hook, 'wp-activity-logger-pro') === false) {
+        if (strpos($hook, 'tracepilot') === false) {
             return;
         }
 
@@ -227,13 +227,13 @@ class TracePilot_For_WordPress {
             array(
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('tracepilot_nonce'),
-                'confirm_delete' => __('Are you sure you want to delete this log entry?', 'wp-activity-logger-pro'),
-                'confirm_delete_all' => __('Are you sure you want to delete all log entries? This action cannot be undone.', 'wp-activity-logger-pro'),
-                'confirm_reset_settings' => __('Reset all settings to defaults?', 'wp-activity-logger-pro'),
-                'confirm_delete_user_logs' => __('Delete all logs for this user?', 'wp-activity-logger-pro'),
-                'enter_user_id' => __('Enter a user ID first.', 'wp-activity-logger-pro'),
-                'running_scan' => __('Running scan...', 'wp-activity-logger-pro'),
-                'scan_failed' => __('Unable to run the diagnostics scan.', 'wp-activity-logger-pro'),
+                'confirm_delete' => __('Are you sure you want to delete this log entry?', 'tracepilot'),
+                'confirm_delete_all' => __('Are you sure you want to delete all log entries? This action cannot be undone.', 'tracepilot'),
+                'confirm_reset_settings' => __('Reset all settings to defaults?', 'tracepilot'),
+                'confirm_delete_user_logs' => __('Delete all logs for this user?', 'tracepilot'),
+                'enter_user_id' => __('Enter a user ID first.', 'tracepilot'),
+                'running_scan' => __('Running scan...', 'tracepilot'),
+                'scan_failed' => __('Unable to run the diagnostics scan.', 'tracepilot'),
                 'export_url' => admin_url('admin-ajax.php'),
             )
         );
@@ -247,7 +247,7 @@ class TracePilot_For_WordPress {
      */
     public function add_admin_body_class($classes) {
         $screen = function_exists('get_current_screen') ? get_current_screen() : null;
-        if (!$screen || false === strpos((string) $screen->id, 'wp-activity-logger-pro')) {
+        if (!$screen || false === strpos((string) $screen->id, 'tracepilot')) {
             return $classes;
         }
 

@@ -84,7 +84,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'user_login',
-            sprintf(__('User %s logged in', 'wp-activity-logger-pro'), $user_login),
+            sprintf(__('User %s logged in', 'tracepilot'), $user_login),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -118,7 +118,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'user_logout',
-            sprintf(__('User %s logged out', 'wp-activity-logger-pro'), $user->user_login),
+            sprintf(__('User %s logged out', 'tracepilot'), $user->user_login),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -142,7 +142,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'login_failed',
-            sprintf(__('Failed login attempt for user %s', 'wp-activity-logger-pro'), $username),
+            sprintf(__('Failed login attempt for user %s', 'tracepilot'), $username),
             'warning',
             array(
                 'username' => $username,
@@ -174,7 +174,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'user_registered',
-            sprintf(__('New user registered: %s', 'wp-activity-logger-pro'), $user->user_login),
+            sprintf(__('New user registered: %s', 'tracepilot'), $user->user_login),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -209,7 +209,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'profile_updated',
-            sprintf(__('User profile updated: %s', 'wp-activity-logger-pro'), $user->user_login),
+            sprintf(__('User profile updated: %s', 'tracepilot'), $user->user_login),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -236,7 +236,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'password_reset',
-            sprintf(__('Password reset for user %s', 'wp-activity-logger-pro'), $user->user_login),
+            sprintf(__('Password reset for user %s', 'tracepilot'), $user->user_login),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -281,22 +281,22 @@ class TracePilot_Tracker {
             return; // Skip auto-drafts
         } elseif ($old_status === 'auto-draft' && $new_status === 'draft') {
             $action = 'post_created';
-            $message = sprintf(__('%s created: %s', 'wp-activity-logger-pro'), ucfirst($post->post_type), $post->post_title);
+            $message = sprintf(__('%s created: %s', 'tracepilot'), ucfirst($post->post_type), $post->post_title);
         } elseif ($new_status === 'publish' && $old_status !== 'publish') {
             $action = 'post_published';
-            $message = sprintf(__('%s published: %s', 'wp-activity-logger-pro'), ucfirst($post->post_type), $post->post_title);
+            $message = sprintf(__('%s published: %s', 'tracepilot'), ucfirst($post->post_type), $post->post_title);
         } elseif ($old_status === 'publish' && $new_status !== 'publish') {
             $action = 'post_unpublished';
-            $message = sprintf(__('%s unpublished: %s', 'wp-activity-logger-pro'), ucfirst($post->post_type), $post->post_title);
+            $message = sprintf(__('%s unpublished: %s', 'tracepilot'), ucfirst($post->post_type), $post->post_title);
         } elseif ($new_status === 'trash') {
             $action = 'post_trashed';
-            $message = sprintf(__('%s moved to trash: %s', 'wp-activity-logger-pro'), ucfirst($post->post_type), $post->post_title);
+            $message = sprintf(__('%s moved to trash: %s', 'tracepilot'), ucfirst($post->post_type), $post->post_title);
         } elseif ($old_status === 'trash' && $new_status !== 'trash') {
             $action = 'post_restored';
-            $message = sprintf(__('%s restored from trash: %s', 'wp-activity-logger-pro'), ucfirst($post->post_type), $post->post_title);
+            $message = sprintf(__('%s restored from trash: %s', 'tracepilot'), ucfirst($post->post_type), $post->post_title);
         } else {
             $action = 'post_updated';
-            $message = sprintf(__('%s updated: %s', 'wp-activity-logger-pro'), ucfirst($post->post_type), $post->post_title);
+            $message = sprintf(__('%s updated: %s', 'tracepilot'), ucfirst($post->post_type), $post->post_title);
         }
         
         // Log activity
@@ -360,7 +360,7 @@ class TracePilot_Tracker {
 
         TracePilot_Helpers::log_activity(
             'post_updated',
-            sprintf(__('%s updated: %s', 'wp-activity-logger-pro'), ucfirst($post_after->post_type), $post_after->post_title),
+            sprintf(__('%s updated: %s', 'tracepilot'), ucfirst($post_after->post_type), $post_after->post_title),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -410,7 +410,7 @@ class TracePilot_Tracker {
 
         TracePilot_Helpers::log_activity(
             'post_deleted',
-            sprintf(__('%s deleted: %s', 'wp-activity-logger-pro'), ucfirst($post->post_type), $post->post_title),
+            sprintf(__('%s deleted: %s', 'tracepilot'), ucfirst($post->post_type), $post->post_title),
             'warning',
             array(
                 'user_id' => $user->ID,
@@ -450,7 +450,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'comment_added',
-            sprintf(__('Comment added to %s: %s', 'wp-activity-logger-pro'), $post->post_title, wp_trim_words($comment->comment_content, 10)),
+            sprintf(__('Comment added to %s: %s', 'tracepilot'), $post->post_title, wp_trim_words($comment->comment_content, 10)),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -499,7 +499,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'comment_updated',
-            sprintf(__('Comment updated on %s', 'wp-activity-logger-pro'), $post->post_title),
+            sprintf(__('Comment updated on %s', 'tracepilot'), $post->post_title),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -548,7 +548,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'comment_trashed',
-            sprintf(__('Comment trashed on %s', 'wp-activity-logger-pro'), $post->post_title),
+            sprintf(__('Comment trashed on %s', 'tracepilot'), $post->post_title),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -596,7 +596,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'comment_spam',
-            sprintf(__('Comment marked as spam on %s', 'wp-activity-logger-pro'), $post->post_title),
+            sprintf(__('Comment marked as spam on %s', 'tracepilot'), $post->post_title),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -644,7 +644,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'comment_unspam',
-            sprintf(__('Comment unmarked as spam on %s', 'wp-activity-logger-pro'), $post->post_title),
+            sprintf(__('Comment unmarked as spam on %s', 'tracepilot'), $post->post_title),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -692,7 +692,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'comment_deleted',
-            sprintf(__('Comment deleted from %s', 'wp-activity-logger-pro'), $post->post_title),
+            sprintf(__('Comment deleted from %s', 'tracepilot'), $post->post_title),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -729,7 +729,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'plugin_activated',
-            sprintf(__('Plugin activated: %s', 'wp-activity-logger-pro'), $plugin_data['Name']),
+            sprintf(__('Plugin activated: %s', 'tracepilot'), $plugin_data['Name']),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -765,7 +765,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'plugin_deactivated',
-            sprintf(__('Plugin deactivated: %s', 'wp-activity-logger-pro'), $plugin_data['Name']),
+            sprintf(__('Plugin deactivated: %s', 'tracepilot'), $plugin_data['Name']),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -798,7 +798,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'theme_switched',
-            sprintf(__('Theme switched from %s to %s', 'wp-activity-logger-pro'), $old_theme->get('Name'), $new_name),
+            sprintf(__('Theme switched from %s to %s', 'tracepilot'), $old_theme->get('Name'), $new_name),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -845,7 +845,7 @@ class TracePilot_Tracker {
         if ('core' === $options['type']) {
             TracePilot_Helpers::log_activity(
                 'wordpress_updated',
-                sprintf(__('WordPress updated to version %s', 'wp-activity-logger-pro'), get_bloginfo('version')),
+                sprintf(__('WordPress updated to version %s', 'tracepilot'), get_bloginfo('version')),
                 'info',
                 array_merge(
                     $base_args,
@@ -872,14 +872,14 @@ class TracePilot_Tracker {
                 $plugin_version = !empty($plugin_data['Version']) ? $plugin_data['Version'] : '';
 
                 $event_key = 'plugin_updated';
-                $event_message = __('Plugin updated: %s', 'wp-activity-logger-pro');
+                $event_message = __('Plugin updated: %s', 'tracepilot');
                 $severity = 'info';
                 if ('install' === $lifecycle_action) {
                     $event_key = 'plugin_installed';
-                    $event_message = __('Plugin installed: %s', 'wp-activity-logger-pro');
+                    $event_message = __('Plugin installed: %s', 'tracepilot');
                 } elseif ('delete' === $lifecycle_action) {
                     $event_key = 'plugin_deleted';
-                    $event_message = __('Plugin deleted: %s', 'wp-activity-logger-pro');
+                    $event_message = __('Plugin deleted: %s', 'tracepilot');
                     $severity = 'warning';
                 }
 
@@ -911,14 +911,14 @@ class TracePilot_Tracker {
                 $theme_version = $theme->exists() ? $theme->get('Version') : '';
 
                 $event_key = 'theme_updated';
-                $event_message = __('Theme updated: %s', 'wp-activity-logger-pro');
+                $event_message = __('Theme updated: %s', 'tracepilot');
                 $severity = 'info';
                 if ('install' === $lifecycle_action) {
                     $event_key = 'theme_installed';
-                    $event_message = __('Theme installed: %s', 'wp-activity-logger-pro');
+                    $event_message = __('Theme installed: %s', 'tracepilot');
                 } elseif ('delete' === $lifecycle_action) {
                     $event_key = 'theme_deleted';
-                    $event_message = __('Theme deleted: %s', 'wp-activity-logger-pro');
+                    $event_message = __('Theme deleted: %s', 'tracepilot');
                     $severity = 'warning';
                 }
 
@@ -965,7 +965,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'user_role_changed',
-            sprintf(__('User role changed for %s from %s to %s', 'wp-activity-logger-pro'), $user->user_login, implode(', ', $old_roles), $role),
+            sprintf(__('User role changed for %s from %s to %s', 'tracepilot'), $user->user_login, implode(', ', $old_roles), $role),
             'info',
             array(
                 'user_id' => $current_user->ID,
@@ -1565,7 +1565,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             'option_updated',
-            sprintf(__('Option updated: %s', 'wp-activity-logger-pro'), $option),
+            sprintf(__('Option updated: %s', 'tracepilot'), $option),
             'info',
             array(
                 'user_id' => $user->ID,
@@ -1641,7 +1641,7 @@ class TracePilot_Tracker {
         // Log activity
         TracePilot_Helpers::log_activity(
             $action,
-            sprintf(__('%s edited: %s', 'wp-activity-logger-pro'), ucfirst($file_type), $file),
+            sprintf(__('%s edited: %s', 'tracepilot'), ucfirst($file_type), $file),
             'warning',
             array(
                 'user_id' => $user->ID,

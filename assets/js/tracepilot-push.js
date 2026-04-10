@@ -111,7 +111,7 @@
             const title = 'Activity Log: ' + log.action;
             const options = {
                 body: 'User: ' + log.username + '\nIP: ' + log.ip,
-                icon: TracePilot_PUSH.icon || '/wp-content/plugins/wp-activity-logger-pro/assets/img/notification-icon.png',
+                icon: TracePilot_PUSH.icon || '/wp-content/plugins/tracepilot/assets/img/notification-icon.png',
                 tag: 'tracepilot-notification'
             };
             
@@ -122,7 +122,7 @@
                 notification.close();
                 
                 // Navigate to logs page if not already there
-                if (!window.location.href.includes('page=wp-activity-logger-pro-logs')) {
+                if (!window.location.href.includes('page=tracepilot-logs')) {
                     window.location.href = TracePilot_PUSH.logs_url;
                 }
             };
@@ -166,7 +166,7 @@
         
         if (Notification.permission === 'default') {
             // Only request permission if the user is on the settings page
-            if (window.location.href.includes('page=wp-activity-logger-pro-settings')) {
+            if (window.location.href.includes('page=tracepilot-settings')) {
                 Notification.requestPermission();
             }
         }

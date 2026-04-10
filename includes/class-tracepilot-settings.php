@@ -173,11 +173,11 @@ class TracePilot_Settings {
      */
     public function add_settings_page() {
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Settings', 'wp-activity-logger-pro'),
-            __('Settings', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Settings', 'tracepilot'),
+            __('Settings', 'tracepilot'),
             TracePilot_Helpers::get_admin_capability(),
-            'wp-activity-logger-pro-settings',
+            'tracepilot-settings',
             array($this, 'render_settings_page')
         );
     }
@@ -198,7 +198,7 @@ class TracePilot_Settings {
         }
 
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_die(esc_html__('You do not have permission to perform this action.', 'wp-activity-logger-pro'));
+            wp_die(esc_html__('You do not have permission to perform this action.', 'tracepilot'));
         }
 
         check_admin_referer('tracepilot_save_settings', 'tracepilot_settings_nonce');
@@ -211,13 +211,13 @@ class TracePilot_Settings {
 
         TracePilot_Helpers::log_activity(
             'settings_updated',
-            __('TracePilot settings updated', 'wp-activity-logger-pro'),
+            __('TracePilot settings updated', 'tracepilot'),
             'info'
         );
 
         $redirect_url = add_query_arg(
             array(
-                'page' => 'wp-activity-logger-pro-settings',
+                'page' => 'tracepilot-settings',
                 'tracepilot_settings_status' => 'saved',
                 'tracepilot_active_tab' => isset($_POST['tracepilot_active_tab']) ? sanitize_key(wp_unslash($_POST['tracepilot_active_tab'])) : '',
             ),
@@ -235,7 +235,7 @@ class TracePilot_Settings {
         check_ajax_referer('tracepilot_nonce', 'nonce');
 
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
 
         $raw = isset($_POST['wpal_options']) ? (array) $_POST['wpal_options'] : array();
@@ -254,11 +254,11 @@ class TracePilot_Settings {
 
         TracePilot_Helpers::log_activity(
             'settings_updated',
-            __('TracePilot settings updated', 'wp-activity-logger-pro'),
+            __('TracePilot settings updated', 'tracepilot'),
             'info'
         );
 
-        wp_send_json_success(array('message' => __('Settings saved successfully.', 'wp-activity-logger-pro')));
+        wp_send_json_success(array('message' => __('Settings saved successfully.', 'tracepilot')));
     }
 
     /**
@@ -268,7 +268,7 @@ class TracePilot_Settings {
         check_ajax_referer('tracepilot_nonce', 'nonce');
 
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
 
         $defaults = TracePilot_Helpers::get_default_settings();
@@ -277,10 +277,10 @@ class TracePilot_Settings {
 
         TracePilot_Helpers::log_activity(
             'settings_reset',
-            __('TracePilot settings reset to defaults', 'wp-activity-logger-pro'),
+            __('TracePilot settings reset to defaults', 'tracepilot'),
             'warning'
         );
 
-        wp_send_json_success(array('message' => __('Settings reset successfully.', 'wp-activity-logger-pro')));
+        wp_send_json_success(array('message' => __('Settings reset successfully.', 'tracepilot')));
     }
 }

@@ -34,7 +34,7 @@ class TracePilot_Response_Actions {
         $ip = TracePilot_Helpers::get_ip_address();
 
         if (!empty($ip) && in_array($ip, (array) $settings['blocked_ips'], true)) {
-            wp_die(esc_html__('Access denied by WP Activity Logger security policy.', 'wp-activity-logger-pro'), 403);
+            wp_die(esc_html__('Access denied by WP Activity Logger security policy.', 'tracepilot'), 403);
         }
     }
 
@@ -102,12 +102,12 @@ class TracePilot_Response_Actions {
     public function ajax_block_ip() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'tracepilot')));
         }
 
         $ip = isset($_POST['ip']) ? sanitize_text_field(wp_unslash($_POST['ip'])) : '';
         if (!$ip) {
-            wp_send_json_error(array('message' => __('IP address is required.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('IP address is required.', 'tracepilot')));
         }
 
         $settings = TracePilot_Helpers::get_settings();
@@ -118,8 +118,8 @@ class TracePilot_Response_Actions {
         $settings['blocked_ips'] = array_values(array_unique($blocked));
         $this->persist_settings($settings);
 
-        TracePilot_Helpers::log_activity('ip_blocked', sprintf(__('Blocked IP address %s', 'wp-activity-logger-pro'), $ip), 'warning', array('ip' => $ip));
-        wp_send_json_success(array('message' => __('IP blocked successfully.', 'wp-activity-logger-pro')));
+        TracePilot_Helpers::log_activity('ip_blocked', sprintf(__('Blocked IP address %s', 'tracepilot'), $ip), 'warning', array('ip' => $ip));
+        wp_send_json_success(array('message' => __('IP blocked successfully.', 'tracepilot')));
     }
 
     /**
@@ -128,20 +128,20 @@ class TracePilot_Response_Actions {
     public function ajax_force_logout_user() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'tracepilot')));
         }
 
         $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
         if (!$user_id) {
-            wp_send_json_error(array('message' => __('User ID is required.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('User ID is required.', 'tracepilot')));
         }
 
         $tokens = WP_Session_Tokens::get_instance($user_id);
         $tokens->destroy_all();
 
         $user = get_userdata($user_id);
-        TracePilot_Helpers::log_activity('user_forced_logout', sprintf(__('Forced logout for user %s', 'wp-activity-logger-pro'), $user ? $user->user_login : $user_id), 'warning', array('user_id' => $user_id));
-        wp_send_json_success(array('message' => __('User sessions cleared.', 'wp-activity-logger-pro')));
+        TracePilot_Helpers::log_activity('user_forced_logout', sprintf(__('Forced logout for user %s', 'tracepilot'), $user ? $user->user_login : $user_id), 'warning', array('user_id' => $user_id));
+        wp_send_json_success(array('message' => __('User sessions cleared.', 'tracepilot')));
     }
 
     /**
@@ -150,18 +150,18 @@ class TracePilot_Response_Actions {
     public function ajax_reset_user_password() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'tracepilot')));
         }
 
         $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
         $user = $user_id ? get_userdata($user_id) : false;
         if (!$user) {
-            wp_send_json_error(array('message' => __('User not found.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('User not found.', 'tracepilot')));
         }
 
         retrieve_password($user->user_login);
-        TracePilot_Helpers::log_activity('password_reset_requested', sprintf(__('Triggered password reset for user %s', 'wp-activity-logger-pro'), $user->user_login), 'warning', array('user_id' => $user_id));
-        wp_send_json_success(array('message' => __('Password reset email sent.', 'wp-activity-logger-pro')));
+        TracePilot_Helpers::log_activity('password_reset_requested', sprintf(__('Triggered password reset for user %s', 'tracepilot'), $user->user_login), 'warning', array('user_id' => $user_id));
+        wp_send_json_success(array('message' => __('Password reset email sent.', 'tracepilot')));
     }
 
     /**
@@ -170,7 +170,7 @@ class TracePilot_Response_Actions {
     public function ajax_toggle_plugin_changes_lock() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'tracepilot')));
         }
 
         $enabled = !empty($_POST['enabled']) ? 1 : 0;
@@ -178,8 +178,8 @@ class TracePilot_Response_Actions {
         $settings['plugin_changes_locked'] = $enabled;
         $this->persist_settings($settings);
 
-        TracePilot_Helpers::log_activity('plugin_change_lock_toggled', $enabled ? __('Plugin changes locked', 'wp-activity-logger-pro') : __('Plugin changes unlocked', 'wp-activity-logger-pro'), 'warning');
-        wp_send_json_success(array('message' => __('Plugin change policy updated.', 'wp-activity-logger-pro')));
+        TracePilot_Helpers::log_activity('plugin_change_lock_toggled', $enabled ? __('Plugin changes locked', 'tracepilot') : __('Plugin changes unlocked', 'tracepilot'), 'warning');
+        wp_send_json_success(array('message' => __('Plugin change policy updated.', 'tracepilot')));
     }
 
     /**
@@ -188,7 +188,7 @@ class TracePilot_Response_Actions {
     public function ajax_export_user_logs() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'tracepilot')));
         }
 
         $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
@@ -206,16 +206,16 @@ class TracePilot_Response_Actions {
     public function ajax_delete_user_logs() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'tracepilot')));
         }
 
         $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
         if (!$user_id) {
-            wp_send_json_error(array('message' => __('User ID is required.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('User ID is required.', 'tracepilot')));
         }
 
         $deleted = TracePilot_Helpers::delete_user_logs($user_id);
-        TracePilot_Helpers::log_activity('user_logs_deleted', sprintf(__('Deleted logs for user ID %d', 'wp-activity-logger-pro'), $user_id), 'warning');
-        wp_send_json_success(array('message' => sprintf(__('Deleted %d logs.', 'wp-activity-logger-pro'), (int) $deleted)));
+        TracePilot_Helpers::log_activity('user_logs_deleted', sprintf(__('Deleted logs for user ID %d', 'tracepilot'), $user_id), 'warning');
+        wp_send_json_success(array('message' => sprintf(__('Deleted %d logs.', 'tracepilot'), (int) $deleted)));
     }
 }

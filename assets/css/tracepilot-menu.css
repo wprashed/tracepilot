@@ -1,24 +1,24 @@
 /* Activity Logger Pro Menu Styling */
 
 /* Main menu item styling */
-#adminmenu li.toplevel_page_wp-activity-logger-pro .wp-menu-image {
+#adminmenu li.toplevel_page_tracepilot .wp-menu-image {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-#adminmenu li.toplevel_page_wp-activity-logger-pro .wp-menu-name {
+#adminmenu li.toplevel_page_tracepilot .wp-menu-name {
   font-weight: 600;
 }
 
 /* Custom menu header background */
-#adminmenu li.toplevel_page_wp-activity-logger-pro > a {
+#adminmenu li.toplevel_page_tracepilot > a {
   background-color: #1e88e5 !important;
   color: white !important;
 }
 
-#adminmenu li.toplevel_page_wp-activity-logger-pro:hover > a,
-#adminmenu li.toplevel_page_wp-activity-logger-pro.opensub > a {
+#adminmenu li.toplevel_page_tracepilot:hover > a,
+#adminmenu li.toplevel_page_tracepilot.opensub > a {
   background-color: #1976d2 !important;
   color: white !important;
 }
@@ -37,9 +37,9 @@
 /* Submenu indentation */
 #adminmenu
   .wp-submenu
-  a[href*="wp-activity-logger-pro"]:not([href*="wp-activity-logger-pro-analytics"]):not(
-    [href*="wp-activity-logger-pro-threat-detection"]
-  ):not([href*="wp-activity-logger-pro-server"]) {
+  a[href*="tracepilot"]:not([href*="tracepilot-analytics"]):not(
+    [href*="tracepilot-threat-detection"]
+  ):not([href*="tracepilot-server"]) {
   padding-left: 12px;
 }
 
@@ -55,7 +55,7 @@
 }
 
 /* Custom triangle indicator for active main menu */
-#adminmenu li.toplevel_page_wp-activity-logger-pro.wp-has-current-submenu > a::after {
+#adminmenu li.toplevel_page_tracepilot.wp-has-current-submenu > a::after {
   content: "";
   position: absolute;
   right: 0;

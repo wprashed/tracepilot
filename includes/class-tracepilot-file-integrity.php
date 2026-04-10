@@ -28,14 +28,14 @@ class TracePilot_File_Integrity {
     public function ajax_build_baseline() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'tracepilot')));
         }
 
         $baseline = $this->build_baseline();
         update_option(self::OPTION_KEY, $baseline, false);
-        TracePilot_Helpers::log_activity('file_integrity_baseline_built', __('File integrity baseline created', 'wp-activity-logger-pro'), 'info');
+        TracePilot_Helpers::log_activity('file_integrity_baseline_built', __('File integrity baseline created', 'tracepilot'), 'info');
 
-        wp_send_json_success(array('message' => __('Baseline created successfully.', 'wp-activity-logger-pro'), 'count' => count($baseline['files'])));
+        wp_send_json_success(array('message' => __('Baseline created successfully.', 'tracepilot'), 'count' => count($baseline['files'])));
     }
 
     /**
@@ -44,7 +44,7 @@ class TracePilot_File_Integrity {
     public function ajax_scan_integrity() {
         check_ajax_referer('tracepilot_nonce', 'nonce');
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('Permission denied.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Permission denied.', 'tracepilot')));
         }
 
         $results = $this->scan_against_baseline();
@@ -95,7 +95,7 @@ class TracePilot_File_Integrity {
         $baseline = get_option(self::OPTION_KEY, array());
         if (empty($baseline['files'])) {
             return array(
-                'message' => __('No baseline found. Build a baseline first.', 'wp-activity-logger-pro'),
+                'message' => __('No baseline found. Build a baseline first.', 'tracepilot'),
                 'changes' => array(),
             );
         }
@@ -121,7 +121,7 @@ class TracePilot_File_Integrity {
             foreach ($changes as $change) {
                 TracePilot_Helpers::log_activity(
                     'file_integrity_' . $change['type'],
-                    sprintf(__('File integrity alert: %s file %s', 'wp-activity-logger-pro'), $change['type'], $change['path']),
+                    sprintf(__('File integrity alert: %s file %s', 'tracepilot'), $change['type'], $change['path']),
                     'error',
                     array(
                         'object_name' => $change['path'],
@@ -133,7 +133,7 @@ class TracePilot_File_Integrity {
         }
 
         return array(
-            'message' => empty($changes) ? __('No integrity changes detected.', 'wp-activity-logger-pro') : __('Integrity changes detected.', 'wp-activity-logger-pro'),
+            'message' => empty($changes) ? __('No integrity changes detected.', 'tracepilot') : __('Integrity changes detected.', 'tracepilot'),
             'baseline_created_at' => isset($baseline['created_at']) ? $baseline['created_at'] : '',
             'changes' => $changes,
         );

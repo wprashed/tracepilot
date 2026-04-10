@@ -109,7 +109,7 @@ class TracePilot_Notifications {
             'severity' => $severity,
             'context' => $context,
             'time' => current_time('mysql'),
-            'admin_url' => admin_url('admin.php?page=wp-activity-logger-pro-logs'),
+            'admin_url' => admin_url('admin.php?page=tracepilot-logs'),
         );
     }
 
@@ -121,18 +121,18 @@ class TracePilot_Notifications {
      */
     private function send_email_notification($email, $payload) {
         $subject = sprintf(
-            __('[%1$s] %2$s alert: %3$s', 'wp-activity-logger-pro'),
+            __('[%1$s] %2$s alert: %3$s', 'tracepilot'),
             $payload['site_name'],
             strtoupper($payload['severity']),
             $payload['action']
         );
 
-        $body = sprintf(__('A new activity alert was recorded on %s.', 'wp-activity-logger-pro'), $payload['site_name']) . "\n\n";
-        $body .= sprintf(__('Action: %s', 'wp-activity-logger-pro'), $payload['action']) . "\n";
-        $body .= sprintf(__('Severity: %s', 'wp-activity-logger-pro'), ucfirst($payload['severity'])) . "\n";
-        $body .= sprintf(__('Message: %s', 'wp-activity-logger-pro'), $payload['message']) . "\n";
-        $body .= sprintf(__('Time: %s', 'wp-activity-logger-pro'), $payload['time']) . "\n";
-        $body .= sprintf(__('Dashboard: %s', 'wp-activity-logger-pro'), $payload['admin_url']) . "\n";
+        $body = sprintf(__('A new activity alert was recorded on %s.', 'tracepilot'), $payload['site_name']) . "\n\n";
+        $body .= sprintf(__('Action: %s', 'tracepilot'), $payload['action']) . "\n";
+        $body .= sprintf(__('Severity: %s', 'tracepilot'), ucfirst($payload['severity'])) . "\n";
+        $body .= sprintf(__('Message: %s', 'tracepilot'), $payload['message']) . "\n";
+        $body .= sprintf(__('Time: %s', 'tracepilot'), $payload['time']) . "\n";
+        $body .= sprintf(__('Dashboard: %s', 'tracepilot'), $payload['admin_url']) . "\n";
 
         wp_mail($email, $subject, $body, array('Content-Type: text/plain; charset=UTF-8'));
     }
@@ -250,13 +250,13 @@ class TracePilot_Notifications {
             LIMIT 5"
         );
 
-        $body = sprintf(__('Daily activity summary for %s', 'wp-activity-logger-pro'), get_bloginfo('name')) . "\n\n";
+        $body = sprintf(__('Daily activity summary for %s', 'tracepilot'), get_bloginfo('name')) . "\n\n";
         foreach ($rows as $row) {
             $body .= sprintf('%s: %d', ucfirst($row->severity), (int) $row->total) . "\n";
         }
 
         if (!empty($actions)) {
-            $body .= "\n" . __('Top actions:', 'wp-activity-logger-pro') . "\n";
+            $body .= "\n" . __('Top actions:', 'tracepilot') . "\n";
             foreach ($actions as $action) {
                 $body .= sprintf('- %s: %d', $action->action, (int) $action->total) . "\n";
             }
@@ -266,13 +266,13 @@ class TracePilot_Notifications {
             $threat_table = $wpdb->prefix . 'wpal_threats';
             if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $threat_table))) {
                 $count = (int) $wpdb->get_var("SELECT COUNT(*) FROM $threat_table WHERE time >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
-                $body .= "\n" . sprintf(__('Threats detected in the last 24 hours: %d', 'wp-activity-logger-pro'), $count) . "\n";
+                $body .= "\n" . sprintf(__('Threats detected in the last 24 hours: %d', 'tracepilot'), $count) . "\n";
             }
         }
 
         wp_mail(
             $settings['daily_summary_email'],
-            sprintf(__('[%s] Daily activity summary', 'wp-activity-logger-pro'), get_bloginfo('name')),
+            sprintf(__('[%s] Daily activity summary', 'tracepilot'), get_bloginfo('name')),
             $body,
             array('Content-Type: text/plain; charset=UTF-8')
         );
@@ -299,14 +299,14 @@ class TracePilot_Notifications {
             'high_severity' => "SELECT COUNT(*) FROM $table_name WHERE severity IN ('error','critical') AND time >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
         );
 
-        $body = sprintf(__('Weekly activity summary for %s', 'wp-activity-logger-pro'), get_bloginfo('name')) . "\n\n";
+        $body = sprintf(__('Weekly activity summary for %s', 'tracepilot'), get_bloginfo('name')) . "\n\n";
         foreach ($sections as $label => $sql) {
             $body .= sprintf("%s: %d\n", ucwords(str_replace('_', ' ', $label)), (int) $wpdb->get_var($sql));
         }
 
         wp_mail(
             $settings['weekly_summary_email'],
-            sprintf(__('[%s] Weekly activity summary', 'wp-activity-logger-pro'), get_bloginfo('name')),
+            sprintf(__('[%s] Weekly activity summary', 'tracepilot'), get_bloginfo('name')),
             $body,
             array('Content-Type: text/plain; charset=UTF-8')
         );

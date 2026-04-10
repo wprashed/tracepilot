@@ -28,7 +28,7 @@ class TracePilot_API {
         check_ajax_referer('tracepilot_nonce', 'nonce');
 
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_die(__('You do not have permission to access this page.', 'wp-activity-logger-pro'));
+            wp_die(__('You do not have permission to access this page.', 'tracepilot'));
         }
     }
 
@@ -67,7 +67,7 @@ class TracePilot_API {
         );
 
         if (empty($users)) {
-            echo '<p>' . esc_html__('No user activity found yet.', 'wp-activity-logger-pro') . '</p>';
+            echo '<p>' . esc_html__('No user activity found yet.', 'tracepilot') . '</p>';
             wp_die();
         }
 
@@ -129,7 +129,7 @@ class TracePilot_API {
         );
 
         if (empty($logs)) {
-            echo '<p>' . esc_html__('No logs found.', 'wp-activity-logger-pro') . '</p>';
+            echo '<p>' . esc_html__('No logs found.', 'tracepilot') . '</p>';
             wp_die();
         }
 
@@ -168,13 +168,13 @@ class TracePilot_API {
         check_ajax_referer('tracepilot_nonce', 'nonce');
 
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to delete logs.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to delete logs.', 'tracepilot')));
         }
 
         $log_id = isset($_POST['log_id']) ? absint($_POST['log_id']) : 0;
         $site_id = isset($_POST['site_id']) ? absint($_POST['site_id']) : 0;
         if (!$log_id) {
-            wp_send_json_error(array('message' => __('Invalid log ID.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid log ID.', 'tracepilot')));
         }
 
         if (is_multisite() && $site_id) {
@@ -192,10 +192,10 @@ class TracePilot_API {
         }
 
         if ($result === false) {
-            wp_send_json_error(array('message' => __('Failed to delete log.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Failed to delete log.', 'tracepilot')));
         }
 
-        wp_send_json_success(array('message' => __('Log deleted successfully.', 'wp-activity-logger-pro')));
+        wp_send_json_success(array('message' => __('Log deleted successfully.', 'tracepilot')));
     }
 
     /**
@@ -205,7 +205,7 @@ class TracePilot_API {
         check_ajax_referer('tracepilot_nonce', 'nonce');
 
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to delete logs.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to delete logs.', 'tracepilot')));
         }
 
         global $wpdb;
@@ -213,9 +213,9 @@ class TracePilot_API {
         $result = $wpdb->query("TRUNCATE TABLE " . TracePilot_Helpers::$db_table);
 
         if ($result === false) {
-            wp_send_json_error(array('message' => __('Failed to delete logs.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Failed to delete logs.', 'tracepilot')));
         }
 
-        wp_send_json_success(array('message' => __('All logs deleted successfully.', 'wp-activity-logger-pro')));
+        wp_send_json_success(array('message' => __('All logs deleted successfully.', 'tracepilot')));
     }
 }

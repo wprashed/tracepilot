@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 
 $log_id = isset($_POST['log_id']) ? absint($_POST['log_id']) : 0;
 if (!$log_id) {
-    echo '<p>' . esc_html__('Invalid log ID.', 'wp-activity-logger-pro') . '</p>';
+    echo '<p>' . esc_html__('Invalid log ID.', 'tracepilot') . '</p>';
     return;
 }
 
@@ -19,7 +19,7 @@ $table_name = TracePilot_Helpers::$db_table;
 $log = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $log_id));
 
 if (!$log) {
-    echo '<p>' . esc_html__('Log not found.', 'wp-activity-logger-pro') . '</p>';
+    echo '<p>' . esc_html__('Log not found.', 'tracepilot') . '</p>';
     return;
 }
 
@@ -64,37 +64,37 @@ $timeline = $wpdb->get_results(
 
     <div class="tracepilot-detail-grid">
         <div class="tracepilot-detail-card">
-            <h3><?php esc_html_e('Event', 'wp-activity-logger-pro'); ?></h3>
+            <h3><?php esc_html_e('Event', 'tracepilot'); ?></h3>
             <dl>
-                <dt><?php esc_html_e('Time', 'wp-activity-logger-pro'); ?></dt>
+                <dt><?php esc_html_e('Time', 'tracepilot'); ?></dt>
                 <dd><?php echo esc_html(TracePilot_Helpers::format_datetime($log->time)); ?></dd>
-                <dt><?php esc_html_e('Action', 'wp-activity-logger-pro'); ?></dt>
+                <dt><?php esc_html_e('Action', 'tracepilot'); ?></dt>
                 <dd><?php echo esc_html($log->action); ?></dd>
-                <dt><?php esc_html_e('Object', 'wp-activity-logger-pro'); ?></dt>
+                <dt><?php esc_html_e('Object', 'tracepilot'); ?></dt>
                 <dd><?php echo esc_html($log->object_name ? $log->object_name : '—'); ?></dd>
             </dl>
         </div>
 
         <div class="tracepilot-detail-card">
-            <h3><?php esc_html_e('Actor', 'wp-activity-logger-pro'); ?></h3>
+            <h3><?php esc_html_e('Actor', 'tracepilot'); ?></h3>
             <dl>
-                <dt><?php esc_html_e('Username', 'wp-activity-logger-pro'); ?></dt>
+                <dt><?php esc_html_e('Username', 'tracepilot'); ?></dt>
                 <dd><?php echo esc_html($log->username); ?></dd>
-                <dt><?php esc_html_e('Role', 'wp-activity-logger-pro'); ?></dt>
+                <dt><?php esc_html_e('Role', 'tracepilot'); ?></dt>
                 <dd><?php echo esc_html($log->user_role ? $log->user_role : '—'); ?></dd>
-                <dt><?php esc_html_e('IP', 'wp-activity-logger-pro'); ?></dt>
+                <dt><?php esc_html_e('IP', 'tracepilot'); ?></dt>
                 <dd><?php echo esc_html($display_ip ? $display_ip : '—'); ?></dd>
-                <dt><?php esc_html_e('Browser', 'wp-activity-logger-pro'); ?></dt>
+                <dt><?php esc_html_e('Browser', 'tracepilot'); ?></dt>
                 <dd><?php echo esc_html($log->browser ? $log->browser : '—'); ?></dd>
             </dl>
             <div class="tracepilot-inline-actions" style="margin-top:14px;">
                 <?php if (!empty($log->ip) && $allow_ip_actions) : ?>
-                    <button type="button" class="tracepilot-btn tracepilot-btn-secondary tracepilot-block-ip" data-ip="<?php echo esc_attr($log->ip); ?>"><?php esc_html_e('Block IP', 'wp-activity-logger-pro'); ?></button>
+                    <button type="button" class="tracepilot-btn tracepilot-btn-secondary tracepilot-block-ip" data-ip="<?php echo esc_attr($log->ip); ?>"><?php esc_html_e('Block IP', 'tracepilot'); ?></button>
                 <?php endif; ?>
                 <?php if (!empty($log->user_id)) : ?>
-                    <button type="button" class="tracepilot-btn tracepilot-btn-secondary tracepilot-force-logout" data-user-id="<?php echo esc_attr($log->user_id); ?>"><?php esc_html_e('Force Logout', 'wp-activity-logger-pro'); ?></button>
-                    <button type="button" class="tracepilot-btn tracepilot-btn-secondary tracepilot-reset-password" data-user-id="<?php echo esc_attr($log->user_id); ?>"><?php esc_html_e('Reset Password', 'wp-activity-logger-pro'); ?></button>
-                    <button type="button" class="tracepilot-btn tracepilot-btn-danger tracepilot-delete-user-logs" data-user-id="<?php echo esc_attr($log->user_id); ?>"><?php esc_html_e('Delete User Logs', 'wp-activity-logger-pro'); ?></button>
+                    <button type="button" class="tracepilot-btn tracepilot-btn-secondary tracepilot-force-logout" data-user-id="<?php echo esc_attr($log->user_id); ?>"><?php esc_html_e('Force Logout', 'tracepilot'); ?></button>
+                    <button type="button" class="tracepilot-btn tracepilot-btn-secondary tracepilot-reset-password" data-user-id="<?php echo esc_attr($log->user_id); ?>"><?php esc_html_e('Reset Password', 'tracepilot'); ?></button>
+                    <button type="button" class="tracepilot-btn tracepilot-btn-danger tracepilot-delete-user-logs" data-user-id="<?php echo esc_attr($log->user_id); ?>"><?php esc_html_e('Delete User Logs', 'tracepilot'); ?></button>
                 <?php endif; ?>
             </div>
         </div>
@@ -102,15 +102,15 @@ $timeline = $wpdb->get_results(
 
     <?php if (!empty($context) && is_array($context)) : ?>
         <div class="tracepilot-detail-card">
-            <h3><?php esc_html_e('Context', 'wp-activity-logger-pro'); ?></h3>
+            <h3><?php esc_html_e('Context', 'tracepilot'); ?></h3>
             <pre class="tracepilot-code-block"><?php echo esc_html(wp_json_encode($context, JSON_PRETTY_PRINT)); ?></pre>
         </div>
     <?php endif; ?>
 
     <div class="tracepilot-detail-card">
-        <h3><?php echo esc_html(sprintf(__('Session timeline (%d hour window)', 'wp-activity-logger-pro'), $window_hours)); ?></h3>
+        <h3><?php echo esc_html(sprintf(__('Session timeline (%d hour window)', 'tracepilot'), $window_hours)); ?></h3>
         <?php if (empty($timeline)) : ?>
-            <p><?php esc_html_e('No nearby events were found for this user or IP.', 'wp-activity-logger-pro'); ?></p>
+            <p><?php esc_html_e('No nearby events were found for this user or IP.', 'tracepilot'); ?></p>
         <?php else : ?>
             <div class="tracepilot-list">
                 <?php foreach ($timeline as $entry) : ?>

@@ -17,35 +17,35 @@ $enabled_sources = array_values(array_intersect(array('wordfence', 'patchstack',
 <div class="wrap tracepilot-wrap">
     <section class="tracepilot-hero tracepilot-hero-compact">
         <div>
-            <p class="tracepilot-eyebrow"><?php esc_html_e('Security monitoring', 'wp-activity-logger-pro'); ?></p>
-            <h1 class="tracepilot-page-title"><?php esc_html_e('Threat Detection', 'wp-activity-logger-pro'); ?></h1>
-            <p class="tracepilot-hero-copy"><?php esc_html_e('Analyze your audit trail for brute-force activity, unusual login patterns, suspicious file changes, and privilege escalation events.', 'wp-activity-logger-pro'); ?></p>
+            <p class="tracepilot-eyebrow"><?php esc_html_e('Security monitoring', 'tracepilot'); ?></p>
+            <h1 class="tracepilot-page-title"><?php esc_html_e('Threat Detection', 'tracepilot'); ?></h1>
+            <p class="tracepilot-hero-copy"><?php esc_html_e('Analyze your audit trail for brute-force activity, unusual login patterns, suspicious file changes, and privilege escalation events.', 'tracepilot'); ?></p>
         </div>
         <div class="tracepilot-hero-actions">
-            <button id="tracepilot-analyze-threats" class="tracepilot-btn tracepilot-btn-primary"><?php esc_html_e('Analyze Threats', 'wp-activity-logger-pro'); ?></button>
+            <button id="tracepilot-analyze-threats" class="tracepilot-btn tracepilot-btn-primary"><?php esc_html_e('Analyze Threats', 'tracepilot'); ?></button>
         </div>
     </section>
 
     <section class="tracepilot-stats-grid">
         <article class="tracepilot-stat-card">
-            <span class="tracepilot-stat-label"><?php esc_html_e('Detection Rules', 'wp-activity-logger-pro'); ?></span>
+            <span class="tracepilot-stat-label"><?php esc_html_e('Detection Rules', 'tracepilot'); ?></span>
             <strong class="tracepilot-stat-value"><?php echo esc_html($active_threat_rules); ?></strong>
-            <span class="tracepilot-stat-meta"><?php esc_html_e('Checks currently watching new activity', 'wp-activity-logger-pro'); ?></span>
+            <span class="tracepilot-stat-meta"><?php esc_html_e('Checks currently watching new activity', 'tracepilot'); ?></span>
         </article>
         <article class="tracepilot-stat-card">
-            <span class="tracepilot-stat-label"><?php esc_html_e('Threat Engine', 'wp-activity-logger-pro'); ?></span>
-            <strong class="tracepilot-stat-value"><?php echo !empty($options['enable_threat_detection']) ? esc_html__('On', 'wp-activity-logger-pro') : esc_html__('Off', 'wp-activity-logger-pro'); ?></strong>
-            <span class="tracepilot-stat-meta"><?php echo !empty($options['enable_threat_notifications']) ? esc_html__('Notifications are active', 'wp-activity-logger-pro') : esc_html__('Notifications are paused', 'wp-activity-logger-pro'); ?></span>
+            <span class="tracepilot-stat-label"><?php esc_html_e('Threat Engine', 'tracepilot'); ?></span>
+            <strong class="tracepilot-stat-value"><?php echo !empty($options['enable_threat_detection']) ? esc_html__('On', 'tracepilot') : esc_html__('Off', 'tracepilot'); ?></strong>
+            <span class="tracepilot-stat-meta"><?php echo !empty($options['enable_threat_notifications']) ? esc_html__('Notifications are active', 'tracepilot') : esc_html__('Notifications are paused', 'tracepilot'); ?></span>
         </article>
         <article class="tracepilot-stat-card">
-            <span class="tracepilot-stat-label"><?php esc_html_e('Intel Providers', 'wp-activity-logger-pro'); ?></span>
+            <span class="tracepilot-stat-label"><?php esc_html_e('Intel Providers', 'tracepilot'); ?></span>
             <strong class="tracepilot-stat-value"><?php echo esc_html(count($enabled_sources)); ?></strong>
-            <span class="tracepilot-stat-meta"><?php echo !empty($enabled_sources) ? esc_html(implode(', ', array_map('ucfirst', $enabled_sources))) : esc_html__('No external feed enabled', 'wp-activity-logger-pro'); ?></span>
+            <span class="tracepilot-stat-meta"><?php echo !empty($enabled_sources) ? esc_html(implode(', ', array_map('ucfirst', $enabled_sources))) : esc_html__('No external feed enabled', 'tracepilot'); ?></span>
         </article>
         <article class="tracepilot-stat-card">
-            <span class="tracepilot-stat-label"><?php esc_html_e('Integrity Baseline', 'wp-activity-logger-pro'); ?></span>
+            <span class="tracepilot-stat-label"><?php esc_html_e('Integrity Baseline', 'tracepilot'); ?></span>
             <strong class="tracepilot-stat-value"><?php echo !empty($integrity['exists']) ? esc_html((int) $integrity['count']) : '0'; ?></strong>
-            <span class="tracepilot-stat-meta"><?php echo !empty($integrity['exists']) ? esc_html__('Tracked files in the current baseline', 'wp-activity-logger-pro') : esc_html__('Build a baseline before scanning', 'wp-activity-logger-pro'); ?></span>
+            <span class="tracepilot-stat-meta"><?php echo !empty($integrity['exists']) ? esc_html__('Tracked files in the current baseline', 'tracepilot') : esc_html__('Build a baseline before scanning', 'tracepilot'); ?></span>
         </article>
     </section>
 
@@ -53,8 +53,8 @@ $enabled_sources = array_values(array_intersect(array('wordfence', 'patchstack',
         <article class="tracepilot-panel">
             <div class="tracepilot-panel-head">
                 <div>
-                    <h2><?php esc_html_e('Detection Rules', 'wp-activity-logger-pro'); ?></h2>
-                    <p><?php esc_html_e('Choose which automated checks stay active as new logs are recorded.', 'wp-activity-logger-pro'); ?></p>
+                    <h2><?php esc_html_e('Detection Rules', 'tracepilot'); ?></h2>
+                    <p><?php esc_html_e('Choose which automated checks stay active as new logs are recorded.', 'tracepilot'); ?></p>
                 </div>
             </div>
 
@@ -63,44 +63,44 @@ $enabled_sources = array_values(array_intersect(array('wordfence', 'patchstack',
                     <label class="tracepilot-check-card tracepilot-check-card-feature">
                         <input type="checkbox" name="wpal_options[enable_threat_detection]" value="1" <?php checked($options['enable_threat_detection'], 1); ?>>
                         <span>
-                            <strong><?php esc_html_e('Enable threat detection', 'wp-activity-logger-pro'); ?></strong>
-                            <small><?php esc_html_e('Analyze new log entries as they are written.', 'wp-activity-logger-pro'); ?></small>
+                            <strong><?php esc_html_e('Enable threat detection', 'tracepilot'); ?></strong>
+                            <small><?php esc_html_e('Analyze new log entries as they are written.', 'tracepilot'); ?></small>
                         </span>
                     </label>
 
                     <label class="tracepilot-check-card tracepilot-check-card-feature">
                         <input type="checkbox" name="wpal_options[enable_threat_notifications]" value="1" <?php checked($options['enable_threat_notifications'], 1); ?>>
                         <span>
-                            <strong><?php esc_html_e('Send threat notifications', 'wp-activity-logger-pro'); ?></strong>
-                            <small><?php esc_html_e('Use your configured notification channels for serious detections.', 'wp-activity-logger-pro'); ?></small>
+                            <strong><?php esc_html_e('Send threat notifications', 'tracepilot'); ?></strong>
+                            <small><?php esc_html_e('Use your configured notification channels for serious detections.', 'tracepilot'); ?></small>
                         </span>
                     </label>
                 </div>
 
                 <div>
-                    <span class="tracepilot-section-label"><?php esc_html_e('Threat types to monitor', 'wp-activity-logger-pro'); ?></span>
+                    <span class="tracepilot-section-label"><?php esc_html_e('Threat types to monitor', 'tracepilot'); ?></span>
                     <div class="tracepilot-check-grid tracepilot-check-grid-wide">
                         <label class="tracepilot-check-card tracepilot-check-card-compact">
                             <input type="checkbox" name="wpal_options[monitor_failed_logins]" value="1" <?php checked($options['monitor_failed_logins'], 1); ?>>
-                            <span><strong><?php esc_html_e('Failed login attacks', 'wp-activity-logger-pro'); ?></strong></span>
+                            <span><strong><?php esc_html_e('Failed login attacks', 'tracepilot'); ?></strong></span>
                         </label>
                         <label class="tracepilot-check-card tracepilot-check-card-compact">
                             <input type="checkbox" name="wpal_options[monitor_unusual_logins]" value="1" <?php checked($options['monitor_unusual_logins'], 1); ?>>
-                            <span><strong><?php esc_html_e('Unusual login patterns', 'wp-activity-logger-pro'); ?></strong></span>
+                            <span><strong><?php esc_html_e('Unusual login patterns', 'tracepilot'); ?></strong></span>
                         </label>
                         <label class="tracepilot-check-card tracepilot-check-card-compact">
                             <input type="checkbox" name="wpal_options[monitor_file_changes]" value="1" <?php checked($options['monitor_file_changes'], 1); ?>>
-                            <span><strong><?php esc_html_e('Suspicious file changes', 'wp-activity-logger-pro'); ?></strong></span>
+                            <span><strong><?php esc_html_e('Suspicious file changes', 'tracepilot'); ?></strong></span>
                         </label>
                         <label class="tracepilot-check-card tracepilot-check-card-compact">
                             <input type="checkbox" name="wpal_options[monitor_privilege_escalation]" value="1" <?php checked($options['monitor_privilege_escalation'], 1); ?>>
-                            <span><strong><?php esc_html_e('Privilege escalation', 'wp-activity-logger-pro'); ?></strong></span>
+                            <span><strong><?php esc_html_e('Privilege escalation', 'tracepilot'); ?></strong></span>
                         </label>
                     </div>
                 </div>
 
                 <div class="tracepilot-inline-actions">
-                    <button type="button" id="tracepilot-save-threat-settings" class="tracepilot-btn tracepilot-btn-secondary"><?php esc_html_e('Save Detection Settings', 'wp-activity-logger-pro'); ?></button>
+                    <button type="button" id="tracepilot-save-threat-settings" class="tracepilot-btn tracepilot-btn-secondary"><?php esc_html_e('Save Detection Settings', 'tracepilot'); ?></button>
                     <span id="tracepilot-threat-settings-feedback" class="tracepilot-form-feedback"></span>
                 </div>
             </form>
@@ -109,43 +109,43 @@ $enabled_sources = array_values(array_intersect(array('wordfence', 'patchstack',
         <article class="tracepilot-panel">
             <div class="tracepilot-panel-head">
                 <div>
-                    <h2><?php esc_html_e('Threat Summary', 'wp-activity-logger-pro'); ?></h2>
-                    <p><?php esc_html_e('Run an on-demand scan to populate the live results panel.', 'wp-activity-logger-pro'); ?></p>
+                    <h2><?php esc_html_e('Threat Summary', 'tracepilot'); ?></h2>
+                    <p><?php esc_html_e('Run an on-demand scan to populate the live results panel.', 'tracepilot'); ?></p>
                 </div>
             </div>
 
             <div class="tracepilot-toolbar-pills">
-                <span class="tracepilot-pill"><?php echo !empty($options['enable_threat_detection']) ? esc_html__('Live analysis enabled', 'wp-activity-logger-pro') : esc_html__('Live analysis disabled', 'wp-activity-logger-pro'); ?></span>
-                <span class="tracepilot-pill"><?php printf(esc_html__('%d rule(s) active', 'wp-activity-logger-pro'), $active_threat_rules); ?></span>
-                <span class="tracepilot-pill"><?php echo !empty($options['enable_threat_notifications']) ? esc_html__('Alert routing ready', 'wp-activity-logger-pro') : esc_html__('Alerts not routed', 'wp-activity-logger-pro'); ?></span>
+                <span class="tracepilot-pill"><?php echo !empty($options['enable_threat_detection']) ? esc_html__('Live analysis enabled', 'tracepilot') : esc_html__('Live analysis disabled', 'tracepilot'); ?></span>
+                <span class="tracepilot-pill"><?php printf(esc_html__('%d rule(s) active', 'tracepilot'), $active_threat_rules); ?></span>
+                <span class="tracepilot-pill"><?php echo !empty($options['enable_threat_notifications']) ? esc_html__('Alert routing ready', 'tracepilot') : esc_html__('Alerts not routed', 'tracepilot'); ?></span>
             </div>
 
             <div id="tracepilot-threat-summary" class="tracepilot-stats-grid" style="display:none; margin-bottom:14px;">
                 <article class="tracepilot-stat-card">
-                    <span class="tracepilot-stat-label"><?php esc_html_e('Total', 'wp-activity-logger-pro'); ?></span>
+                    <span class="tracepilot-stat-label"><?php esc_html_e('Total', 'tracepilot'); ?></span>
                     <strong id="tracepilot-total-threats" class="tracepilot-stat-value">0</strong>
                 </article>
                 <article class="tracepilot-stat-card">
-                    <span class="tracepilot-stat-label"><?php esc_html_e('High', 'wp-activity-logger-pro'); ?></span>
+                    <span class="tracepilot-stat-label"><?php esc_html_e('High', 'tracepilot'); ?></span>
                     <strong id="tracepilot-high-threats" class="tracepilot-stat-value">0</strong>
                 </article>
                 <article class="tracepilot-stat-card">
-                    <span class="tracepilot-stat-label"><?php esc_html_e('Medium', 'wp-activity-logger-pro'); ?></span>
+                    <span class="tracepilot-stat-label"><?php esc_html_e('Medium', 'tracepilot'); ?></span>
                     <strong id="tracepilot-medium-threats" class="tracepilot-stat-value">0</strong>
                 </article>
                 <article class="tracepilot-stat-card">
-                    <span class="tracepilot-stat-label"><?php esc_html_e('Low', 'wp-activity-logger-pro'); ?></span>
+                    <span class="tracepilot-stat-label"><?php esc_html_e('Low', 'tracepilot'); ?></span>
                     <strong id="tracepilot-low-threats" class="tracepilot-stat-value">0</strong>
                 </article>
             </div>
 
             <div id="tracepilot-threat-loading" class="tracepilot-note" style="display:none;">
-                <?php esc_html_e('Analyzing activity logs for potential threats...', 'wp-activity-logger-pro'); ?>
+                <?php esc_html_e('Analyzing activity logs for potential threats...', 'tracepilot'); ?>
             </div>
 
             <div id="tracepilot-no-threats" class="tracepilot-empty-panel" style="display:none;">
-                <strong><?php esc_html_e('No threats detected', 'wp-activity-logger-pro'); ?></strong>
-                <p><?php esc_html_e('The current log sample does not match any active detection rules.', 'wp-activity-logger-pro'); ?></p>
+                <strong><?php esc_html_e('No threats detected', 'tracepilot'); ?></strong>
+                <p><?php esc_html_e('The current log sample does not match any active detection rules.', 'tracepilot'); ?></p>
             </div>
 
             <div id="tracepilot-threat-results" style="display:none;">
@@ -153,12 +153,12 @@ $enabled_sources = array_values(array_intersect(array('wordfence', 'patchstack',
                     <table class="tracepilot-table tracepilot-responsive-table">
                         <thead>
                             <tr>
-                                <th><?php esc_html_e('Severity', 'wp-activity-logger-pro'); ?></th>
-                                <th><?php esc_html_e('Type', 'wp-activity-logger-pro'); ?></th>
-                                <th><?php esc_html_e('Description', 'wp-activity-logger-pro'); ?></th>
-                                <th><?php esc_html_e('IP', 'wp-activity-logger-pro'); ?></th>
-                                <th><?php esc_html_e('Time', 'wp-activity-logger-pro'); ?></th>
-                                <th><?php esc_html_e('Actions', 'wp-activity-logger-pro'); ?></th>
+                                <th><?php esc_html_e('Severity', 'tracepilot'); ?></th>
+                                <th><?php esc_html_e('Type', 'tracepilot'); ?></th>
+                                <th><?php esc_html_e('Description', 'tracepilot'); ?></th>
+                                <th><?php esc_html_e('IP', 'tracepilot'); ?></th>
+                                <th><?php esc_html_e('Time', 'tracepilot'); ?></th>
+                                <th><?php esc_html_e('Actions', 'tracepilot'); ?></th>
                             </tr>
                         </thead>
                         <tbody id="tracepilot-threats-table"></tbody>
@@ -171,40 +171,40 @@ $enabled_sources = array_values(array_intersect(array('wordfence', 'patchstack',
     <section class="tracepilot-panel">
         <div class="tracepilot-panel-head">
             <div>
-                <h2><?php esc_html_e('Software Vulnerability Report', 'wp-activity-logger-pro'); ?></h2>
-                <p><?php esc_html_e('Check installed plugins, themes, and WordPress core against Wordfence, Patchstack, and WPScan, then combine that with local file-integrity signals.', 'wp-activity-logger-pro'); ?></p>
+                <h2><?php esc_html_e('Software Vulnerability Report', 'tracepilot'); ?></h2>
+                <p><?php esc_html_e('Check installed plugins, themes, and WordPress core against Wordfence, Patchstack, and WPScan, then combine that with local file-integrity signals.', 'tracepilot'); ?></p>
             </div>
             <div class="tracepilot-hero-actions">
-                <button type="button" id="tracepilot-scan-vulnerabilities" class="tracepilot-btn tracepilot-btn-primary"><?php esc_html_e('Scan Software', 'wp-activity-logger-pro'); ?></button>
+                <button type="button" id="tracepilot-scan-vulnerabilities" class="tracepilot-btn tracepilot-btn-primary"><?php esc_html_e('Scan Software', 'tracepilot'); ?></button>
             </div>
         </div>
 
         <div class="tracepilot-toolbar-pills">
-            <span class="tracepilot-pill"><?php echo !empty($enabled_sources) ? esc_html(implode(', ', array_map('ucfirst', $enabled_sources))) : esc_html__('No provider selected', 'wp-activity-logger-pro'); ?></span>
-            <span class="tracepilot-pill"><?php echo !empty($options['vulnerability_include_file_integrity']) ? esc_html__('Integrity signals included', 'wp-activity-logger-pro') : esc_html__('Software feed only', 'wp-activity-logger-pro'); ?></span>
+            <span class="tracepilot-pill"><?php echo !empty($enabled_sources) ? esc_html(implode(', ', array_map('ucfirst', $enabled_sources))) : esc_html__('No provider selected', 'tracepilot'); ?></span>
+            <span class="tracepilot-pill"><?php echo !empty($options['vulnerability_include_file_integrity']) ? esc_html__('Integrity signals included', 'tracepilot') : esc_html__('Software feed only', 'tracepilot'); ?></span>
         </div>
 
         <div id="tracepilot-vulnerability-status" class="tracepilot-note">
             <?php
-            esc_html_e('Run a manual scan to generate the latest software security report.', 'wp-activity-logger-pro');
+            esc_html_e('Run a manual scan to generate the latest software security report.', 'tracepilot');
             ?>
         </div>
 
             <div id="tracepilot-vulnerability-summary" class="tracepilot-stats-grid" style="<?php echo empty($vulnerability_report['summary']) ? 'display:none; margin-top:16px;' : 'margin-top:16px;'; ?>">
             <article class="tracepilot-stat-card">
-                <span class="tracepilot-stat-label"><?php esc_html_e('Affected', 'wp-activity-logger-pro'); ?></span>
+                <span class="tracepilot-stat-label"><?php esc_html_e('Affected', 'tracepilot'); ?></span>
                 <strong id="tracepilot-vuln-affected" class="tracepilot-stat-value"><?php echo !empty($vulnerability_report['summary']) ? esc_html((int) $vulnerability_report['summary']['affected']) : 0; ?></strong>
             </article>
             <article class="tracepilot-stat-card">
-                <span class="tracepilot-stat-label"><?php esc_html_e('Critical', 'wp-activity-logger-pro'); ?></span>
+                <span class="tracepilot-stat-label"><?php esc_html_e('Critical', 'tracepilot'); ?></span>
                 <strong id="tracepilot-vuln-critical" class="tracepilot-stat-value"><?php echo !empty($vulnerability_report['summary']) ? esc_html((int) $vulnerability_report['summary']['critical']) : 0; ?></strong>
             </article>
             <article class="tracepilot-stat-card">
-                <span class="tracepilot-stat-label"><?php esc_html_e('High', 'wp-activity-logger-pro'); ?></span>
+                <span class="tracepilot-stat-label"><?php esc_html_e('High', 'tracepilot'); ?></span>
                 <strong id="tracepilot-vuln-high" class="tracepilot-stat-value"><?php echo !empty($vulnerability_report['summary']) ? esc_html((int) $vulnerability_report['summary']['high']) : 0; ?></strong>
             </article>
             <article class="tracepilot-stat-card">
-                <span class="tracepilot-stat-label"><?php esc_html_e('Clean', 'wp-activity-logger-pro'); ?></span>
+                <span class="tracepilot-stat-label"><?php esc_html_e('Clean', 'tracepilot'); ?></span>
                 <strong id="tracepilot-vuln-clean" class="tracepilot-stat-value"><?php echo !empty($vulnerability_report['summary']) ? esc_html((int) $vulnerability_report['summary']['clean']) : 0; ?></strong>
             </article>
         </div>
@@ -219,12 +219,12 @@ $enabled_sources = array_values(array_intersect(array('wordfence', 'patchstack',
             <table class="tracepilot-table tracepilot-responsive-table">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e('Component', 'wp-activity-logger-pro'); ?></th>
-                        <th><?php esc_html_e('Type', 'wp-activity-logger-pro'); ?></th>
-                        <th><?php esc_html_e('Version', 'wp-activity-logger-pro'); ?></th>
-                        <th><?php esc_html_e('Severity', 'wp-activity-logger-pro'); ?></th>
-                        <th><?php esc_html_e('Findings', 'wp-activity-logger-pro'); ?></th>
-                        <th><?php esc_html_e('Recommended fix', 'wp-activity-logger-pro'); ?></th>
+                        <th><?php esc_html_e('Component', 'tracepilot'); ?></th>
+                        <th><?php esc_html_e('Type', 'tracepilot'); ?></th>
+                        <th><?php esc_html_e('Version', 'tracepilot'); ?></th>
+                        <th><?php esc_html_e('Severity', 'tracepilot'); ?></th>
+                        <th><?php esc_html_e('Findings', 'tracepilot'); ?></th>
+                        <th><?php esc_html_e('Recommended fix', 'tracepilot'); ?></th>
                     </tr>
                 </thead>
                 <tbody id="tracepilot-vulnerability-table">
@@ -232,35 +232,35 @@ $enabled_sources = array_values(array_intersect(array('wordfence', 'patchstack',
                         <?php foreach ($vulnerability_report['items'] as $item) : ?>
                             <?php
                             $badge_class = in_array($item['severity'], array('critical', 'high'), true) ? 'danger' : ('medium' === $item['severity'] ? 'warning' : 'info');
-                            $recommendation = __('No action needed right now.', 'wp-activity-logger-pro');
+                            $recommendation = __('No action needed right now.', 'tracepilot');
                             if (!empty($item['findings'][0]['fixed_in'])) {
-                                $recommendation = sprintf(__('Update to %s or newer.', 'wp-activity-logger-pro'), $item['findings'][0]['fixed_in']);
+                                $recommendation = sprintf(__('Update to %s or newer.', 'tracepilot'), $item['findings'][0]['fixed_in']);
                             } elseif (!empty($item['local_changes'])) {
-                                $recommendation = __('Review recent file changes against the integrity baseline.', 'wp-activity-logger-pro');
+                                $recommendation = __('Review recent file changes against the integrity baseline.', 'tracepilot');
                             } elseif (!empty($item['findings'])) {
-                                $recommendation = __('Review the linked advisory and update or replace this component.', 'wp-activity-logger-pro');
+                                $recommendation = __('Review the linked advisory and update or replace this component.', 'tracepilot');
                             }
                             ?>
                             <tr>
-                                <td data-label="<?php esc_attr_e('Component', 'wp-activity-logger-pro'); ?>">
+                                <td data-label="<?php esc_attr_e('Component', 'tracepilot'); ?>">
                                     <strong><?php echo esc_html($item['name']); ?></strong>
                                     <div class="tracepilot-list-subtext"><?php echo esc_html($item['slug']); ?></div>
                                 </td>
-                                <td data-label="<?php esc_attr_e('Type', 'wp-activity-logger-pro'); ?>"><?php echo esc_html(ucfirst($item['type'])); ?></td>
-                                <td data-label="<?php esc_attr_e('Version', 'wp-activity-logger-pro'); ?>"><?php echo esc_html($item['version']); ?></td>
-                                <td data-label="<?php esc_attr_e('Severity', 'wp-activity-logger-pro'); ?>"><span class="tracepilot-badge tracepilot-badge-<?php echo esc_attr($badge_class); ?>"><?php echo esc_html(ucfirst($item['severity'])); ?></span></td>
-                                <td data-label="<?php esc_attr_e('Findings', 'wp-activity-logger-pro'); ?>">
+                                <td data-label="<?php esc_attr_e('Type', 'tracepilot'); ?>"><?php echo esc_html(ucfirst($item['type'])); ?></td>
+                                <td data-label="<?php esc_attr_e('Version', 'tracepilot'); ?>"><?php echo esc_html($item['version']); ?></td>
+                                <td data-label="<?php esc_attr_e('Severity', 'tracepilot'); ?>"><span class="tracepilot-badge tracepilot-badge-<?php echo esc_attr($badge_class); ?>"><?php echo esc_html(ucfirst($item['severity'])); ?></span></td>
+                                <td data-label="<?php esc_attr_e('Findings', 'tracepilot'); ?>">
                                     <?php echo esc_html((int) $item['finding_count']); ?>
                                     <?php if (!empty($item['local_change_count'])) : ?>
-                                        <span class="tracepilot-meta-pill"><?php echo esc_html(sprintf(__('%d local file changes', 'wp-activity-logger-pro'), (int) $item['local_change_count'])); ?></span>
+                                        <span class="tracepilot-meta-pill"><?php echo esc_html(sprintf(__('%d local file changes', 'tracepilot'), (int) $item['local_change_count'])); ?></span>
                                     <?php endif; ?>
                                 </td>
-                                <td data-label="<?php esc_attr_e('Recommended fix', 'wp-activity-logger-pro'); ?>"><?php echo esc_html($recommendation); ?></td>
+                                <td data-label="<?php esc_attr_e('Recommended fix', 'tracepilot'); ?>"><?php echo esc_html($recommendation); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else : ?>
                         <tr>
-                            <td data-label="<?php esc_attr_e('Status', 'wp-activity-logger-pro'); ?>" colspan="6"><?php esc_html_e('Run a scan to generate a software security report.', 'wp-activity-logger-pro'); ?></td>
+                            <td data-label="<?php esc_attr_e('Status', 'tracepilot'); ?>" colspan="6"><?php esc_html_e('Run a scan to generate a software security report.', 'tracepilot'); ?></td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -271,25 +271,25 @@ $enabled_sources = array_values(array_intersect(array('wordfence', 'patchstack',
     <section class="tracepilot-panel">
         <div class="tracepilot-panel-head">
             <div>
-                <h2><?php esc_html_e('File Integrity', 'wp-activity-logger-pro'); ?></h2>
-                <p><?php esc_html_e('Create a baseline of core, plugin, and theme files, then scan for new, deleted, or modified files.', 'wp-activity-logger-pro'); ?></p>
+                <h2><?php esc_html_e('File Integrity', 'tracepilot'); ?></h2>
+                <p><?php esc_html_e('Create a baseline of core, plugin, and theme files, then scan for new, deleted, or modified files.', 'tracepilot'); ?></p>
             </div>
             <div class="tracepilot-hero-actions">
-                <button type="button" id="tracepilot-build-baseline" class="tracepilot-btn tracepilot-btn-secondary"><?php esc_html_e('Build Baseline', 'wp-activity-logger-pro'); ?></button>
-                <button type="button" id="tracepilot-scan-integrity" class="tracepilot-btn tracepilot-btn-primary"><?php esc_html_e('Scan Integrity', 'wp-activity-logger-pro'); ?></button>
+                <button type="button" id="tracepilot-build-baseline" class="tracepilot-btn tracepilot-btn-secondary"><?php esc_html_e('Build Baseline', 'tracepilot'); ?></button>
+                <button type="button" id="tracepilot-scan-integrity" class="tracepilot-btn tracepilot-btn-primary"><?php esc_html_e('Scan Integrity', 'tracepilot'); ?></button>
             </div>
         </div>
         <div class="tracepilot-toolbar-pills">
-            <span class="tracepilot-pill"><?php echo !empty($integrity['exists']) ? esc_html__('Baseline ready', 'wp-activity-logger-pro') : esc_html__('Baseline missing', 'wp-activity-logger-pro'); ?></span>
+            <span class="tracepilot-pill"><?php echo !empty($integrity['exists']) ? esc_html__('Baseline ready', 'tracepilot') : esc_html__('Baseline missing', 'tracepilot'); ?></span>
             <?php if (!empty($integrity['exists'])) : ?>
-                <span class="tracepilot-pill"><?php printf(esc_html__('%d files tracked', 'wp-activity-logger-pro'), (int) $integrity['count']); ?></span>
+                <span class="tracepilot-pill"><?php printf(esc_html__('%d files tracked', 'tracepilot'), (int) $integrity['count']); ?></span>
             <?php endif; ?>
         </div>
         <div class="tracepilot-note" id="tracepilot-integrity-status">
             <?php
             echo $integrity['exists']
-                ? esc_html(sprintf(__('Baseline created %1$s with %2$d files.', 'wp-activity-logger-pro'), $integrity['created_at'], $integrity['count']))
-                : esc_html__('No baseline exists yet.', 'wp-activity-logger-pro');
+                ? esc_html(sprintf(__('Baseline created %1$s with %2$d files.', 'tracepilot'), $integrity['created_at'], $integrity['count']))
+                : esc_html__('No baseline exists yet.', 'tracepilot');
             ?>
         </div>
         <div id="tracepilot-integrity-results" class="tracepilot-list" style="margin-top:16px;"></div>
@@ -328,7 +328,7 @@ jQuery(function($) {
 
     $('#tracepilot-analyze-threats').on('click', function() {
         const button = $(this);
-        button.prop('disabled', true).text('<?php echo esc_js(__('Analyzing...', 'wp-activity-logger-pro')); ?>');
+        button.prop('disabled', true).text('<?php echo esc_js(__('Analyzing...', 'tracepilot')); ?>');
         $('#tracepilot-threat-loading').show();
         $('#tracepilot-threat-results, #tracepilot-no-threats, #tracepilot-threat-summary').hide();
 
@@ -360,15 +360,15 @@ jQuery(function($) {
                 const description = $('<div>').text(threat.description || '').html();
                 const threatIp = $('<div>').text(threat.ip || '—').html();
                 const threatTime = $('<div>').text(threat.last_attempt || threat.login_time || threat.time || '—').html();
-                const userAction = threat.user_id ? '<button type="button" class="tracepilot-btn tracepilot-btn-secondary tracepilot-force-logout" data-user-id="' + Number(threat.user_id) + '"><?php echo esc_js(__('Force Logout', 'wp-activity-logger-pro')); ?></button>' : '';
-                const ipAction = threat.raw_ip ? '<button type="button" class="tracepilot-btn tracepilot-btn-secondary tracepilot-block-ip" data-ip="' + $('<div>').text(threat.raw_ip).html() + '"><?php echo esc_js(__('Block IP', 'wp-activity-logger-pro')); ?></button>' : '';
+                const userAction = threat.user_id ? '<button type="button" class="tracepilot-btn tracepilot-btn-secondary tracepilot-force-logout" data-user-id="' + Number(threat.user_id) + '"><?php echo esc_js(__('Force Logout', 'tracepilot')); ?></button>' : '';
+                const ipAction = threat.raw_ip ? '<button type="button" class="tracepilot-btn tracepilot-btn-secondary tracepilot-block-ip" data-ip="' + $('<div>').text(threat.raw_ip).html() + '"><?php echo esc_js(__('Block IP', 'tracepilot')); ?></button>' : '';
                 return '<tr>' +
-                    '<td data-label="<?php echo esc_js(__('Severity', 'wp-activity-logger-pro')); ?>">' + badge + '</td>' +
-                    '<td data-label="<?php echo esc_js(__('Type', 'wp-activity-logger-pro')); ?>">' + label + '</td>' +
-                    '<td data-label="<?php echo esc_js(__('Description', 'wp-activity-logger-pro')); ?>">' + description + '</td>' +
-                    '<td data-label="<?php echo esc_js(__('IP', 'wp-activity-logger-pro')); ?>">' + threatIp + '</td>' +
-                    '<td data-label="<?php echo esc_js(__('Time', 'wp-activity-logger-pro')); ?>">' + threatTime + '</td>' +
-                    '<td data-label="<?php echo esc_js(__('Actions', 'wp-activity-logger-pro')); ?>" class="tracepilot-table-actions">' + ipAction + userAction + '</td>' +
+                    '<td data-label="<?php echo esc_js(__('Severity', 'tracepilot')); ?>">' + badge + '</td>' +
+                    '<td data-label="<?php echo esc_js(__('Type', 'tracepilot')); ?>">' + label + '</td>' +
+                    '<td data-label="<?php echo esc_js(__('Description', 'tracepilot')); ?>">' + description + '</td>' +
+                    '<td data-label="<?php echo esc_js(__('IP', 'tracepilot')); ?>">' + threatIp + '</td>' +
+                    '<td data-label="<?php echo esc_js(__('Time', 'tracepilot')); ?>">' + threatTime + '</td>' +
+                    '<td data-label="<?php echo esc_js(__('Actions', 'tracepilot')); ?>" class="tracepilot-table-actions">' + ipAction + userAction + '</td>' +
                 '</tr>';
             });
 
@@ -376,7 +376,7 @@ jQuery(function($) {
             $('#tracepilot-threat-results').show();
         }).always(function() {
             $('#tracepilot-threat-loading').hide();
-            button.prop('disabled', false).text('<?php echo esc_js(__('Analyze Threats', 'wp-activity-logger-pro')); ?>');
+            button.prop('disabled', false).text('<?php echo esc_js(__('Analyze Threats', 'tracepilot')); ?>');
         });
     });
 
@@ -404,13 +404,13 @@ jQuery(function($) {
         }
 
         const rows = (data.items || []).map(function(item) {
-            let recommendation = '<?php echo esc_js(__('No action needed right now.', 'wp-activity-logger-pro')); ?>';
+            let recommendation = '<?php echo esc_js(__('No action needed right now.', 'tracepilot')); ?>';
             if (item.findings && item.findings.length && item.findings[0].fixed_in) {
-                recommendation = '<?php echo esc_js(__('Update to', 'wp-activity-logger-pro')); ?> ' + item.findings[0].fixed_in + ' <?php echo esc_js(__('or newer.', 'wp-activity-logger-pro')); ?>';
+                recommendation = '<?php echo esc_js(__('Update to', 'tracepilot')); ?> ' + item.findings[0].fixed_in + ' <?php echo esc_js(__('or newer.', 'tracepilot')); ?>';
             } else if (item.local_change_count) {
-                recommendation = '<?php echo esc_js(__('Review recent file changes against the integrity baseline.', 'wp-activity-logger-pro')); ?>';
+                recommendation = '<?php echo esc_js(__('Review recent file changes against the integrity baseline.', 'tracepilot')); ?>';
             } else if (item.findings && item.findings.length) {
-                recommendation = '<?php echo esc_js(__('Review the linked advisory and update or replace this component.', 'wp-activity-logger-pro')); ?>';
+                recommendation = '<?php echo esc_js(__('Review the linked advisory and update or replace this component.', 'tracepilot')); ?>';
             }
 
             const findings = [];
@@ -418,24 +418,24 @@ jQuery(function($) {
                 findings.push('<div class="tracepilot-list-subtext"><strong>' + $('<div>').text(finding.provider).html() + ':</strong> ' + $('<div>').text(finding.title).html() + '</div>');
             });
 
-            const localPill = item.local_change_count ? '<span class="tracepilot-meta-pill">' + item.local_change_count + ' <?php echo esc_js(__('local file changes', 'wp-activity-logger-pro')); ?></span>' : '';
+            const localPill = item.local_change_count ? '<span class="tracepilot-meta-pill">' + item.local_change_count + ' <?php echo esc_js(__('local file changes', 'tracepilot')); ?></span>' : '';
             return '<tr>' +
-                '<td data-label="<?php echo esc_js(__('Component', 'wp-activity-logger-pro')); ?>"><strong>' + $('<div>').text(item.name).html() + '</strong><div class="tracepilot-list-subtext">' + $('<div>').text(item.slug).html() + '</div></td>' +
-                '<td data-label="<?php echo esc_js(__('Type', 'wp-activity-logger-pro')); ?>">' + $('<div>').text(item.type.charAt(0).toUpperCase() + item.type.slice(1)).html() + '</td>' +
-                '<td data-label="<?php echo esc_js(__('Version', 'wp-activity-logger-pro')); ?>">' + $('<div>').text(item.version).html() + '</td>' +
-                '<td data-label="<?php echo esc_js(__('Severity', 'wp-activity-logger-pro')); ?>">' + severityBadge(item.severity) + '</td>' +
-                '<td data-label="<?php echo esc_js(__('Findings', 'wp-activity-logger-pro')); ?>">' + (item.finding_count || 0) + localPill + findings.join('') + '</td>' +
-                '<td data-label="<?php echo esc_js(__('Recommended fix', 'wp-activity-logger-pro')); ?>">' + $('<div>').text(recommendation).html() + '</td>' +
+                '<td data-label="<?php echo esc_js(__('Component', 'tracepilot')); ?>"><strong>' + $('<div>').text(item.name).html() + '</strong><div class="tracepilot-list-subtext">' + $('<div>').text(item.slug).html() + '</div></td>' +
+                '<td data-label="<?php echo esc_js(__('Type', 'tracepilot')); ?>">' + $('<div>').text(item.type.charAt(0).toUpperCase() + item.type.slice(1)).html() + '</td>' +
+                '<td data-label="<?php echo esc_js(__('Version', 'tracepilot')); ?>">' + $('<div>').text(item.version).html() + '</td>' +
+                '<td data-label="<?php echo esc_js(__('Severity', 'tracepilot')); ?>">' + severityBadge(item.severity) + '</td>' +
+                '<td data-label="<?php echo esc_js(__('Findings', 'tracepilot')); ?>">' + (item.finding_count || 0) + localPill + findings.join('') + '</td>' +
+                '<td data-label="<?php echo esc_js(__('Recommended fix', 'tracepilot')); ?>">' + $('<div>').text(recommendation).html() + '</td>' +
             '</tr>';
         });
 
-        $('#tracepilot-vulnerability-table').html(rows.length ? rows.join('') : '<tr><td data-label="<?php echo esc_js(__('Status', 'wp-activity-logger-pro')); ?>" colspan="6"><?php echo esc_js(__('No installed components were found in the current scan scope.', 'wp-activity-logger-pro')); ?></td></tr>');
+        $('#tracepilot-vulnerability-table').html(rows.length ? rows.join('') : '<tr><td data-label="<?php echo esc_js(__('Status', 'tracepilot')); ?>" colspan="6"><?php echo esc_js(__('No installed components were found in the current scan scope.', 'tracepilot')); ?></td></tr>');
     }
 
     $('#tracepilot-scan-vulnerabilities').on('click', function() {
         const button = $(this);
-        button.prop('disabled', true).text('<?php echo esc_js(__('Scanning...', 'wp-activity-logger-pro')); ?>');
-        $('#tracepilot-vulnerability-status').text('<?php echo esc_js(__('Checking installed software against vulnerability intelligence providers...', 'wp-activity-logger-pro')); ?>');
+        button.prop('disabled', true).text('<?php echo esc_js(__('Scanning...', 'tracepilot')); ?>');
+        $('#tracepilot-vulnerability-status').text('<?php echo esc_js(__('Checking installed software against vulnerability intelligence providers...', 'tracepilot')); ?>');
 
         $.post(ajaxurl, {
             action: 'tracepilot_scan_vulnerabilities',
@@ -448,7 +448,7 @@ jQuery(function($) {
 
             renderVulnerabilityReport(response.data);
         }).always(function() {
-            button.prop('disabled', false).text('<?php echo esc_js(__('Scan Software', 'wp-activity-logger-pro')); ?>');
+            button.prop('disabled', false).text('<?php echo esc_js(__('Scan Software', 'tracepilot')); ?>');
         });
     });
 

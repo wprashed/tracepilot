@@ -25,19 +25,19 @@ class TracePilot_Geolocation {
     public function ajax_get_ip_geolocation() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
-            wp_send_json_error(array('message' => __('Invalid security token.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
         // Check permissions
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
         
         // Get IP
         $ip = isset($_POST['ip']) ? sanitize_text_field($_POST['ip']) : '';
         
         if (empty($ip)) {
-            wp_send_json_error(array('message' => __('IP address is required.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('IP address is required.', 'tracepilot')));
         }
         
         // Get geolocation data
@@ -57,15 +57,15 @@ class TracePilot_Geolocation {
         // Check if IP is valid
         if (empty($ip) || $ip === '127.0.0.1' || $ip === '::1') {
             return array(
-                'country' => __('Local', 'wp-activity-logger-pro'),
+                'country' => __('Local', 'tracepilot'),
                 'country_code' => 'LO',
-                'city' => __('Local', 'wp-activity-logger-pro'),
-                'region' => __('Local', 'wp-activity-logger-pro'),
-                'continent' => __('Local', 'wp-activity-logger-pro'),
+                'city' => __('Local', 'tracepilot'),
+                'region' => __('Local', 'tracepilot'),
+                'continent' => __('Local', 'tracepilot'),
                 'latitude' => 0,
                 'longitude' => 0,
-                'isp' => __('Local', 'wp-activity-logger-pro'),
-                'timezone' => __('Local', 'wp-activity-logger-pro')
+                'isp' => __('Local', 'tracepilot'),
+                'timezone' => __('Local', 'tracepilot')
             );
         }
         
@@ -87,20 +87,20 @@ class TracePilot_Geolocation {
         $data = json_decode(wp_remote_retrieve_body($response), true);
         
         if (empty($data) || isset($data['status']) && $data['status'] === 'fail') {
-            return new WP_Error('geolocation_error', isset($data['message']) ? $data['message'] : __('Failed to get geolocation data.', 'wp-activity-logger-pro'));
+            return new WP_Error('geolocation_error', isset($data['message']) ? $data['message'] : __('Failed to get geolocation data.', 'tracepilot'));
         }
         
         // Format data
         $geo_data = array(
-            'country' => isset($data['country']) ? $data['country'] : __('Unknown', 'wp-activity-logger-pro'),
+            'country' => isset($data['country']) ? $data['country'] : __('Unknown', 'tracepilot'),
             'country_code' => isset($data['countryCode']) ? $data['countryCode'] : 'XX',
-            'city' => isset($data['city']) ? $data['city'] : __('Unknown', 'wp-activity-logger-pro'),
-            'region' => isset($data['regionName']) ? $data['regionName'] : __('Unknown', 'wp-activity-logger-pro'),
-            'continent' => isset($data['continent']) ? $data['continent'] : __('Unknown', 'wp-activity-logger-pro'),
+            'city' => isset($data['city']) ? $data['city'] : __('Unknown', 'tracepilot'),
+            'region' => isset($data['regionName']) ? $data['regionName'] : __('Unknown', 'tracepilot'),
+            'continent' => isset($data['continent']) ? $data['continent'] : __('Unknown', 'tracepilot'),
             'latitude' => isset($data['lat']) ? $data['lat'] : 0,
             'longitude' => isset($data['lon']) ? $data['lon'] : 0,
-            'isp' => isset($data['isp']) ? $data['isp'] : __('Unknown', 'wp-activity-logger-pro'),
-            'timezone' => isset($data['timezone']) ? $data['timezone'] : __('Unknown', 'wp-activity-logger-pro')
+            'isp' => isset($data['isp']) ? $data['isp'] : __('Unknown', 'tracepilot'),
+            'timezone' => isset($data['timezone']) ? $data['timezone'] : __('Unknown', 'tracepilot')
         );
         
         // Cache result for 1 week

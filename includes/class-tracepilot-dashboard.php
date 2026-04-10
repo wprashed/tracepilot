@@ -27,75 +27,75 @@ class TracePilot_Dashboard {
         $capability = TracePilot_Helpers::get_admin_capability();
 
         add_menu_page(
-            __('TracePilot', 'wp-activity-logger-pro'),
-            __('TracePilot', 'wp-activity-logger-pro'),
+            __('TracePilot', 'tracepilot'),
+            __('TracePilot', 'tracepilot'),
             $capability,
-            'wp-activity-logger-pro',
+            'tracepilot',
             array($this, 'render_dashboard_page'),
             $menu_icon,
             30
         );
 
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Dashboard', 'wp-activity-logger-pro'),
-            __('Dashboard', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Dashboard', 'tracepilot'),
+            __('Dashboard', 'tracepilot'),
             $capability,
-            'wp-activity-logger-pro',
+            'tracepilot',
             array($this, 'render_dashboard_page')
         );
 
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Activity Logs', 'wp-activity-logger-pro'),
-            __('Activity Logs', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Activity Logs', 'tracepilot'),
+            __('Activity Logs', 'tracepilot'),
             $capability,
-            'wp-activity-logger-pro-logs',
+            'tracepilot-logs',
             array($this, 'render_logs_page')
         );
 
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Analytics', 'wp-activity-logger-pro'),
-            __('Analytics', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Analytics', 'tracepilot'),
+            __('Analytics', 'tracepilot'),
             $capability,
-            'wp-activity-logger-pro-analytics',
+            'tracepilot-analytics',
             array($this, 'render_analytics_page')
         );
 
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Threat Detection', 'wp-activity-logger-pro'),
-            __('Threat Detection', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Threat Detection', 'tracepilot'),
+            __('Threat Detection', 'tracepilot'),
             $capability,
-            'wp-activity-logger-pro-threat-detection',
+            'tracepilot-threat-detection',
             array($this, 'render_threat_detection_page')
         );
 
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Server Recommendations', 'wp-activity-logger-pro'),
-            __('Server Recommendations', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Server Recommendations', 'tracepilot'),
+            __('Server Recommendations', 'tracepilot'),
             $capability,
-            'wp-activity-logger-pro-server',
+            'tracepilot-server',
             array($this, 'render_server_recommendations_page')
         );
 
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Diagnostics', 'wp-activity-logger-pro'),
-            __('Diagnostics', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Diagnostics', 'tracepilot'),
+            __('Diagnostics', 'tracepilot'),
             $capability,
-            'wp-activity-logger-pro-diagnostics',
+            'tracepilot-diagnostics',
             array($this, 'render_diagnostics_page')
         );
 
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Search Console', 'wp-activity-logger-pro'),
-            __('Search Console', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Search Console', 'tracepilot'),
+            __('Search Console', 'tracepilot'),
             $capability,
-            'wp-activity-logger-pro-search-console',
+            'tracepilot-search-console',
             array($this, 'render_search_console_page')
         );
     }

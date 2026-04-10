@@ -45,11 +45,11 @@ class TracePilot_Archive {
      */
     public function add_submenu_page() {
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Archive', 'wp-activity-logger-pro'),
-            __('Archive', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Archive', 'tracepilot'),
+            __('Archive', 'tracepilot'),
             TracePilot_Helpers::get_admin_capability(),
-            'wp-activity-logger-pro-archive',
+            'tracepilot-archive',
             array($this, 'render_page')
         );
     }
@@ -108,12 +108,12 @@ class TracePilot_Archive {
     public function ajax_archive_log() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
-            wp_send_json_error(array('message' => __('Invalid security token.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
         // Check permissions
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
         
         // Get log ID
@@ -121,7 +121,7 @@ class TracePilot_Archive {
         $site_id = isset($_POST['site_id']) ? intval($_POST['site_id']) : 0;
         
         if (!$log_id) {
-            wp_send_json_error(array('message' => __('Invalid log ID.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid log ID.', 'tracepilot')));
         }
         
         if (is_multisite() && $site_id) {
@@ -139,7 +139,7 @@ class TracePilot_Archive {
             wp_send_json_error(array('message' => $result->get_error_message()));
         }
         
-        wp_send_json_success(array('message' => __('Log entry archived successfully.', 'wp-activity-logger-pro')));
+        wp_send_json_success(array('message' => __('Log entry archived successfully.', 'tracepilot')));
     }
     
     /**
@@ -156,7 +156,7 @@ class TracePilot_Archive {
         $log = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $log_id));
         
         if (!$log) {
-            return new WP_Error('log_not_found', __('Log entry not found.', 'wp-activity-logger-pro'));
+            return new WP_Error('log_not_found', __('Log entry not found.', 'tracepilot'));
         }
         
         // Begin transaction
@@ -189,7 +189,7 @@ class TracePilot_Archive {
         
         if ($result === false) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('archive_failed', __('Failed to archive log entry.', 'wp-activity-logger-pro'));
+            return new WP_Error('archive_failed', __('Failed to archive log entry.', 'tracepilot'));
         }
         
         // Delete from logs table
@@ -201,7 +201,7 @@ class TracePilot_Archive {
         
         if ($result === false) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('delete_failed', __('Failed to remove log entry from active logs.', 'wp-activity-logger-pro'));
+            return new WP_Error('delete_failed', __('Failed to remove log entry from active logs.', 'tracepilot'));
         }
         
         // Commit transaction
@@ -210,7 +210,7 @@ class TracePilot_Archive {
         // Log the archival
         TracePilot_Helpers::log_activity(
             'log_archived',
-            sprintf(__('Log entry #%d was archived', 'wp-activity-logger-pro'), $log_id),
+            sprintf(__('Log entry #%d was archived', 'tracepilot'), $log_id),
             'info'
         );
         
@@ -223,12 +223,12 @@ class TracePilot_Archive {
     public function ajax_archive_all_logs() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
-            wp_send_json_error(array('message' => __('Invalid security token.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
         // Check permissions
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
         
         // Get filters
@@ -242,7 +242,7 @@ class TracePilot_Archive {
         }
         
         wp_send_json_success(array(
-            'message' => sprintf(__('%d log entries archived successfully.', 'wp-activity-logger-pro'), $result)
+            'message' => sprintf(__('%d log entries archived successfully.', 'tracepilot'), $result)
         ));
     }
     
@@ -334,7 +334,7 @@ class TracePilot_Archive {
             
             if ($result === false) {
                 $wpdb->query('ROLLBACK');
-                return new WP_Error('archive_failed', __('Failed to archive log entries.', 'wp-activity-logger-pro'));
+                return new WP_Error('archive_failed', __('Failed to archive log entries.', 'tracepilot'));
             }
             
             $archived_count++;
@@ -355,7 +355,7 @@ class TracePilot_Archive {
         
         if ($result === false) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('delete_failed', __('Failed to remove log entries from active logs.', 'wp-activity-logger-pro'));
+            return new WP_Error('delete_failed', __('Failed to remove log entries from active logs.', 'tracepilot'));
         }
         
         // Commit transaction
@@ -364,7 +364,7 @@ class TracePilot_Archive {
         // Log the archival
         TracePilot_Helpers::log_activity(
             'logs_archived',
-            sprintf(__('%d log entries were archived', 'wp-activity-logger-pro'), $archived_count),
+            sprintf(__('%d log entries were archived', 'tracepilot'), $archived_count),
             'info'
         );
         
@@ -377,19 +377,19 @@ class TracePilot_Archive {
     public function ajax_restore_log() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
-            wp_send_json_error(array('message' => __('Invalid security token.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
         // Check permissions
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
         
         // Get log ID
         $log_id = isset($_POST['log_id']) ? intval($_POST['log_id']) : 0;
         
         if (!$log_id) {
-            wp_send_json_error(array('message' => __('Invalid log ID.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid log ID.', 'tracepilot')));
         }
         
         // Restore log
@@ -399,7 +399,7 @@ class TracePilot_Archive {
             wp_send_json_error(array('message' => $result->get_error_message()));
         }
         
-        wp_send_json_success(array('message' => __('Log entry restored successfully.', 'wp-activity-logger-pro')));
+        wp_send_json_success(array('message' => __('Log entry restored successfully.', 'tracepilot')));
     }
     
     /**
@@ -416,7 +416,7 @@ class TracePilot_Archive {
         $log = $wpdb->get_row($wpdb->prepare("SELECT * FROM $archive_table WHERE id = %d", $log_id));
         
         if (!$log) {
-            return new WP_Error('log_not_found', __('Archived log entry not found.', 'wp-activity-logger-pro'));
+            return new WP_Error('log_not_found', __('Archived log entry not found.', 'tracepilot'));
         }
         
         // Begin transaction
@@ -447,7 +447,7 @@ class TracePilot_Archive {
         
         if ($result === false) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('restore_failed', __('Failed to restore log entry.', 'wp-activity-logger-pro'));
+            return new WP_Error('restore_failed', __('Failed to restore log entry.', 'tracepilot'));
         }
         
         // Delete from archive table
@@ -459,7 +459,7 @@ class TracePilot_Archive {
         
         if ($result === false) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('delete_failed', __('Failed to remove log entry from archive.', 'wp-activity-logger-pro'));
+            return new WP_Error('delete_failed', __('Failed to remove log entry from archive.', 'tracepilot'));
         }
         
         // Commit transaction
@@ -468,7 +468,7 @@ class TracePilot_Archive {
         // Log the restoration
         TracePilot_Helpers::log_activity(
             'log_restored',
-            sprintf(__('Log entry #%d was restored from archive', 'wp-activity-logger-pro'), $log->original_id),
+            sprintf(__('Log entry #%d was restored from archive', 'tracepilot'), $log->original_id),
             'info'
         );
         
@@ -481,19 +481,19 @@ class TracePilot_Archive {
     public function ajax_delete_archived_log() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
-            wp_send_json_error(array('message' => __('Invalid security token.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
         // Check permissions
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
         
         // Get log ID
         $log_id = isset($_POST['log_id']) ? intval($_POST['log_id']) : 0;
         
         if (!$log_id) {
-            wp_send_json_error(array('message' => __('Invalid log ID.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid log ID.', 'tracepilot')));
         }
         
         // Delete log
@@ -503,7 +503,7 @@ class TracePilot_Archive {
             wp_send_json_error(array('message' => $result->get_error_message()));
         }
         
-        wp_send_json_success(array('message' => __('Archived log entry deleted successfully.', 'wp-activity-logger-pro')));
+        wp_send_json_success(array('message' => __('Archived log entry deleted successfully.', 'tracepilot')));
     }
     
     /**
@@ -522,13 +522,13 @@ class TracePilot_Archive {
         );
         
         if ($result === false) {
-            return new WP_Error('delete_failed', __('Failed to delete archived log entry.', 'wp-activity-logger-pro'));
+            return new WP_Error('delete_failed', __('Failed to delete archived log entry.', 'tracepilot'));
         }
         
         // Log the deletion
         TracePilot_Helpers::log_activity(
             'archived_log_deleted',
-            sprintf(__('Archived log entry #%d was deleted', 'wp-activity-logger-pro'), $log_id),
+            sprintf(__('Archived log entry #%d was deleted', 'tracepilot'), $log_id),
             'info'
         );
         

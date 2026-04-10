@@ -22,11 +22,11 @@ class TracePilot_Export {
      */
     public function add_export_page() {
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Export', 'wp-activity-logger-pro'),
-            __('Export', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Export', 'tracepilot'),
+            __('Export', 'tracepilot'),
             TracePilot_Helpers::get_admin_capability(),
-            'wp-activity-logger-pro-export',
+            'tracepilot-export',
             array($this, 'render_export_page')
         );
     }
@@ -45,7 +45,7 @@ class TracePilot_Export {
         check_ajax_referer('tracepilot_nonce', 'nonce');
 
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_die(esc_html__('You do not have permission to export logs.', 'wp-activity-logger-pro'));
+            wp_die(esc_html__('You do not have permission to export logs.', 'tracepilot'));
         }
 
         $format = isset($_POST['format']) ? sanitize_key(wp_unslash($_POST['format'])) : 'csv';
@@ -122,7 +122,7 @@ class TracePilot_Export {
             case 'pdf':
                 header('Content-Type: text/plain; charset=utf-8');
                 header('Content-Disposition: attachment; filename=' . $filename . '.txt');
-                echo esc_html__("TracePilot Export\n\n", 'wp-activity-logger-pro');
+                echo esc_html__("TracePilot Export\n\n", 'tracepilot');
                 foreach ($logs as $log) {
                     echo esc_html(
                         sprintf(

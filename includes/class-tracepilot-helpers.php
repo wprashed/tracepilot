@@ -283,7 +283,7 @@ class TracePilot_Helpers {
         if (!isset($args['user_id'])) {
             $user = wp_get_current_user();
             $args['user_id'] = $user->ID;
-            $args['username'] = $user->ID ? $user->user_login : __('Guest', 'wp-activity-logger-pro');
+            $args['username'] = $user->ID ? $user->user_login : __('Guest', 'tracepilot');
             $args['user_role'] = $user->ID && !empty($user->roles) ? $user->roles[0] : 'guest';
         }
 
@@ -667,10 +667,10 @@ class TracePilot_Helpers {
      */
     public static function get_severity_badge($severity) {
         $map = array(
-            'info' => array('label' => __('Info', 'wp-activity-logger-pro'), 'class' => 'info'),
-            'warning' => array('label' => __('Warning', 'wp-activity-logger-pro'), 'class' => 'warning'),
-            'error' => array('label' => __('Error', 'wp-activity-logger-pro'), 'class' => 'danger'),
-            'critical' => array('label' => __('Critical', 'wp-activity-logger-pro'), 'class' => 'danger'),
+            'info' => array('label' => __('Info', 'tracepilot'), 'class' => 'info'),
+            'warning' => array('label' => __('Warning', 'tracepilot'), 'class' => 'warning'),
+            'error' => array('label' => __('Error', 'tracepilot'), 'class' => 'danger'),
+            'critical' => array('label' => __('Critical', 'tracepilot'), 'class' => 'danger'),
         );
 
         $data = isset($map[$severity]) ? $map[$severity] : $map['info'];
@@ -807,7 +807,7 @@ class TracePilot_Helpers {
         }
 
         $details = get_blog_details((int) $site_id);
-        return $details ? $details->blogname : sprintf(__('Site #%d', 'wp-activity-logger-pro'), (int) $site_id);
+        return $details ? $details->blogname : sprintf(__('Site #%d', 'tracepilot'), (int) $site_id);
     }
 
     /**

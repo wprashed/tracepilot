@@ -75,11 +75,11 @@ class TracePilot_Google_Search_Console {
      */
     public function add_submenu_page() {
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Search Console', 'wp-activity-logger-pro'),
-            __('Search Console', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Search Console', 'tracepilot'),
+            __('Search Console', 'tracepilot'),
             TracePilot_Helpers::get_admin_capability(),
-            'wp-activity-logger-pro-search-console',
+            'tracepilot-search-console',
             array($this, 'render_page')
         );
     }
@@ -102,7 +102,7 @@ class TracePilot_Google_Search_Console {
         $this->client = new Google_Client();
         $this->client->setApplicationName('TracePilot for WordPress');
         $this->client->setScopes(array('https://www.googleapis.com/auth/webmasters.readonly'));
-        $this->client->setRedirectUri(admin_url('admin.php?page=wp-activity-logger-pro-search-console&oauth=callback'));
+        $this->client->setRedirectUri(admin_url('admin.php?page=tracepilot-search-console&oauth=callback'));
         
         // Get client ID and secret from options
         $options = get_option('tracepilot_gsc_options', array());
@@ -145,7 +145,7 @@ class TracePilot_Google_Search_Console {
         $oauth = isset($_GET['oauth']) ? sanitize_key(wp_unslash($_GET['oauth'])) : '';
         $code  = isset($_GET['code']) ? sanitize_text_field(wp_unslash($_GET['code'])) : '';
 
-        if ('wp-activity-logger-pro-search-console' === $page && 'callback' === $oauth && !empty($code)) {
+        if ('tracepilot-search-console' === $page && 'callback' === $oauth && !empty($code)) {
             if (!TracePilot_Helpers::current_user_can_manage()) {
                 return;
             }
@@ -161,7 +161,7 @@ class TracePilot_Google_Search_Console {
                         'oauth_error',
                         sprintf(
                             /* translators: %s: OAuth error message. */
-                            esc_html__('OAuth error: %s', 'wp-activity-logger-pro'),
+                            esc_html__('OAuth error: %s', 'tracepilot'),
                             esc_html($token['error'])
                         ),
                         'error'
@@ -171,7 +171,7 @@ class TracePilot_Google_Search_Console {
                     $options['access_token'] = $token;
                     update_option('tracepilot_gsc_options', $options);
 
-                    wp_safe_redirect(admin_url('admin.php?page=wp-activity-logger-pro-search-console&connected=1'));
+                    wp_safe_redirect(admin_url('admin.php?page=tracepilot-search-console&connected=1'));
                     exit;
                 }
             } catch (Exception $e) {
@@ -180,7 +180,7 @@ class TracePilot_Google_Search_Console {
                     'oauth_exception',
                     sprintf(
                         /* translators: %s: Exception message returned during OAuth flow. */
-                        esc_html__('OAuth exception: %s', 'wp-activity-logger-pro'),
+                        esc_html__('OAuth exception: %s', 'tracepilot'),
                         esc_html($e->getMessage())
                     ),
                     'error'
@@ -253,17 +253,17 @@ class TracePilot_Google_Search_Console {
     public function ajax_fetch_data() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
-            wp_send_json_error(array('message' => __('Invalid security token.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
         // Check permissions
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
         
         // Check if connected
         if (!$this->is_connected()) {
-            wp_send_json_error(array('message' => __('Not connected to Google Search Console.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Not connected to Google Search Console.', 'tracepilot')));
         }
         
         // Get parameters
@@ -273,7 +273,7 @@ class TracePilot_Google_Search_Console {
         $dimensions = isset($_POST['dimensions']) ? array_values(array_filter(array_map('sanitize_key', (array) wp_unslash($_POST['dimensions'])))) : array('query');
         
         if (empty($site_url)) {
-            wp_send_json_error(array('message' => __('Site URL is required.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Site URL is required.', 'tracepilot')));
         }
         
         // Get data
@@ -378,12 +378,12 @@ class TracePilot_Google_Search_Console {
     public function ajax_disconnect() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
-            wp_send_json_error(array('message' => __('Invalid security token.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
         // Check permissions
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
         
         // Delete access token
@@ -391,6 +391,6 @@ class TracePilot_Google_Search_Console {
         unset($options['access_token']);
         update_option('tracepilot_gsc_options', $options);
         
-        wp_send_json_success(array('message' => __('Successfully disconnected from Google Search Console.', 'wp-activity-logger-pro')));
+        wp_send_json_success(array('message' => __('Successfully disconnected from Google Search Console.', 'tracepilot')));
     }
 }

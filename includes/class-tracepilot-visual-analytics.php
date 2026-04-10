@@ -24,11 +24,11 @@ class TracePilot_Visual_Analytics {
      */
     public function add_submenu_page() {
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Analytics', 'wp-activity-logger-pro'),
-            __('Analytics', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Analytics', 'tracepilot'),
+            __('Analytics', 'tracepilot'),
             TracePilot_Helpers::get_admin_capability(),
-            'wp-activity-logger-pro-analytics',
+            'tracepilot-analytics',
             array($this, 'render_page')
         );
     }
@@ -46,12 +46,12 @@ class TracePilot_Visual_Analytics {
     public function ajax_get_analytics_data() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
-            wp_send_json_error(array('message' => __('Invalid security token.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
         // Check permissions
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
         
         // Get parameters
@@ -82,7 +82,7 @@ class TracePilot_Visual_Analytics {
                 break;
                 
             default:
-                wp_send_json_error(array('message' => __('Invalid chart type.', 'wp-activity-logger-pro')));
+                wp_send_json_error(array('message' => __('Invalid chart type.', 'tracepilot')));
                 break;
         }
         
@@ -174,7 +174,7 @@ class TracePilot_Visual_Analytics {
             'labels' => $labels,
             'datasets' => array(
                 array(
-                    'label' => __('Activity Count', 'wp-activity-logger-pro'),
+                    'label' => __('Activity Count', 'tracepilot'),
                     'data' => $values,
                     'backgroundColor' => 'rgba(34, 113, 177, 0.2)',
                     'borderColor' => 'rgba(34, 113, 177, 1)',
@@ -238,7 +238,7 @@ class TracePilot_Visual_Analytics {
             'labels' => $labels,
             'datasets' => array(
                 array(
-                    'label' => __('Activity Count', 'wp-activity-logger-pro'),
+                    'label' => __('Activity Count', 'tracepilot'),
                     'data' => $values,
                     'backgroundColor' => $colors,
                     'borderColor' => 'rgba(255, 255, 255, 0.5)',
@@ -303,7 +303,7 @@ class TracePilot_Visual_Analytics {
             'labels' => $labels,
             'datasets' => array(
                 array(
-                    'label' => __('Activity Count', 'wp-activity-logger-pro'),
+                    'label' => __('Activity Count', 'tracepilot'),
                     'data' => $values,
                     'backgroundColor' => $colors,
                     'borderColor' => 'rgba(255, 255, 255, 0.5)',
@@ -374,7 +374,7 @@ class TracePilot_Visual_Analytics {
             'labels' => $labels,
             'datasets' => array(
                 array(
-                    'label' => __('Activity Count', 'wp-activity-logger-pro'),
+                    'label' => __('Activity Count', 'tracepilot'),
                     'data' => $values,
                     'backgroundColor' => $colors
                 )
@@ -428,7 +428,7 @@ class TracePilot_Visual_Analytics {
             'labels' => $labels,
             'datasets' => array(
                 array(
-                    'label' => __('Activity Count', 'wp-activity-logger-pro'),
+                    'label' => __('Activity Count', 'tracepilot'),
                     'data' => $values,
                     'backgroundColor' => $background_colors,
                     'borderColor' => 'rgba(255, 255, 255, 0.5)',
@@ -482,7 +482,7 @@ class TracePilot_Visual_Analytics {
      */
     private function generate_user_insights($results) {
         if (empty($results)) {
-            return __('No user activity data available for the selected period.', 'wp-activity-logger-pro');
+            return __('No user activity data available for the selected period.', 'tracepilot');
         }
         
         $total_activities = 0;
@@ -495,7 +495,7 @@ class TracePilot_Visual_Analytics {
         $top_user_percentage = round(($top_user_count / $total_activities) * 100);
         
         $insights = sprintf(
-            __('The most active user is <strong>%s</strong> with %d activities (%d%% of total). ', 'wp-activity-logger-pro'),
+            __('The most active user is <strong>%s</strong> with %d activities (%d%% of total). ', 'tracepilot'),
             $top_user,
             $top_user_count,
             $top_user_percentage
@@ -506,14 +506,14 @@ class TracePilot_Visual_Analytics {
             $second_user_count = $results[1]->count;
             
             $insights .= sprintf(
-                __('Followed by <strong>%s</strong> with %d activities. ', 'wp-activity-logger-pro'),
+                __('Followed by <strong>%s</strong> with %d activities. ', 'tracepilot'),
                 $second_user,
                 $second_user_count
             );
         }
         
         $insights .= sprintf(
-            __('The top 10 users account for %d activities in the selected period.', 'wp-activity-logger-pro'),
+            __('The top 10 users account for %d activities in the selected period.', 'tracepilot'),
             $total_activities
         );
         
@@ -525,7 +525,7 @@ class TracePilot_Visual_Analytics {
      */
     private function generate_action_insights($results) {
         if (empty($results)) {
-            return __('No activity data available for the selected period.', 'wp-activity-logger-pro');
+            return __('No activity data available for the selected period.', 'tracepilot');
         }
         
         $total_activities = 0;
@@ -538,7 +538,7 @@ class TracePilot_Visual_Analytics {
         $top_action_percentage = round(($top_action_count / $total_activities) * 100);
         
         $insights = sprintf(
-            __('The most common activity is <strong>%s</strong> with %d occurrences (%d%% of total). ', 'wp-activity-logger-pro'),
+            __('The most common activity is <strong>%s</strong> with %d occurrences (%d%% of total). ', 'tracepilot'),
             $top_action,
             $top_action_count,
             $top_action_percentage
@@ -549,14 +549,14 @@ class TracePilot_Visual_Analytics {
             $second_action_count = $results[1]->count;
             
             $insights .= sprintf(
-                __('Followed by <strong>%s</strong> with %d occurrences. ', 'wp-activity-logger-pro'),
+                __('Followed by <strong>%s</strong> with %d occurrences. ', 'tracepilot'),
                 $second_action,
                 $second_action_count
             );
         }
         
         $insights .= sprintf(
-            __('The top 10 activity types account for %d activities in the selected period.', 'wp-activity-logger-pro'),
+            __('The top 10 activity types account for %d activities in the selected period.', 'tracepilot'),
             $total_activities
         );
         
@@ -568,7 +568,7 @@ class TracePilot_Visual_Analytics {
      */
     private function generate_heatmap_insights($results) {
         if (empty($results)) {
-            return __('No activity data available for the selected period.', 'wp-activity-logger-pro');
+            return __('No activity data available for the selected period.', 'tracepilot');
         }
         
         // Find peak day and hour
@@ -621,20 +621,20 @@ class TracePilot_Visual_Analytics {
         }
         
         $insights = sprintf(
-            __('Peak activity occurs on <strong>%s</strong> at <strong>%02d:00</strong> with %d activities. ', 'wp-activity-logger-pro'),
+            __('Peak activity occurs on <strong>%s</strong> at <strong>%02d:00</strong> with %d activities. ', 'tracepilot'),
             $peak_day,
             $peak_hour,
             $peak_count
         );
         
         $insights .= sprintf(
-            __('The busiest day is <strong>%s</strong> with %d total activities. ', 'wp-activity-logger-pro'),
+            __('The busiest day is <strong>%s</strong> with %d total activities. ', 'tracepilot'),
             $busiest_day,
             $busiest_day_count
         );
         
         $insights .= sprintf(
-            __('The busiest hour is <strong>%02d:00</strong> with %d total activities across all days.', 'wp-activity-logger-pro'),
+            __('The busiest hour is <strong>%02d:00</strong> with %d total activities across all days.', 'tracepilot'),
             $busiest_hour,
             $busiest_hour_count
         );
@@ -647,7 +647,7 @@ class TracePilot_Visual_Analytics {
      */
     private function generate_severity_insights($results) {
         if (empty($results)) {
-            return __('No activity data available for the selected period.', 'wp-activity-logger-pro');
+            return __('No activity data available for the selected period.', 'tracepilot');
         }
         
         $total = 0;
@@ -668,7 +668,7 @@ class TracePilot_Visual_Analytics {
         $info_percentage = $total > 0 ? round(($severity_counts['info'] / $total) * 100) : 0;
         
         $insights = sprintf(
-            __('Of the total %d activities, <strong>%d%%</strong> are informational, <strong>%d%%</strong> are warnings, and <strong>%d%%</strong> are errors. ', 'wp-activity-logger-pro'),
+            __('Of the total %d activities, <strong>%d%%</strong> are informational, <strong>%d%%</strong> are warnings, and <strong>%d%%</strong> are errors. ', 'tracepilot'),
             $total,
             $info_percentage,
             $warning_percentage,
@@ -676,11 +676,11 @@ class TracePilot_Visual_Analytics {
         );
         
         if ($error_percentage > 10) {
-            $insights .= __('The high percentage of errors may indicate issues that need attention.', 'wp-activity-logger-pro');
+            $insights .= __('The high percentage of errors may indicate issues that need attention.', 'tracepilot');
         } else if ($warning_percentage > 20) {
-            $insights .= __('The moderate level of warnings suggests some areas may need monitoring.', 'wp-activity-logger-pro');
+            $insights .= __('The moderate level of warnings suggests some areas may need monitoring.', 'tracepilot');
         } else {
-            $insights .= __('The low percentage of errors and warnings indicates a healthy system.', 'wp-activity-logger-pro');
+            $insights .= __('The low percentage of errors and warnings indicates a healthy system.', 'tracepilot');
         }
         
         return $insights;

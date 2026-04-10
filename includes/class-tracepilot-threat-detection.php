@@ -26,11 +26,11 @@ class TracePilot_Threat_Detection {
      */
     public function add_submenu_page() {
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Threat Detection', 'wp-activity-logger-pro'),
-            __('Threat Detection', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Threat Detection', 'tracepilot'),
+            __('Threat Detection', 'tracepilot'),
             TracePilot_Helpers::get_admin_capability(),
-            'wp-activity-logger-pro-threat-detection',
+            'tracepilot-threat-detection',
             array($this, 'render_page')
         );
     }
@@ -48,12 +48,12 @@ class TracePilot_Threat_Detection {
     public function ajax_analyze_threats() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
-            wp_send_json_error(array('message' => __('Invalid security token.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
         // Check permissions
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
         
         // Run threat analysis
@@ -126,7 +126,7 @@ class TracePilot_Threat_Detection {
                 'first_attempt' => $login->first_attempt,
                 'last_attempt' => $login->last_attempt,
                 'description' => sprintf(
-                    __('Multiple failed login attempts (%d) from IP %s', 'wp-activity-logger-pro'),
+                    __('Multiple failed login attempts (%d) from IP %s', 'tracepilot'),
                     $login->count,
                     $login->ip
                 )
@@ -202,7 +202,7 @@ class TracePilot_Threat_Detection {
                         'avg_hour' => round($avg_hour),
                         'login_hour' => $login_hour,
                         'description' => sprintf(
-                            __('Unusual login time for user %s (User typically logs in around %02d:00, but logged in at %02d:00)', 'wp-activity-logger-pro'),
+                            __('Unusual login time for user %s (User typically logs in around %02d:00, but logged in at %02d:00)', 'tracepilot'),
                             $pattern['username'],
                             round($avg_hour),
                             $login_hour
@@ -260,7 +260,7 @@ class TracePilot_Threat_Detection {
                 if (!in_array($login->ip, $common_ips)) {
                     // Get geolocation data
                     $geo_data = $this->get_ip_geolocation($login->ip);
-                    $location = isset($geo_data['country']) ? $geo_data['country'] : __('Unknown', 'wp-activity-logger-pro');
+                    $location = isset($geo_data['country']) ? $geo_data['country'] : __('Unknown', 'tracepilot');
                     
                     $threats[] = array(
                         'type' => 'unusual_location',
@@ -271,7 +271,7 @@ class TracePilot_Threat_Detection {
                         'ip' => $login->ip,
                         'location' => $location,
                         'description' => sprintf(
-                            __('Login from unusual location for user %s (IP: %s, Location: %s)', 'wp-activity-logger-pro'),
+                            __('Login from unusual location for user %s (IP: %s, Location: %s)', 'tracepilot'),
                             $login->username,
                             $login->ip,
                             $location
@@ -335,7 +335,7 @@ class TracePilot_Threat_Detection {
                     'ip' => $mod->ip,
                     'file_path' => $file_path,
                     'description' => sprintf(
-                        __('Suspicious file modification by user %s (File: %s)', 'wp-activity-logger-pro'),
+                        __('Suspicious file modification by user %s (File: %s)', 'tracepilot'),
                         $mod->username,
                         $file_path
                     )
@@ -405,7 +405,7 @@ class TracePilot_Threat_Detection {
                     'target_user' => $change->object_name,
                     'new_role' => $context['new_role'],
                     'description' => sprintf(
-                        __('User %s changed role of %s to %s', 'wp-activity-logger-pro'),
+                        __('User %s changed role of %s to %s', 'tracepilot'),
                         $change->username,
                         $change->object_name,
                         $context['new_role']
@@ -511,7 +511,7 @@ class TracePilot_Threat_Detection {
             $this->log_threat(
                 'brute_force',
                 'high',
-                sprintf(__('Possible brute force attack detected from IP %s (%d failed login attempts in the last hour)', 'wp-activity-logger-pro'), $args['ip'], $count),
+                sprintf(__('Possible brute force attack detected from IP %s (%d failed login attempts in the last hour)', 'tracepilot'), $args['ip'], $count),
                 array(
                     'ip' => $args['ip'],
                     'count' => $count
@@ -521,8 +521,8 @@ class TracePilot_Threat_Detection {
             // Send notification
             $this->send_threat_notification(
                 'brute_force',
-                sprintf(__('Possible brute force attack detected from IP %s', 'wp-activity-logger-pro'), $args['ip']),
-                sprintf(__('%d failed login attempts in the last hour from IP %s', 'wp-activity-logger-pro'), $count, $args['ip'])
+                sprintf(__('Possible brute force attack detected from IP %s', 'tracepilot'), $args['ip']),
+                sprintf(__('%d failed login attempts in the last hour from IP %s', 'tracepilot'), $count, $args['ip'])
             );
         }
     }
@@ -554,13 +554,13 @@ class TracePilot_Threat_Detection {
         if (!empty($previous_ips) && !in_array($args['ip'], $previous_ips)) {
             // Get geolocation data
             $geo_data = $this->get_ip_geolocation($args['ip']);
-            $location = isset($geo_data['country']) ? $geo_data['country'] : __('Unknown', 'wp-activity-logger-pro');
+            $location = isset($geo_data['country']) ? $geo_data['country'] : __('Unknown', 'tracepilot');
             
             // Log threat
             $this->log_threat(
                 'unusual_login_location',
                 'medium',
-                sprintf(__('Login from unusual location for user %s (IP: %s, Location: %s)', 'wp-activity-logger-pro'), $args['username'], $args['ip'], $location),
+                sprintf(__('Login from unusual location for user %s (IP: %s, Location: %s)', 'tracepilot'), $args['username'], $args['ip'], $location),
                 array(
                     'user_id' => $args['user_id'],
                     'username' => $args['username'],
@@ -572,8 +572,8 @@ class TracePilot_Threat_Detection {
             // Send notification
             $this->send_threat_notification(
                 'unusual_login_location',
-                sprintf(__('Login from unusual location for user %s', 'wp-activity-logger-pro'), $args['username']),
-                sprintf(__('User %s logged in from IP %s (Location: %s)', 'wp-activity-logger-pro'), $args['username'], $args['ip'], $location)
+                sprintf(__('Login from unusual location for user %s', 'tracepilot'), $args['username']),
+                sprintf(__('User %s logged in from IP %s (Location: %s)', 'tracepilot'), $args['username'], $args['ip'], $location)
             );
         }
     }
@@ -601,7 +601,7 @@ class TracePilot_Threat_Detection {
             $this->log_threat(
                 'suspicious_file_modification',
                 'high',
-                sprintf(__('Suspicious file modification by user %s (File: %s)', 'wp-activity-logger-pro'), $args['username'], $file_path),
+                sprintf(__('Suspicious file modification by user %s (File: %s)', 'tracepilot'), $args['username'], $file_path),
                 array(
                     'user_id' => $args['user_id'],
                     'username' => $args['username'],
@@ -613,8 +613,8 @@ class TracePilot_Threat_Detection {
             // Send notification
             $this->send_threat_notification(
                 'suspicious_file_modification',
-                sprintf(__('Suspicious file modification detected', 'wp-activity-logger-pro')),
-                sprintf(__('User %s modified file %s', 'wp-activity-logger-pro'), $args['username'], $file_path)
+                sprintf(__('Suspicious file modification detected', 'tracepilot')),
+                sprintf(__('User %s modified file %s', 'tracepilot'), $args['username'], $file_path)
             );
         }
     }
@@ -640,7 +640,7 @@ class TracePilot_Threat_Detection {
             $this->log_threat(
                 'privilege_escalation',
                 'high',
-                sprintf(__('User %s changed role of %s to %s', 'wp-activity-logger-pro'), $args['username'], $args['object_name'], $context['new_role']),
+                sprintf(__('User %s changed role of %s to %s', 'tracepilot'), $args['username'], $args['object_name'], $context['new_role']),
                 array(
                     'user_id' => $args['user_id'],
                     'username' => $args['username'],
@@ -653,8 +653,8 @@ class TracePilot_Threat_Detection {
             // Send notification
             $this->send_threat_notification(
                 'privilege_escalation',
-                sprintf(__('Privilege escalation detected', 'wp-activity-logger-pro')),
-                sprintf(__('User %s changed role of %s to %s', 'wp-activity-logger-pro'), $args['username'], $args['object_name'], $context['new_role'])
+                sprintf(__('Privilege escalation detected', 'tracepilot')),
+                sprintf(__('User %s changed role of %s to %s', 'tracepilot'), $args['username'], $args['object_name'], $context['new_role'])
             );
         }
     }
@@ -703,7 +703,7 @@ class TracePilot_Threat_Detection {
     private function get_ip_geolocation($ip) {
         // Check if IP is valid
         if (empty($ip) || $ip === '127.0.0.1' || $ip === '::1') {
-            return array('country' => __('Local', 'wp-activity-logger-pro'));
+            return array('country' => __('Local', 'tracepilot'));
         }
         
         // Try to get from cache
@@ -718,13 +718,13 @@ class TracePilot_Threat_Detection {
         $response = wp_remote_get('http://ip-api.com/json/' . $ip);
         
         if (is_wp_error($response)) {
-            return array('country' => __('Unknown', 'wp-activity-logger-pro'));
+            return array('country' => __('Unknown', 'tracepilot'));
         }
         
         $data = json_decode(wp_remote_retrieve_body($response), true);
         
         if (empty($data) || !isset($data['country'])) {
-            return array('country' => __('Unknown', 'wp-activity-logger-pro'));
+            return array('country' => __('Unknown', 'tracepilot'));
         }
         
         // Cache result for 1 week
@@ -773,15 +773,15 @@ class TracePilot_Threat_Detection {
         $summary = $this->get_threat_summary($threats);
         
         // Send email
-        $subject = sprintf(__('[%s] Security Alert: %d security threats detected', 'wp-activity-logger-pro'), get_bloginfo('name'), $summary['total']);
+        $subject = sprintf(__('[%s] Security Alert: %d security threats detected', 'tracepilot'), get_bloginfo('name'), $summary['total']);
         
-        $body = sprintf(__('Security threats have been detected on your WordPress site (%s).', 'wp-activity-logger-pro'), get_bloginfo('url')) . "\n\n";
-        $body .= sprintf(__('Total Threats: %d', 'wp-activity-logger-pro'), $summary['total']) . "\n";
-        $body .= sprintf(__('High Severity: %d', 'wp-activity-logger-pro'), $summary['high']) . "\n";
-        $body .= sprintf(__('Medium Severity: %d', 'wp-activity-logger-pro'), $summary['medium']) . "\n";
-        $body .= sprintf(__('Low Severity: %d', 'wp-activity-logger-pro'), $summary['low']) . "\n\n";
+        $body = sprintf(__('Security threats have been detected on your WordPress site (%s).', 'tracepilot'), get_bloginfo('url')) . "\n\n";
+        $body .= sprintf(__('Total Threats: %d', 'tracepilot'), $summary['total']) . "\n";
+        $body .= sprintf(__('High Severity: %d', 'tracepilot'), $summary['high']) . "\n";
+        $body .= sprintf(__('Medium Severity: %d', 'tracepilot'), $summary['medium']) . "\n";
+        $body .= sprintf(__('Low Severity: %d', 'tracepilot'), $summary['low']) . "\n\n";
         
-        $body .= __('Top Threats:', 'wp-activity-logger-pro') . "\n";
+        $body .= __('Top Threats:', 'tracepilot') . "\n";
         
         // Add top 5 high severity threats
         $high_threats = array_filter($threats, function($threat) {
@@ -798,7 +798,7 @@ class TracePilot_Threat_Detection {
             }
         }
         
-        $body .= "\n" . sprintf(__('Please log in to your WordPress admin panel to investigate: %s', 'wp-activity-logger-pro'), admin_url('admin.php?page=wp-activity-logger-pro-threat-detection'));
+        $body .= "\n" . sprintf(__('Please log in to your WordPress admin panel to investigate: %s', 'tracepilot'), admin_url('admin.php?page=tracepilot-threat-detection'));
         
         wp_mail($email, $subject, $body);
     }

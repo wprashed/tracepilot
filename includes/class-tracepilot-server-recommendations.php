@@ -24,11 +24,11 @@ class TracePilot_Server_Recommendations {
      */
     public function add_submenu_page() {
         add_submenu_page(
-            'wp-activity-logger-pro',
-            __('Server Recommendations', 'wp-activity-logger-pro'),
-            __('Server Recommendations', 'wp-activity-logger-pro'),
+            'tracepilot',
+            __('Server Recommendations', 'tracepilot'),
+            __('Server Recommendations', 'tracepilot'),
             TracePilot_Helpers::get_admin_capability(),
-            'wp-activity-logger-pro-server-recommendations',
+            'tracepilot-server-recommendations',
             array($this, 'render_page')
         );
     }
@@ -46,12 +46,12 @@ class TracePilot_Server_Recommendations {
     public function ajax_analyze_server_needs() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
-            wp_send_json_error(array('message' => __('Invalid security token.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
         // Check permissions
         if (!TracePilot_Helpers::current_user_can_manage()) {
-            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'wp-activity-logger-pro')));
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
         }
 
         // Get log data for analysis
@@ -209,7 +209,7 @@ class TracePilot_Server_Recommendations {
      */
     private function generate_recommendation_explanation($storage, $ram, $cpu, $bandwidth, $hosting_type, $logs_per_day, $peak_logs_per_hour, $total_users, $total_posts) {
         $explanation = sprintf(
-            __('Based on your site activity of approximately %d logs per day (with peaks of %d logs per hour), %d users, and %d posts, we recommend the following server configuration:', 'wp-activity-logger-pro'),
+            __('Based on your site activity of approximately %d logs per day (with peaks of %d logs per hour), %d users, and %d posts, we recommend the following server configuration:', 'tracepilot'),
             $logs_per_day,
             $peak_logs_per_hour,
             $total_users,
@@ -217,28 +217,28 @@ class TracePilot_Server_Recommendations {
         );
         
         $explanation .= "\n\n";
-        $explanation .= sprintf(__('Storage: %d GB', 'wp-activity-logger-pro'), $storage) . "\n";
-        $explanation .= sprintf(__('RAM: %d GB', 'wp-activity-logger-pro'), $ram) . "\n";
-        $explanation .= sprintf(__('CPU: %d cores', 'wp-activity-logger-pro'), $cpu) . "\n";
-        $explanation .= sprintf(__('Bandwidth: %d GB/month', 'wp-activity-logger-pro'), $bandwidth) . "\n";
-        $explanation .= sprintf(__('Recommended Hosting Type: %s', 'wp-activity-logger-pro'), $hosting_type) . "\n\n";
+        $explanation .= sprintf(__('Storage: %d GB', 'tracepilot'), $storage) . "\n";
+        $explanation .= sprintf(__('RAM: %d GB', 'tracepilot'), $ram) . "\n";
+        $explanation .= sprintf(__('CPU: %d cores', 'tracepilot'), $cpu) . "\n";
+        $explanation .= sprintf(__('Bandwidth: %d GB/month', 'tracepilot'), $bandwidth) . "\n";
+        $explanation .= sprintf(__('Recommended Hosting Type: %s', 'tracepilot'), $hosting_type) . "\n\n";
         
         // Add specific explanations based on hosting type
         switch ($hosting_type) {
             case 'Dedicated Server':
-                $explanation .= __('Your site shows high activity levels that would benefit from a dedicated server. This ensures consistent performance and the ability to handle traffic spikes without degradation.', 'wp-activity-logger-pro');
+                $explanation .= __('Your site shows high activity levels that would benefit from a dedicated server. This ensures consistent performance and the ability to handle traffic spikes without degradation.', 'tracepilot');
                 break;
                 
             case 'VPS/Cloud Hosting':
-                $explanation .= __('Your site has moderate to high activity that would be best served by a VPS or cloud hosting solution. This provides better resource allocation than shared hosting while maintaining cost efficiency.', 'wp-activity-logger-pro');
+                $explanation .= __('Your site has moderate to high activity that would be best served by a VPS or cloud hosting solution. This provides better resource allocation than shared hosting while maintaining cost efficiency.', 'tracepilot');
                 break;
                 
             case 'Managed WordPress Hosting':
-                $explanation .= __('Your site would benefit from specialized WordPress hosting that optimizes performance and provides WordPress-specific security and caching features.', 'wp-activity-logger-pro');
+                $explanation .= __('Your site would benefit from specialized WordPress hosting that optimizes performance and provides WordPress-specific security and caching features.', 'tracepilot');
                 break;
                 
             default:
-                $explanation .= __('Your site has relatively low activity levels and could be adequately served by quality shared hosting. However, as your site grows, consider upgrading to managed WordPress hosting.', 'wp-activity-logger-pro');
+                $explanation .= __('Your site has relatively low activity levels and could be adequately served by quality shared hosting. However, as your site grows, consider upgrading to managed WordPress hosting.', 'tracepilot');
                 break;
         }
         

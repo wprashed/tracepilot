@@ -175,7 +175,7 @@ TracePilot_Helpers::init();
 
 TracePilot_Helpers::log_activity(
     'custom_action',
-    __('Custom action recorded from another plugin.', 'wp-activity-logger-pro'),
+    __('Custom action recorded from another plugin.', 'tracepilot'),
     'info',
     array(
         'object_type' => 'integration',
