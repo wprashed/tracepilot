@@ -3,7 +3,7 @@
  * Plugin Name: TracePilot for WordPress
  * Plugin URI: https://rashed.im/
  * Description: Activity logging, diagnostics, threat review, and export tooling for WordPress administrators.
- * Version: 1.0.0
+ * Version: 1.3.3
  * Author: Rashed Hossain
  * Author URI: https://rashed.im/
  * Text Domain: wp-activity-logger-pro
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('TracePilot_VERSION', '1.3.2');
+define('TracePilot_VERSION', '1.3.3');
 define('TracePilot_PLUGIN_FILE', __FILE__);
 define('TracePilot_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TracePilot_PLUGIN_URL', plugin_dir_url(__FILE__));
