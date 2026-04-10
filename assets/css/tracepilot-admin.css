@@ -924,6 +924,12 @@ textarea.tracepilot-input {
   padding: 14px 16px;
 }
 
+.tracepilot-note-success {
+  background: linear-gradient(180deg, rgba(233, 245, 238, 0.96) 0%, rgba(224, 241, 231, 0.96) 100%);
+  border-color: rgba(118, 171, 132, 0.45);
+  color: #1f5c35;
+}
+
 .tracepilot-issue-card h3 {
   font-size: 18px;
   line-height: 1.2;
@@ -1828,6 +1834,7 @@ body.tracepilot-admin-screen #wpbody-content {
   font-size: 15px;
   font-weight: 600;
   line-height: 1.45;
+  width: fit-content;
 }
 
 .tracepilot-wrap .tracepilot-check-card {
@@ -1837,6 +1844,10 @@ body.tracepilot-admin-screen #wpbody-content {
 .tracepilot-wrap .tracepilot-check-card.tracepilot-check-card-compact {
   min-height: 0;
   padding-block: 16px;
+}
+
+.tracepilot-form-stack > .tracepilot-check {
+  margin-top: 2px;
 }
 
 .tracepilot-check-card {
