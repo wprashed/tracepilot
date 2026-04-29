@@ -160,7 +160,9 @@ $recent_logs = TracePilot_Helpers::get_logs(array(), 8);
         <div class="tracepilot-modal-body"></div>
     </div>
 </div>
-
-<script>
-window.tracepilotDashboardTrend = <?php echo wp_json_encode($series); ?>;
-</script>
+<div
+    id="tracepilot-dashboard-trend-data"
+    data-labels="<?php echo esc_attr(wp_json_encode($series['labels'])); ?>"
+    data-values="<?php echo esc_attr(wp_json_encode($series['values'])); ?>"
+    hidden
+></div>
