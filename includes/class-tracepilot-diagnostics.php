@@ -24,13 +24,11 @@ class TracePilot_Diagnostics {
         add_action('wp_ajax_tracepilot_disable_safe_mode', array($this, 'ajax_disable_safe_mode'));
         add_action('wp_ajax_tracepilot_ask_diagnostics_ai', array($this, 'ajax_ask_diagnostics_ai'));
         add_action('wp_ajax_tracepilot_capture_client_error', array($this, 'ajax_capture_client_error'));
-        add_action('wp_ajax_nopriv_tracepilot_capture_client_error', array($this, 'ajax_capture_client_error'));
 
         add_filter('option_active_plugins', array($this, 'filter_active_plugins_for_safe_mode'));
         add_filter('site_option_active_sitewide_plugins', array($this, 'filter_network_active_plugins_for_safe_mode'));
 
-        add_action('wp_footer', array($this, 'inject_client_error_snippet'), 99);
-        add_action('admin_footer', array($this, 'inject_client_error_snippet'), 99);
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_client_error_script'));
         add_action('admin_notices', array($this, 'render_admin_alert_notice'));
     }
 
@@ -125,6 +123,15 @@ class TracePilot_Diagnostics {
      * Capture JS/runtime errors.
      */
     public function ajax_capture_client_error() {
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if (!$nonce || !wp_verify_nonce($nonce, 'tracepilot_client_error_nonce')) {
+            wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
+        }
+
+        if (!TracePilot_Helpers::current_user_can_manage()) {
+            wp_send_json_error(array('message' => __('You do not have permission to perform this action.', 'tracepilot')));
+        }
+
         $entry = array(
             'time' => current_time('mysql'),
             'page' => isset($_POST['page']) ? esc_url_raw(wp_unslash($_POST['page'])) : '',
@@ -151,58 +158,34 @@ class TracePilot_Diagnostics {
     }
 
     /**
-     * Inject client-side error collector.
+     * Enqueue client-side runtime error collector.
      */
-    public function inject_client_error_snippet() {
-        if (is_admin() && !TracePilot_Helpers::current_user_can_manage()) {
+    public function enqueue_client_error_script() {
+        if (!TracePilot_Helpers::current_user_can_manage()) {
             return;
         }
-        ?>
-        <script>
-        (function() {
-            if (window.__wpalErrorCaptureLoaded) {
-                return;
-            }
-            window.__wpalErrorCaptureLoaded = true;
 
-            function send(payload) {
-                try {
-                    var data = new window.FormData();
-                    data.append('action', 'tracepilot_capture_client_error');
-                    data.append('page', window.location.href);
-                    data.append('message', payload.message || '');
-                    data.append('source', payload.source || '');
-                    data.append('stack', payload.stack || '');
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+        if (!$screen || false === strpos((string) $screen->id, 'tracepilot')) {
+            return;
+        }
 
-                    if (window.fetch) {
-                        window.fetch(<?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>, {
-                            method: 'POST',
-                            body: data,
-                            credentials: 'same-origin'
-                        });
-                    }
-                } catch (e) {}
-            }
-
-            window.addEventListener('error', function(event) {
-                send({
-                    message: event.message || 'JavaScript error',
-                    source: event.filename || '',
-                    stack: event.error && event.error.stack ? event.error.stack : ''
-                });
-            });
-
-            window.addEventListener('unhandledrejection', function(event) {
-                var reason = event.reason || {};
-                send({
-                    message: reason.message || String(reason) || 'Unhandled promise rejection',
-                    source: 'unhandledrejection',
-                    stack: reason.stack || ''
-                });
-            });
-        })();
-        </script>
-        <?php
+        wp_register_script(
+            'tracepilot-client-errors',
+            TracePilot_PLUGIN_URL . 'assets/js/tracepilot-client-errors.js',
+            array(),
+            TracePilot_VERSION,
+            true
+        );
+        wp_enqueue_script('tracepilot-client-errors');
+        wp_localize_script(
+            'tracepilot-client-errors',
+            'tracepilot_client_error_vars',
+            array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('tracepilot_client_error_nonce'),
+            )
+        );
     }
 
     /**
