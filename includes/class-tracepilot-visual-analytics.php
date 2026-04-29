@@ -44,8 +44,8 @@ class TracePilot_Visual_Analytics {
      * AJAX get analytics data
      */
     public function ajax_get_analytics_data() {
-        // Check nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'tracepilot_nonce')) {
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if (!$nonce || !wp_verify_nonce($nonce, 'tracepilot_nonce')) {
             wp_send_json_error(array('message' => __('Invalid security token.', 'tracepilot')));
         }
         
@@ -55,9 +55,9 @@ class TracePilot_Visual_Analytics {
         }
         
         // Get parameters
-        $chart_type = isset($_POST['chart_type']) ? sanitize_text_field($_POST['chart_type']) : 'activity_over_time';
-        $date_range = isset($_POST['date_range']) ? sanitize_text_field($_POST['date_range']) : '30d';
-        $group_by = isset($_POST['group_by']) ? sanitize_text_field($_POST['group_by']) : 'day';
+        $chart_type = isset($_POST['chart_type']) ? sanitize_text_field(wp_unslash($_POST['chart_type'])) : 'activity_over_time';
+        $date_range = isset($_POST['date_range']) ? sanitize_text_field(wp_unslash($_POST['date_range'])) : '30d';
+        $group_by = isset($_POST['group_by']) ? sanitize_text_field(wp_unslash($_POST['group_by'])) : 'day';
         
         // Get data based on chart type
         switch ($chart_type) {
