@@ -157,6 +157,18 @@ The plugin combines several admin-focused workflows in one place:
 - [User guide](docs/user-guide.md)
 - [FAQ](docs/faq.md)
 - [Developer guide](docs/developer-guide.md)
+- [External services & data flow](docs/external-services.md)
+
+## External services (optional integrations)
+
+TracePilot only contacts third-party services when you enable and configure the related feature.
+
+- 🔔 **Telegram Bot API** (`api.telegram.org`): sends alert payloads (message text + event metadata) when Telegram alerts are configured and enabled. Terms: [telegram.org/tos](https://telegram.org/tos), Privacy: [telegram.org/privacy](https://telegram.org/privacy)
+- 🛡️ **Wordfence API** (`wordfence.com`): fetches vulnerability intelligence during software scans when Wordfence is selected. Terms: [wordfence.com/terms-of-service](https://www.wordfence.com/terms-of-service/), Privacy: [wordfence.com/privacy-policy](https://www.wordfence.com/privacy-policy/)
+- 🧩 **Patchstack API** (`patchstack.com`): fetches vulnerability intelligence during software scans when Patchstack is selected. Terms: [patchstack.com/terms-of-service](https://patchstack.com/terms-of-service/), Privacy: [patchstack.com/privacy-policy](https://patchstack.com/privacy-policy/)
+- 🧠 **WPScan API** (`wpscan.com`): fetches vulnerability records during software scans when WPScan is selected. Terms: [wpscan.com/terms-of-service](https://wpscan.com/terms-of-service/), Privacy: [wpscan.com/privacy-policy](https://wpscan.com/privacy-policy/)
+- 🌍 **ip-api geolocation** (`ip-api.com`): enriches an IP with geo context only when geolocation is explicitly enabled (off by default). Legal/Privacy: [ip-api.com/docs/legal](https://ip-api.com/docs/legal)
+- 🔎 **Google Search Console API** (`googleapis.com`): fetches optional search analytics after an admin connects GSC and requests data. Terms: [policies.google.com/terms](https://policies.google.com/terms), Privacy: [policies.google.com/privacy](https://policies.google.com/privacy), API policy: [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy)
 
 ## WordPress standards pass
 
@@ -192,4 +204,4 @@ TracePilot_Helpers::log_activity(
 
 ## Version
 
-Current documented release: `1.3.3`
+Current documented release: `1.3.4`
