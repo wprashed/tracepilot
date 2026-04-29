@@ -75,7 +75,7 @@ class TracePilot_Helpers {
             'wordfence_api_key' => '',
             'patchstack_api_key' => '',
             'wpscan_api_token' => '',
-            'enable_geolocation' => 1,
+            'enable_geolocation' => 0,
             'anonymize_ip' => 0,
             'gdpr_mode' => 0,
             'mask_ip_in_ui' => 0,
@@ -531,7 +531,7 @@ class TracePilot_Helpers {
                 continue;
             }
 
-            $raw_value = trim((string) wp_unslash($_SERVER[$server_key]));
+            $raw_value = trim((string) sanitize_text_field(wp_unslash($_SERVER[$server_key])));
             if ('' === $raw_value) {
                 continue;
             }
