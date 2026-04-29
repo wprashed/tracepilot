@@ -4,7 +4,7 @@ Tags: activity log, audit log, security, diagnostics, monitoring, logging
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.3.4
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -184,48 +184,5 @@ TracePilot can connect to optional third-party services. External requests are f
 
 == Changelog ==
 
-= 1.3.4 =
-* Compliance: replaced remaining inline scripts with WordPress enqueue/localize flow.
-* Security: tightened nonce handling with `wp_unslash()` + sanitization before `wp_verify_nonce()` in AJAX handlers.
-* Security: sanitized remaining request/server inputs in settings, API, logs, and response-action flows.
-* Privacy: geolocation remains opt-in and disabled by default; no geolocation calls are made unless enabled.
-* Docs: added full external-services disclosures with data usage, conditions, and policy links.
-* Metadata: updated `Tested up to` format to major version (`6.9`).
-
-= 1.3.3 =
-* Fix: prevent “Exclude roles from logging” from accidentally excluding every role (which can make the logger appear broken).
-* Add: post/page delete tracking and additional plugin/theme lifecycle events (install/delete signals via upgrader).
-* Improve: log filtering reliability when user role context is missing.
-
-= 1.3.2 =
-* Improve: settings save flow reliability and admin asset loading.
-
-= 1.3.1 =
-* Rebranded plugin identity to TracePilot for WordPress in plugin metadata, docs, and admin menu labels.
-* Updated admin menu icon to a security-focused shield icon.
-* Refined naming language in key settings and export messages.
-
-= 1.3.0 =
-* Added WordPress.org-ready readme content and full repository documentation.
-* Improved standards coverage for sanitization, escaping, and translatable strings in key admin flows.
-* Added stricter Search Console option sanitization and export request handling.
-* Refined logs and diagnostics UI behavior, including improved filters and control consistency.
-
-= 1.2.9 =
-* Added log stream action filters and refreshed checkbox styling.
-* Improved diagnostics layout and card behavior.
-
-= 1.2.8 =
-* Reorganized settings into multiple tabs.
-* Converted diagnostics into sub-tabs.
-
-== Upgrade Notice ==
-
-= 1.3.4 =
-This release focuses on WordPress.org compliance hardening (enqueue/security/sanitization/privacy/docs) and optional-service transparency.
-
-= 1.3.3 =
-This release fixes a common configuration pitfall that could unintentionally disable logging and expands software lifecycle logging coverage.
-
-= 1.3.1 =
-This release introduces TracePilot branding updates and admin menu polish.
+= 1.0.0 =
+* Initial Release
