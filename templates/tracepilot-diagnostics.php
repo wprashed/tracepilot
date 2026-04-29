@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$diagnostics = tracepilot_for_wordpress()->diagnostics;
+$diagnostics = tracepilot()->diagnostics;
 $report = $diagnostics->get_latest_report();
 if (empty($report)) {
     $report = $diagnostics->run_diagnostics(false);
