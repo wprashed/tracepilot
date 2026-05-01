@@ -1,6 +1,6 @@
 <?php
 /**
- * File integrity monitoring for TracePilot for WordPress.
+ * File integrity monitoring for TracePilot.
  */
 
 if (!defined('ABSPATH')) {

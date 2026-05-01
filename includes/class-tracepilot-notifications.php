@@ -1,6 +1,6 @@
 <?php
 /**
- * Notifications class for TracePilot for WordPress.
+ * Notifications class for TracePilot.
  */
 
 if (!defined('ABSPATH')) {

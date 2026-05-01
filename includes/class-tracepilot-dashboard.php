@@ -1,8 +1,8 @@
 <?php
 /**
- * TracePilot for WordPress dashboard class.
+ * TracePilot dashboard class.
  *
- * @package TracePilot_For_WordPress
+ * @package TracePilot
  * @since 1.0.0
  */
 

@@ -690,8 +690,8 @@ class TracePilot_Threat_Detection {
             return;
         }
 
-        if (function_exists('tracepilot_for_wordpress') && isset(tracepilot_for_wordpress()->notifications)) {
-            tracepilot_for_wordpress()->notifications->send_custom_notification($type, $message, 'error', array('subject' => $subject));
+        if (function_exists('tracepilot') && isset(tracepilot()->notifications)) {
+            tracepilot()->notifications->send_custom_notification($type, $message, 'error', array('subject' => $subject));
         } else {
             wp_mail(get_option('admin_email'), $subject, $message);
         }

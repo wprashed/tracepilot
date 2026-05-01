@@ -1,4 +1,4 @@
-# TracePilot for WordPress - Installation Guide
+# TracePilot - Installation Guide
 
 [Back to README](../readme.md)
 
@@ -33,7 +33,7 @@ Before installing, ensure your system meets the following requirements:
 4. Upload the plugin folder to this directory
 5. Log in to your WordPress admin dashboard
 6. Navigate to **Plugins**
-7. Find "TracePilot for WordPress" and click **Activate**
+7. Find "TracePilot" and click **Activate**
 
 ## Post-Installation Setup
 
@@ -119,7 +119,7 @@ When upgrading from a previous version:
 If you need to uninstall the plugin:
 
 1. Navigate to **Plugins**
-2. Deactivate "TracePilot for WordPress"
+2. Deactivate "TracePilot"
 3. Click **Delete**
 
 Note: WordPress core “Delete” removes plugin files. Database cleanup behavior depends on your site policy and whether you want to retain audit history.
@@ -132,7 +132,7 @@ If you encounter any issues during installation:
 
 ## Next Steps
 
-Now that you've installed TracePilot for WordPress, you might want to:
+Now that you've installed TracePilot, you might want to:
 
 - [Use the plugin day-to-day](user-guide.md)
 - [Configure privacy, alerts, and suppression](user-guide.md#settings)

@@ -1,6 +1,6 @@
 # External Services & Data Flow
 
-TracePilot for WordPress supports optional integrations with external services.  
+TracePilot supports optional integrations with external services.  
 No third-party service is required for basic activity logging.
 
 ## Privacy-first defaults

@@ -1,4 +1,4 @@
-# TracePilot for WordPress - User Guide
+# TracePilot - User Guide
 
 [Back to README](../readme.md)
 
@@ -147,4 +147,4 @@ This information is valuable when seeking support.
 
 ## Conclusion
 
-TracePilot for WordPress provides comprehensive activity tracking for your WordPress site. By regularly reviewing the logs and setting up appropriate notifications, you can maintain better security and gain valuable insights into how your site is being used.
+TracePilot provides comprehensive activity tracking for your WordPress site. By regularly reviewing the logs and setting up appropriate notifications, you can maintain better security and gain valuable insights into how your site is being used.

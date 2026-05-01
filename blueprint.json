@@ -16,7 +16,7 @@
     },
     {
       "step": "activatePlugin",
-      "pluginPath": "tracepilot-for-wordpress/tracepilot-for-wordpress.php"
+      "pluginPath": "wp-activity-logger/tracepilot.php"
     }
   ]
 }

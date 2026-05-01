@@ -2,7 +2,7 @@
 /**
  * Plugin Name: TracePilot
  * Description: Activity logging, diagnostics, threat review, and export tooling for WordPress administrators.
- * Version: 1.0.0
+ * Version: 1.3.4
  * Author: Rashed Hossain
  * Author URI: https://rashed.im/
  * Text Domain: tracepilot
@@ -482,22 +482,6 @@ class TracePilot {
 
 function tracepilot() {
     return TracePilot::get_instance();
-}
-
-if (!function_exists('tracepilot_for_wordpress')) {
-    function tracepilot_for_wordpress() {
-        return tracepilot();
-    }
-}
-
-if (!function_exists('wp_activity_logger_pro')) {
-    function wp_activity_logger_pro() {
-        return tracepilot();
-    }
-}
-
-if (!class_exists('WP_Activity_Logger_Pro')) {
-    class_alias('TracePilot', 'WP_Activity_Logger_Pro');
 }
 
 tracepilot();

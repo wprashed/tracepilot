@@ -862,7 +862,7 @@ class TracePilot_Diagnostics {
      * @param array $report Report.
      */
     private function send_critical_alerts($report) {
-        if (empty($report['counts']['critical']) || empty(tracepilot_for_wordpress()->notifications)) {
+        if (empty($report['counts']['critical']) || empty(tracepilot()->notifications)) {
             return;
         }
 
@@ -877,7 +877,7 @@ class TracePilot_Diagnostics {
             !empty($top[0]['message']) ? $top[0]['message'] : __('Unknown critical issue', 'tracepilot')
         );
 
-        tracepilot_for_wordpress()->notifications->send_custom_notification(
+        tracepilot()->notifications->send_custom_notification(
             'critical_site_issue',
             $message,
             'error',

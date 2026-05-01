@@ -1,10 +1,10 @@
-# TracePilot for WordPress - Developer Guide
+# TracePilot - Developer Guide
 
 [Back to README](../readme.md)
 
 ## Introduction
 
-This guide is intended for developers who want to integrate with TracePilot for WordPress, either to log custom events or to extend the plugin's functionality.
+This guide is intended for developers who want to integrate with TracePilot, either to log custom events or to extend the plugin's functionality.
 
 ## Logging Custom Events
 
@@ -222,4 +222,4 @@ function log_custom_post_save($post_id, $post, $update) {
 
 ## Conclusion
 
-TracePilot for WordPress provides a robust framework for tracking activities in WordPress. Use the provided API and hooks to integrate your plugins and themes for comprehensive logging.
+TracePilot provides a robust framework for tracking activities in WordPress. Use the provided API and hooks to integrate your plugins and themes for comprehensive logging.

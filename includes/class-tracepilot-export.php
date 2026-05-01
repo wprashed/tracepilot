@@ -1,6 +1,6 @@
 <?php
 /**
- * Export class for TracePilot for WordPress.
+ * Export class for TracePilot.
  */
 
 if (!defined('ABSPATH')) {

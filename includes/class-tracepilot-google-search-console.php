@@ -100,7 +100,7 @@ class TracePilot_Google_Search_Console {
         }
         
         $this->client = new Google_Client();
-        $this->client->setApplicationName('TracePilot for WordPress');
+        $this->client->setApplicationName('TracePilot');
         $this->client->setScopes(array('https://www.googleapis.com/auth/webmasters.readonly'));
         $this->client->setRedirectUri(admin_url('admin.php?page=tracepilot-search-console&oauth=callback'));
         

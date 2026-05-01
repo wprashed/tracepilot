@@ -1,16 +1,16 @@
-# TracePilot for WordPress - Frequently Asked Questions
+# TracePilot - Frequently Asked Questions
 
 [Back to README](../readme.md)
 
 ## General Questions
 
-### What is TracePilot for WordPress?
+### What is TracePilot?
 
-TracePilot for WordPress is an admin-focused activity log, diagnostics, and threat-review toolkit. It records useful site events, helps you investigate conflicts safely, and supports exports/alerts and privacy workflows.
+TracePilot is an admin-focused activity log, diagnostics, and threat-review toolkit. It records useful site events, helps you investigate conflicts safely, and supports exports/alerts and privacy workflows.
 
 ### How is this different from other logging plugins?
 
-TracePilot for WordPress offers several advantages:
+TracePilot offers several advantages:
 - 🧾 A modern log stream focused on “what changed?” investigations
 - 🧪 Diagnostics + conflict signals + admin-only safe mode debugging
 - 🔔 Real alert channels (Email, webhooks, Slack, Discord, Telegram)
@@ -71,7 +71,7 @@ Yes. You can route alerts to Email, generic webhooks, Slack, Discord, and Telegr
 
 ### Is this plugin compatible with multisite?
 
-Yes, TracePilot for WordPress is fully compatible with WordPress multisite installations. It can track activities across all sites in your network.
+Yes, TracePilot is fully compatible with WordPress multisite installations. It can track activities across all sites in your network.
 
 ### Does it work with page builders?
 
@@ -153,7 +153,7 @@ After installation, we recommend:
 
 ### How can I get the most out of this plugin?
 
-To maximize the value of TracePilot for WordPress:
+To maximize the value of TracePilot:
 1. Configure it to track the events most relevant to your site
 2. Set up notifications for critical security events
 3. Review logs regularly to understand normal patterns

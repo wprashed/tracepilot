@@ -1,6 +1,6 @@
 <?php
 /**
- * Response actions for TracePilot for WordPress.
+ * Response actions for TracePilot.
  */
 
 if (!defined('ABSPATH')) {

@@ -1,10 +1,10 @@
-=== TracePilot for WordPress ===
+=== TracePilot ===
 Contributors: wprashed
 Tags: activity log, audit log, security, diagnostics, monitoring, logging
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.3.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Track WordPress activity, investigate conflicts, review security signals, and ex
 
 == Description ==
 
-TracePilot for WordPress helps site owners, agencies, and administrators understand what is happening inside WordPress, and what changed right before something broke.
+TracePilot helps site owners, agencies, and administrators understand what is happening inside WordPress, and what changed right before something broke.
 
 It records user and system activity, highlights suspicious patterns, offers diagnostics for common site issues, and provides export and privacy workflows for compliance or troubleshooting.
 
@@ -64,7 +64,7 @@ It records user and system activity, highlights suspicious patterns, offers diag
 
 = Built for administrators =
 
-TracePilot for WordPress is designed for:
+TracePilot is designed for:
 
 * site owners who need an audit trail
 * agencies managing client sites
@@ -184,5 +184,5 @@ TracePilot can connect to optional third-party services. External requests are f
 
 == Changelog ==
 
-= 1.0.0 =
+= 1.3.4 =
 * Initial Release
